@@ -180,8 +180,9 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 [![Static Badge](https://img.shields.io/badge/cagritaskn-purple?logo=patreon&label=Patreon)](https://www.patreon.com/cagritaskn/membership)
 
 ### Kullanılan İşlevsellik Programları ve Yaratıcıları:
-**[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
-[WireSock](https://www.wiresock.net/) by [Vadim Smirnov](https://github.com/wiresock)
+
+- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
+- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
 
 ## Sorumluluk Reddi Beyanı
 
