@@ -10,7 +10,7 @@
 
 ## Özet
 
-SplitWire-Turkey, WireGuard VPN yapılandırmasını kolaylaştırmak için geliştirilmiş açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını sağlar.
+SplitWire-Turkey, WireGuard VPN yapılandırmasını kolaylaştırmak için geliştirilmiş açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
 
 **Özellikler:**
 -  **Hızlı Kurulum:** Tek tıkla kullanım
@@ -21,7 +21,7 @@ SplitWire-Turkey, WireGuard VPN yapılandırmasını kolaylaştırmak için geli
 
 ## SplitWire-Turkey
 
-SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir WireGuard yapılandırma ve ücretsiz Cloudflare profili oluşturup kullanma aracıdır. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak isteyen kullanıcılar için geliştirilmiştir. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
+SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir WireGuard yapılandırma ve ücretsiz Cloudflare profili oluşturup kullanma aracıdır. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak isteyen kullanıcılar için geliştirilmiştir. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
 
 > [!NOTE]
 > Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir.
