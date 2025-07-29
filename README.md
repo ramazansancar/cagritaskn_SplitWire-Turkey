@@ -69,7 +69,7 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 > **[SplitWire-Turkey.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/7113da9f8fb88e0e81e3c31a455056a1e05574c9c2f2dc633ab788645ea047b4)** 72 adet antivirüs progamı içerisinde hiçbir antivirüs programı tehdit algılamamıştır.
 
 > [!NOTE]
-> **[SplitWire-Turkey.dll VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/9b82ec51f8abea3eed580826c9bb49e4b5b97b706db4915fb76709bf81db6720)** 72 adet antivirüs progamı içerisinde yalnızca bir adet (MalwareBytes) antivirüs uygulaması tehdit algılamıştır. Bu sonuç, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırmasından kaynaklanır. MalwareBytes isimli antivirüs yazılımını kullanıyorsanız, raporumuz sonuçlanana kadar farklı bir antivirüs tercih etmeyi düşünebilirsiniz.
+> **[SplitWire-Turkey.dll VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/9b82ec51f8abea3eed580826c9bb49e4b5b97b706db4915fb76709bf81db6720)** 72 adet antivirüs progamı içerisinde yalnızca bir adet (MalwareBytes) antivirüs uygulaması tehdit algılamıştır. Bu sonuç, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırmasından kaynaklanır. MalwareBytes isimli antivirüs yazılımını kullanıyorsanız, raporumuz sonuçlanana kadar farklı bir antivirüs yazılımı tercih etmeyi düşünebilirsiniz.
 
 ## Gelişmiş Ayarlar
 
