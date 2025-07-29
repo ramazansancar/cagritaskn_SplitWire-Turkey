@@ -62,7 +62,7 @@ namespace SplitWireTurkey.Services
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show("WireSock hizmeti kuruldu ancak başlatılamadı. Manuel olarak başlatmayı deneyin.", 
+                        System.Windows.MessageBox.Show("WireSock hizmeti kuruldu ancak başlatılamadı. Hizmet zaten çalışıyor olabilir. Manuel olarak başlatmayı deneyin.", 
                             "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     return true;
