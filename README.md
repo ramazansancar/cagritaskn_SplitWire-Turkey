@@ -28,6 +28,9 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 
 ## SplitWire-Turkey Kullanımı
 
+> [!IMPORTANT]
+> GoodbyeDPI veya Cloudflare WARP ya da farklı bir VPN uygulaması kullanıyorsanız bu uygulamayı kaldırmalısınız. [GoodbyeDPI-Turkey Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)'ni takip ederek kaldırma işlemini gerçekleştirebilirsiniz.
+
 ### Standart Kurulum (Tavsiye Edilen)
 - [SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe) kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
