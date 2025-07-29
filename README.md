@@ -148,7 +148,7 @@ Gereksinimler:
 
 1. **C# Programını Derleyin ve Çıktı SplitWire-Turkey.exe'nin Bulunduğu Klasörde Gidin**
 
-2. **Prerequisites Klasörü ve İçeriğini Bulunduğunuz Klasöre Kopyalayın**
+2. **Prerequisites Klasörü ve İçeriğini Bulunduğunuz Klasöre Kopyalayın** (Desktop Runtime Dosyalarının Prerequisites klasörüne yüklenmesi mümkün değil, çünkü dosya boyut sınırını aşıyor. Bunun yerine manuel olarak windowsdesktop-runtime-6.0.35-win-x64.exe ve windowsdesktop-runtime-6.0.35-win-x86.exe dosyalarını bu klasöre siz yerleştirmelisiniz.)
 
 3. **Bulunduğunuz Klasörde Bir Komut Satırı Açıp Kurulum Yürütülebilirini Derleyin**
    ```bash
