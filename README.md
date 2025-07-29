@@ -34,6 +34,9 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır. WireSock kurulumu tamamlandıktan sonra kurulum penceresini kapatıp tekrar Standart Kurulum butonuna basın)
 - "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
 
+> [!NOTE]
+> Standart kurulum yalnızca Discord için WireSock koruması sağlar.
+
 ### Gelişmiş Kurulum (Özelleştirilmiş Konfigürasyon Dosyasıyla)
 - [SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe) kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
