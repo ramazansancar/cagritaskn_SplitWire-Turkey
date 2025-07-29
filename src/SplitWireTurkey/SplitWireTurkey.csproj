@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Resources\splitwire.ico</ApplicationIcon>
+    <AssemblyName>SplitWire-Turkey</AssemblyName>
+    <RootNamespace>SplitWire_Turkey</RootNamespace>
+    <AssemblyTitle>SplitWire-Turkey</AssemblyTitle>
+    <AssemblyDescription>WireGuard Configuration Tool</AssemblyDescription>
+    <AssemblyCompany>Çağrı Taşkın</AssemblyCompany>
+    <AssemblyProduct>SplitWire-Turkey</AssemblyProduct>
+    <AssemblyCopyright>© 2025 Çağrı Taşkın</AssemblyCopyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Disable trimming for WPF -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <!-- Disable debug symbols and deps.json -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\splitwire.ico" Condition="Exists('Resources\splitwire.ico')" />
+    <Resource Include="Resources\splitwire-logo-128.png" Condition="Exists('Resources\splitwire-logo-128.png')" />
+    <Resource Include="Resources\splitwireturkeytext.png" Condition="Exists('Resources\splitwireturkeytext.png')" />
+    <Resource Include="Resources\loading.gif" Condition="Exists('Resources\loading.gif')" />
+  </ItemGroup>
+
+</Project> 
