@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
-[![Downloads](https://img.shields.io/github/downloads/cagritaskn/GoodbyeDPI-Turkey/total.svg)](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0)
+[![Downloads](https://img.shields.io/github/downloads/cagritaskn/SplitWire-Turkey/total.svg)](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0)
 
 ## Özet
 
