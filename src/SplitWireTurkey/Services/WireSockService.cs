@@ -17,8 +17,12 @@ namespace SplitWireTurkey.Services
 
                 var paths = new[]
                 {
+                    // Yeni sürüm (WireSock Secure Connect)
                     Path.Combine(drive.Name, "Program Files", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
-                    Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe")
+                    Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
+                    // Eski sürüm (WireSock VPN Client) - 1.4.7.1
+                    Path.Combine(drive.Name, "Program Files", "WireSock VPN Client", "bin", "wiresock-client.exe"),
+                    Path.Combine(drive.Name, "Program Files (x86)", "WireSock VPN Client", "bin", "wiresock-client.exe")
                 };
 
                 foreach (var path in paths)
@@ -147,6 +151,29 @@ namespace SplitWireTurkey.Services
         public bool IsWireSockInstalled()
         {
             return !string.IsNullOrEmpty(FindWireSockPath());
+        }
+
+        public bool IsLatestWireSockInstalled()
+        {
+            var drives = DriveInfo.GetDrives();
+            foreach (var drive in drives)
+            {
+                if (!drive.IsReady) continue;
+
+                var paths = new[]
+                {
+                    // Sadece yeni sürüm (WireSock Secure Connect)
+                    Path.Combine(drive.Name, "Program Files", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
+                    Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe")
+                };
+
+                foreach (var path in paths)
+                {
+                    if (File.Exists(path))
+                        return true;
+                }
+            }
+            return false;
         }
 
         public async Task<bool> IsServiceRunningAsync()
