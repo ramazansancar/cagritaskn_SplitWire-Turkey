@@ -22,6 +22,7 @@ if exist "splitwire-logo-128.png" copy "splitwire-logo-128.png" "SplitWireTurkey
 if exist "splitwireturkeytext.png" copy "splitwireturkeytext.png" "SplitWireTurkey\Resources\"
 if exist "loading.gif" copy "loading.gif" "SplitWireTurkey\Resources\"
 if exist "wgcf.exe" copy "wgcf.exe" "SplitWireTurkey\Resources\"
+if exist "wiresock-vpn-client-x64-1.4.7.1.msi" copy "SplitWireTurkey\Resources\"
 
 REM Build the application
 cd SplitWireTurkey
@@ -35,6 +36,7 @@ REM Copy resource files to res folder
 if exist "Resources\splitwire.ico" copy "Resources\splitwire.ico" "bin\Release\net6.0-windows\res\"
 if exist "Resources\splitwire-logo-128.png" copy "Resources\splitwire-logo-128.png" "bin\Release\net6.0-windows\res\"
 if exist "Resources\splitwireturkeytext.png" copy "Resources\splitwireturkeytext.png" "bin\Release\net6.0-windows\res\"
+if exist "Resources\wiresock-vpn-client-x64-1.4.7.1.msi" copy "Resources\wiresock-vpn-client-x64-1.4.7.1.msi" "bin\Release\net6.0-windows\res\"
 
 REM Clean up unnecessary files (keep only .exe and .dll)
 if exist "bin\Release\net6.0-windows\SplitWire-Turkey.deps.json" del "bin\Release\net6.0-windows\SplitWire-Turkey.deps.json"
