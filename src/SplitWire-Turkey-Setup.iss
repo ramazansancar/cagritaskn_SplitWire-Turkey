@@ -46,9 +46,11 @@ Source: "SplitWire-Turkey.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreve
 Source: "MaterialDesignThemes.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MaterialDesignColors.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Xaml.Behaviors.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "res\splitwire.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "res\splitwire-logo-128.png"; DestDir: "{app}"; Flags: ignoreversion
-Source: "res\splitwireturkeytext.png"; DestDir: "{app}"; Flags: ignoreversion
+Source: "res\splitwire.ico"; DestDir: "{app}\res"; Flags: ignoreversion
+Source: "res\splitwire-logo-128.png"; DestDir: "{app}\res"; Flags: ignoreversion
+Source: "res\splitwireturkeytext.png"; DestDir: "{app}\res"; Flags: ignoreversion
+Source: "res\wiresock-vpn-client-x64-1.4.7.1.msi"; DestDir: "{app}\res"; Flags: ignoreversion
+
 ; .NET Framework Runtime Installers
 Source: "Prerequisites\.NET 6.0\windowsdesktop-runtime-6.0.35-win-x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: Is64BitInstallMode
 Source: "Prerequisites\.NET 6.0\windowsdesktop-runtime-6.0.35-win-x86.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: not Is64BitInstallMode
