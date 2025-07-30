@@ -35,11 +35,23 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 ### Standart Kurulum (Tavsiye Edilen)
 - [SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe) kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır. WireSock kurulumu tamamlandıktan sonra kurulum penceresini kapatıp tekrar Standart Kurulum butonuna basın)
+- Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır.)
 - "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
 > Standart kurulum yalnızca Discord için WireSock koruması sağlar.
+
+### Alternatif Kurulum (Standart Kurulum İşe Yaramazsa)
+- [SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe) kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
+- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- Alternatif Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır.)
+- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
+
+> [!NOTE]
+> Alternatif kurulum yalnızca Discord için WireSock koruması sağlar.
+**[Bal Porsuğu](https://www.technopat.net/sosyal/uye/bal-porsugu.101438/)**'na alternatif sürüm için WireSock kurulum dosyasını bulduğu ve yaptığı testler için teşekkürler.
 
 ### Gelişmiş Kurulum (Özelleştirilmiş Konfigürasyon Dosyasıyla)
 - [SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe) kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
@@ -78,6 +90,10 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - **Klasör Yönetimi:** WireSock koruması altında kalacak uygulama klasörlerini ekleyip çıkarmanıza ve gerektiğinde tüm listeyi temizlemenizi sağlar.
 - **Özelleştirilmiş Profil Oluşturma:** Oluşturulan ücretsiz Cloudflare konfigürasyon dosyasına, klasör listesine eklediğiniz dizinleri ekleyerek "\res" klasörü içerisinde konfigürasyon dosyasının son halini kaydeder. Bu sayede başka WireGuard uygulamaları ile de bu dosyayı kullanabilirsiniz.
 - **WireSock Hizmetini Kaldır:** "WireSock Hizmetini Kaldır" butonu, WireSock hizmetini kaldırıp korumayı durdurmak için veya tekrar yeni bir hizmet kurulumu yapmak için kullanılabilir.
+
+### WireSock ve GoodbyeDPI Hizmetlerini Kaldırma
+- WireSock hizmetini kaldırmak için **WireSock Hizmetini Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
+- GoodbyeDPI Hizmeti sebepten dolayı otomatik olarak kaldırılamazsa **GoodbyeDPI Hizmetini Kaldır** butonu ile hizmeti kaldırmayı deneyebilirsiniz.
 
 ### El ile Yapılandırma
 ```xml
