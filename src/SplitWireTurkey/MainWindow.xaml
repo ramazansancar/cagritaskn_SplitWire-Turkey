@@ -60,6 +60,11 @@
                             Style="{StaticResource MainButtonStyle}"
                             Click="BtnStart_Click"/>
                         
+                        <Button x:Name="btnAlternativeSetup" 
+                                Content="Alternatif Kurulum" 
+                                Style="{StaticResource MainButtonStyle}"
+                                Click="BtnAlternativeSetup_Click"/>
+                        
                         <Button x:Name="btnExit" 
                                 Content="Çıkış" 
                                 Style="{StaticResource MainButtonStyle}"
@@ -141,6 +146,11 @@
                                 Content="Özelleştirilmiş Profil Dosyası Oluştur" 
                                 Style="{StaticResource MainButtonStyle}"
                                 Click="BtnGenerateConfig_Click"/>
+                        
+                        <Button x:Name="btnGoodbyeDPI" 
+                                Content="GoodbyeDPI Hizmetini Kaldır" 
+                                Style="{StaticResource MainButtonStyle}"
+                                Click="BtnGoodbyeDPI_Click"/>
                         
                         <Button x:Name="btnRemoveService" 
                                 Content="WireSock Hizmetini Kaldır" 
