@@ -61,15 +61,15 @@ namespace SplitWireTurkey.Services
 
                     if (startResult == 0)
                     {
-                        System.Windows.MessageBox.Show("WireSock hizmeti kuruldu ve başlatıldı.", 
-                            "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                        // Completion message removed - now handled in main window
+                        return true;
                     }
                     else
                     {
                         System.Windows.MessageBox.Show("WireSock hizmeti kuruldu ancak başlatılamadı. Hizmet zaten çalışıyor olabilir. Manuel olarak başlatmayı deneyin.", 
                             "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return true; // Still return true since service was installed
                     }
-                    return true;
                 }
                 else
                 {
