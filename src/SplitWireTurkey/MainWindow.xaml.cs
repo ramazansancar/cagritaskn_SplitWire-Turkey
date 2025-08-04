@@ -9,11 +9,53 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using SplitWireTurkey.Services;
+using System.Runtime.InteropServices;
 
 namespace SplitWireTurkey
 {
     public partial class MainWindow : Window
     {
+        // Windows Firewall API P/Invoke tanımları
+        [DllImport("netapi32.dll", SetLastError = true)]
+        private static extern int NetApiBufferFree(IntPtr Buffer);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool LookupPrivilegeValue(string lpSystemName, string lpName, out LUID lpLuid);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool AdjustTokenPrivileges(IntPtr TokenHandle, bool DisableAllPrivileges, ref TOKEN_PRIVILEGES NewState, uint BufferLength, IntPtr PreviousState, IntPtr ReturnLength);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct LUID
+        {
+            public uint LowPart;
+            public int HighPart;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct TOKEN_PRIVILEGES
+        {
+            public uint PrivilegeCount;
+            public LUID_AND_ATTRIBUTES Privileges;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct LUID_AND_ATTRIBUTES
+        {
+            public LUID Luid;
+            public uint Attributes;
+        }
+
+        private const uint TOKEN_ADJUST_PRIVILEGES = 0x0020;
+        private const uint SE_PRIVILEGE_ENABLED = 0x00000002;
+        private const string SE_TCB_NAME = "SeTcbPrivilege";
+
         private readonly WireGuardService _wireGuardService;
         private readonly WireSockService _wireSockService;
         private readonly List<string> _folders;
@@ -165,8 +207,12 @@ namespace SplitWireTurkey
                     ExecuteCommand("sc", $"delete {service}");
                     File.AppendAllText(logPath, $"{service} hizmeti silindi.\n");
                 }
+
+                // Windows Firewall kurallarını da temizle
+                File.AppendAllText(logPath, "Windows Firewall kuralları temizleniyor...\n");
+                await RemoveFirewallRulesAsync();
                 
-                System.Windows.MessageBox.Show("Tüm hizmetler başarıyla kaldırıldı.", 
+                System.Windows.MessageBox.Show("Tüm hizmetler ve firewall kuralları başarıyla kaldırıldı.", 
                     "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             finally
@@ -379,7 +425,10 @@ namespace SplitWireTurkey
                 await ExecuteCommandAsync("sc", "delete GoodbyeDPI");
                 await ExecuteCommandAsync("sc", "delete WinDivert");
                 
-                System.Windows.MessageBox.Show("Tüm hizmetler başarıyla kaldırıldı. Kuruluma devam ediliyor...", 
+                // Windows Firewall kurallarını da temizle
+                await RemoveFirewallRulesAsync();
+                
+                System.Windows.MessageBox.Show("Tüm hizmetler ve firewall kuralları başarıyla kaldırıldı. Kuruluma devam ediliyor...", 
                     "Hizmet Temizliği Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 return true;
@@ -1209,8 +1258,18 @@ namespace SplitWireTurkey
                        // "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
-                // 6. ByeDPI hizmeti kurulumu
-                File.AppendAllText(logPath, "6. ByeDPI hizmeti kurulumu yapılıyor...\n");
+                // 6. Windows Firewall kuralları ekleme
+                File.AppendAllText(logPath, "6. Windows Firewall kuralları ekleniyor...\n");
+                var firewallSuccess = await AddFirewallRulesAsync();
+                
+                if (!firewallSuccess)
+                {
+                    System.Windows.MessageBox.Show("Windows Firewall kuralları eklenirken hata oluştu. Manuel olarak izin vermeniz gerekebilir.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 7. ByeDPI hizmeti kurulumu
+                File.AppendAllText(logPath, "7. ByeDPI hizmeti kurulumu yapılıyor...\n");
                 var byeDPIInstallSuccess = await InstallByeDPIServiceAsync();
                 
                 if (!byeDPIInstallSuccess)
@@ -1219,7 +1278,7 @@ namespace SplitWireTurkey
                         "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
-                // 7. Kurulum tamamlandı mesajı
+                // 8. Kurulum tamamlandı mesajı
                 File.AppendAllText(logPath, "Kurulum tamamlandı.\n");
                 File.AppendAllText(logPath, $"ByeDPI ST Kurulum Bitiş: {DateTime.Now}\n");
 
@@ -1251,7 +1310,7 @@ namespace SplitWireTurkey
             {
                 try
                 {
-                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    var logPath = GetLogPath();
                     var prerequisitesPath = Path.Combine(Environment.CurrentDirectory, "Prerequisites");
                     
                     // Windows Packet Filter kurulumu
@@ -1295,7 +1354,7 @@ namespace SplitWireTurkey
                 }
                 catch (Exception ex)
                 {
-                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    var logPath = GetLogPath();
                     File.AppendAllText(logPath, $"Prerequisites kurulum hatası: {ex.Message}\n");
                     return false;
                 }
@@ -1308,7 +1367,7 @@ namespace SplitWireTurkey
             {
                 try
                 {
-                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    var logPath = GetLogPath();
                     
                     // Hizmetleri durdur ve kaldır
                     var services = new[] { "GoodbyeDPI", "WinDivert", "wiresock-client-service" };
@@ -1330,7 +1389,7 @@ namespace SplitWireTurkey
                 }
                 catch (Exception ex)
                 {
-                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    var logPath = GetLogPath();
                     File.AppendAllText(logPath, $"Hizmet kaldırma hatası: {ex.Message}\n");
                     return false;
                 }
@@ -1393,6 +1452,10 @@ namespace SplitWireTurkey
                     ExecuteCommand("sc", $"delete {service}");
                     File.AppendAllText(logPath, $"{service} hizmeti silindi.\n");
                 }
+
+                // Windows Firewall kurallarını da temizle
+                File.AppendAllText(logPath, "Windows Firewall kuralları temizleniyor...\n");
+                await RemoveFirewallRulesAsync();
                 
                 return true;
             }
@@ -1406,40 +1469,43 @@ namespace SplitWireTurkey
 
         private async Task<bool> StartProxiFyreServiceAsync()
         {
-            try
+            return await Task.Run(() =>
             {
-                var logPath = GetLogPath();
-                File.AppendAllText(logPath, "ProxiFyreService başlatılıyor...\n");
-
-                // ProxiFyreService'i başlat
-                var startResult = ExecuteCommandString("net", "start ProxiFyreService");
-                File.AppendAllText(logPath, $"ProxiFyreService başlatma sonucu: {startResult}\n");
-
-                // Başarı kontrolü - birden fazla başarı göstergesi kontrol et
-                var success = startResult.Contains("başlatıldı") || 
-                             startResult.Contains("started") || 
-                             startResult.Contains("SUCCESS") ||
-                             startResult.Contains("service is already running") ||
-                             startResult.Contains("hizmet zaten çalışıyor");
-
-                // Hizmetin gerçekten çalışıp çalışmadığını kontrol et
-                if (success)
+                try
                 {
-                    var queryResult = ExecuteCommandString("sc", "query ProxiFyreService");
-                    File.AppendAllText(logPath, $"ProxiFyreService durum kontrolü: {queryResult}\n");
-                    
-                    // Hizmet durumunu kontrol et
-                    success = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR");
-                }
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "ProxiFyreService başlatılıyor...\n");
 
-                return success;
-            }
-            catch (Exception ex)
-            {
-                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
-                File.AppendAllText(logPath, $"ProxiFyreService başlatma hatası: {ex.Message}\n");
-                return false;
-            }
+                    // ProxiFyreService'i başlat
+                    var startResult = ExecuteCommandString("net", "start ProxiFyreService");
+                    File.AppendAllText(logPath, $"ProxiFyreService başlatma sonucu: {startResult}\n");
+
+                    // Başarı kontrolü - birden fazla başarı göstergesi kontrol et
+                    var success = startResult.Contains("başlatıldı") || 
+                                 startResult.Contains("started") || 
+                                 startResult.Contains("SUCCESS") ||
+                                 startResult.Contains("service is already running") ||
+                                 startResult.Contains("hizmet zaten çalışıyor");
+
+                    // Hizmetin gerçekten çalışıp çalışmadığını kontrol et
+                    if (success)
+                    {
+                        var queryResult = ExecuteCommandString("sc", "query ProxiFyreService");
+                        File.AppendAllText(logPath, $"ProxiFyreService durum kontrolü: {queryResult}\n");
+                        
+                        // Hizmet durumunu kontrol et
+                        success = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR");
+                    }
+
+                    return success;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"ProxiFyreService başlatma hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
         }
 
         private string GetLogPath()
@@ -1472,55 +1538,58 @@ namespace SplitWireTurkey
 
         private async Task<bool> InstallByeDPIServiceAsync()
         {
-            try
+            return await Task.Run(() =>
             {
-                var logPath = GetLogPath();
-                File.AppendAllText(logPath, "ByeDPI hizmeti kuruluyor...\n");
-
-                // SplitWire-Turkey.exe'nin çalıştırıldığı klasörü al
-                var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                var exeDirectory = Path.GetDirectoryName(exePath);
-                
-                // service_install.bat dosya yolu
-                var serviceInstallPath = Path.Combine(exeDirectory, "res", "byedpi", "service_install.bat");
-                
-                if (!File.Exists(serviceInstallPath))
+                try
                 {
-                    File.AppendAllText(logPath, $"service_install.bat bulunamadı: {serviceInstallPath}\n");
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "ByeDPI hizmeti kuruluyor...\n");
+
+                    // SplitWire-Turkey.exe'nin çalıştırıldığı klasörü al
+                    var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    var exeDirectory = Path.GetDirectoryName(exePath);
+                    
+                    // service_install.bat dosya yolu
+                    var serviceInstallPath = Path.Combine(exeDirectory, "res", "byedpi", "service_install.bat");
+                    
+                    if (!File.Exists(serviceInstallPath))
+                    {
+                        File.AppendAllText(logPath, $"service_install.bat bulunamadı: {serviceInstallPath}\n");
+                        return false;
+                    }
+
+                    File.AppendAllText(logPath, $"service_install.bat bulundu: {serviceInstallPath}\n");
+
+                    // service_install.bat dosyasını sessizce çalıştır
+                    File.AppendAllText(logPath, "ByeDPI hizmeti service_install.bat ile kuruluyor...\n");
+                    var installResult = ExecuteCommand("cmd", $"/c \"{serviceInstallPath}\"");
+                    File.AppendAllText(logPath, $"Hizmet kurulum sonucu (Exit Code): {installResult}\n");
+
+                    // Hizmetin başarıyla kurulup kurulmadığını kontrol et
+                    var queryResult = ExecuteCommandString("sc", "query ByeDPI");
+                    File.AppendAllText(logPath, $"ByeDPI hizmeti durum kontrolü: {queryResult}\n");
+                    
+                    var installSuccess = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR") || 
+                                       queryResult.Contains("STOPPED") || queryResult.Contains("DURDURULDU");
+
+                    if (installSuccess)
+                    {
+                        File.AppendAllText(logPath, "ByeDPI hizmeti başarıyla kuruldu.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "ByeDPI hizmeti kurulamadı.\n");
+                    }
+
+                    return installSuccess;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"ByeDPI hizmeti kurulum hatası: {ex.Message}\n");
                     return false;
                 }
-
-                File.AppendAllText(logPath, $"service_install.bat bulundu: {serviceInstallPath}\n");
-
-                // service_install.bat dosyasını sessizce çalıştır
-                File.AppendAllText(logPath, "ByeDPI hizmeti service_install.bat ile kuruluyor...\n");
-                var installResult = ExecuteCommand("cmd", $"/c \"{serviceInstallPath}\"");
-                File.AppendAllText(logPath, $"Hizmet kurulum sonucu (Exit Code): {installResult}\n");
-
-                // Hizmetin başarıyla kurulup kurulmadığını kontrol et
-                var queryResult = ExecuteCommandString("sc", "query ByeDPI");
-                File.AppendAllText(logPath, $"ByeDPI hizmeti durum kontrolü: {queryResult}\n");
-                
-                var installSuccess = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR") || 
-                                   queryResult.Contains("STOPPED") || queryResult.Contains("DURDURULDU");
-
-                if (installSuccess)
-                {
-                    File.AppendAllText(logPath, "ByeDPI hizmeti başarıyla kuruldu.\n");
-                }
-                else
-                {
-                    File.AppendAllText(logPath, "ByeDPI hizmeti kurulamadı.\n");
-                }
-
-                return installSuccess;
-            }
-            catch (Exception ex)
-            {
-                var logPath = GetLogPath();
-                File.AppendAllText(logPath, $"ByeDPI hizmeti kurulum hatası: {ex.Message}\n");
-                return false;
-            }
+            });
         }
 
         private int ExecuteCommand(string command, string arguments)
@@ -1558,7 +1627,7 @@ namespace SplitWireTurkey
             }
             catch (Exception ex)
             {
-                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                var logPath = GetLogPath();
                 File.AppendAllText(logPath, $"Komut Hatası: {ex.Message}\n");
                 return -1;
             }
@@ -1568,7 +1637,7 @@ namespace SplitWireTurkey
         {
             try
             {
-                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                var logPath = GetLogPath();
                 File.AppendAllText(logPath, $"Komut çalıştırılıyor: {command} {arguments}\n");
                 
                 var startInfo = new ProcessStartInfo
@@ -1599,7 +1668,7 @@ namespace SplitWireTurkey
             }
             catch (Exception ex)
             {
-                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                var logPath = GetLogPath();
                 File.AppendAllText(logPath, $"Komut Hatası: {ex.Message}\n");
                 return $"Hata: {ex.Message}";
             }
@@ -1755,7 +1824,7 @@ Clear-DnsClientCache;
             }
         }
 
-        private bool VerifyDNSSettings()
+                private bool VerifyDNSSettings()
         {
             try
             {
@@ -1809,7 +1878,7 @@ foreach($adapter in $adapters) {
         DoHSettings = $dohSettings.Count
     }
     $dohResults += $result
-}
+    }
 $dohResults | ConvertTo-Json
 ";
 
@@ -1848,6 +1917,136 @@ $dohResults | ConvertTo-Json
                 File.AppendAllText(logPath, $"Doğrulama Hatası: {ex.Message}\n");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Windows Firewall kuralları ekler
+        /// </summary>
+        private async Task<bool> AddFirewallRulesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "Windows Firewall kuralları ekleniyor...\n");
+
+                    // SplitWire-Turkey.exe'nin çalıştırıldığı klasörü al
+                    var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    var exeDirectory = Path.GetDirectoryName(exePath);
+
+                    // ProxiFyre.exe yolu
+                    var proxifyrePath = Path.Combine(exeDirectory, "res", "proxifyre", "ProxiFyre.exe");
+                    
+                    // ciadpi.exe yolu
+                    var ciadpiPath = Path.Combine(exeDirectory, "res", "byedpi", "ciadpi.exe");
+
+                    bool allRulesAdded = true;
+
+                    // ProxiFyre.exe için firewall kuralı ekle
+                    if (File.Exists(proxifyrePath))
+                    {
+                        File.AppendAllText(logPath, $"ProxiFyre.exe firewall kuralı ekleniyor: {proxifyrePath}\n");
+                        
+                        // Gelen bağlantılar için kural
+                        var inboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ProxiFyre Inbound\" dir=in action=allow program=\"{proxifyrePath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ProxiFyre Inbound kural sonucu: {inboundResult}\n");
+                        
+                        // Giden bağlantılar için kural
+                        var outboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ProxiFyre Outbound\" dir=out action=allow program=\"{proxifyrePath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ProxiFyre Outbound kural sonucu: {outboundResult}\n");
+
+                        if (inboundResult != 0 || outboundResult != 0)
+                        {
+                            File.AppendAllText(logPath, "ProxiFyre firewall kuralları eklenirken hata oluştu.\n");
+                            allRulesAdded = false;
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"ProxiFyre.exe bulunamadı: {proxifyrePath}\n");
+                        allRulesAdded = false;
+                    }
+
+                    // ciadpi.exe için firewall kuralı ekle
+                    if (File.Exists(ciadpiPath))
+                    {
+                        File.AppendAllText(logPath, $"ciadpi.exe firewall kuralı ekleniyor: {ciadpiPath}\n");
+                        
+                        // Gelen bağlantılar için kural
+                        var inboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ByeDPI ciadpi Inbound\" dir=in action=allow program=\"{ciadpiPath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ciadpi Inbound kural sonucu: {inboundResult}\n");
+                        
+                        // Giden bağlantılar için kural
+                        var outboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ByeDPI ciadpi Outbound\" dir=out action=allow program=\"{ciadpiPath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ciadpi Outbound kural sonucu: {outboundResult}\n");
+
+                        if (inboundResult != 0 || outboundResult != 0)
+                        {
+                            File.AppendAllText(logPath, "ciadpi firewall kuralları eklenirken hata oluştu.\n");
+                            allRulesAdded = false;
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"ciadpi.exe bulunamadı: {ciadpiPath}\n");
+                        allRulesAdded = false;
+                    }
+
+                    if (allRulesAdded)
+                    {
+                        File.AppendAllText(logPath, "Tüm Windows Firewall kuralları başarıyla eklendi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "Bazı Windows Firewall kuralları eklenirken hata oluştu.\n");
+                    }
+
+                    return allRulesAdded;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Firewall kural ekleme hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Mevcut firewall kurallarını temizler
+        /// </summary>
+        private async Task<bool> RemoveFirewallRulesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "Mevcut Windows Firewall kuralları temizleniyor...\n");
+
+                    // ProxiFyre kurallarını kaldır
+                    var proxifyreInboundResult = ExecuteCommand("netsh", "advfirewall firewall delete rule name=\"ProxiFyre Inbound\"");
+                    var proxifyreOutboundResult = ExecuteCommand("netsh", "advfirewall firewall delete rule name=\"ProxiFyre Outbound\"");
+                    
+                    File.AppendAllText(logPath, $"ProxiFyre kuralları kaldırma sonucu: Inbound={proxifyreInboundResult}, Outbound={proxifyreOutboundResult}\n");
+
+                    // ciadpi kurallarını kaldır
+                    var ciadpiInboundResult = ExecuteCommand("netsh", "advfirewall firewall delete rule name=\"ByeDPI ciadpi Inbound\"");
+                    var ciadpiOutboundResult = ExecuteCommand("netsh", "advfirewall firewall delete rule name=\"ByeDPI ciadpi Outbound\"");
+                    
+                    File.AppendAllText(logPath, $"ciadpi kuralları kaldırma sonucu: Inbound={ciadpiInboundResult}, Outbound={ciadpiOutboundResult}\n");
+
+                    File.AppendAllText(logPath, "Windows Firewall kuralları temizlendi.\n");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Firewall kural temizleme hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
         }
     }
 } 
