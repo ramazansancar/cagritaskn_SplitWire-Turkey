@@ -10,7 +10,7 @@
 
 ## Özet
 
-SplitWire-Turkey, birden çok metot ile DPI engelini bertaraf etmek için geliştirilmiştir. WireGuard VPN yapılandırmasını kolaylaştırmak, ByeDPI ve Proxifyre ile otomatik kurulum yapan açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını, ByeDPI ve ProxiFyre kullanarak ayrık tünelleme yapılabilmesini sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
+SplitWire-Turkey, birden çok metot ile DPI engelini bertaraf etmek için geliştirilmiştir. WireGuard VPN yapılandırmasını kolaylaştıran, ByeDPI ve Proxifyre ile otomatik kurulum yapan açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını, ByeDPI ve ProxiFyre kullanarak ayrık tünelleme yapılabilmelerini sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
 
 **Özellikler:**
 -  **Hızlı Kurulum:** Tek tıkla kullanım
