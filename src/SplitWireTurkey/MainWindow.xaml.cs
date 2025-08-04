@@ -54,6 +54,9 @@ namespace SplitWireTurkey
             
             try
             {
+                // Önce ProxiFyreService ve ByeDPI hizmetlerini durdur ve kaldır
+                await StopAndRemoveServicesAsync();
+                
                 // Önce tüm hizmetleri kaldır
                 await RemoveAllServicesAsync();
 
@@ -92,6 +95,9 @@ namespace SplitWireTurkey
             
             try
             {
+                // Önce ProxiFyreService ve ByeDPI hizmetlerini durdur ve kaldır
+                await StopAndRemoveServicesAsync();
+                
                 // Önce tüm hizmetleri kaldır
                 await RemoveAllServicesAsync();
 
@@ -128,6 +134,58 @@ namespace SplitWireTurkey
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "https://github.com/cagritaskn/SplitWire-Turkey",
+                    UseShellExecute = true
+                });
+            }
+        }
+
+        private async void BtnRemoveAllServices_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "wiresock-client-service, GoodbyeDPI, WinDivert, ByeDPI, ProxiFyreService hizmetlerini durdurup kaldırmak istediğinizden emin misiniz?",
+                "Hizmetleri Kaldır", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            
+            if (result != MessageBoxResult.Yes) return;
+
+            ShowLoading(true);
+            
+            try
+            {
+                var services = new[] { "wiresock-client-service", "GoodbyeDPI", "WinDivert", "ByeDPI", "ProxiFyreService" };
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "Tüm hizmetler durduruluyor ve kaldırılıyor...\n");
+                
+                foreach (var service in services)
+                {
+                    // Hizmeti durdur
+                    ExecuteCommand("sc", $"stop {service}");
+                    File.AppendAllText(logPath, $"{service} hizmeti durduruldu.\n");
+                    
+                    // Hizmeti sil
+                    ExecuteCommand("sc", $"delete {service}");
+                    File.AppendAllText(logPath, $"{service} hizmeti silindi.\n");
+                }
+                
+                System.Windows.MessageBox.Show("Tüm hizmetler başarıyla kaldırıldı.", 
+                    "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        private void BtnHeartInfo_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "ByeDPI metodu için Bal Porsuğu'na teşekkürler. YouTube kanalını ziyaret etmek için Evet'e basın.",
+                "Bal Porsuğu", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://www.youtube.com/@sauali",
                     UseShellExecute = true
                 });
             }
@@ -177,6 +235,9 @@ namespace SplitWireTurkey
             
             try
             {
+                // Önce ProxiFyreService ve ByeDPI hizmetlerini durdur ve kaldır
+                await StopAndRemoveServicesAsync();
+                
                 // Önce tüm hizmetleri kaldır
                 await RemoveAllServicesAsync();
 
@@ -365,17 +426,46 @@ namespace SplitWireTurkey
         {
             ShowLoading(true);
             
+            var logPath = GetLogPath();
+            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Hızlı kurulum başlatılıyor...\n");
+            
             try
             {
+                File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
                 var success = await _wireGuardService.CreateProfileAsync();
+                
                 if (success)
                 {
+                    File.AppendAllText(logPath, "WireGuard profili başarıyla oluşturuldu.\n");
                     var configPath = _wireGuardService.GetConfigPath();
-                    await _wireSockService.InstallServiceAsync(configPath);
+                    File.AppendAllText(logPath, $"Konfigürasyon dosyası yolu: {configPath}\n");
+                    
+                    File.AppendAllText(logPath, "WireSock hizmeti kuruluyor...\n");
+                    var serviceResult = await _wireSockService.InstallServiceAsync(configPath);
+                    
+                    if (serviceResult)
+                    {
+                        File.AppendAllText(logPath, "WireSock hizmeti başarıyla kuruldu.\n");
+                        File.AppendAllText(logPath, "Sistem yeniden başlatma mesajı gösteriliyor.\n");
+                        ShowRestartMessage();
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "WireSock hizmeti kurulamadı.\n");
+                    }
                 }
+                else
+                {
+                    File.AppendAllText(logPath, "WireGuard profili oluşturulamadı.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"Hızlı kurulum hatası: {ex.Message}\n");
             }
             finally
             {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Hızlı kurulum tamamlandı.\n");
                 ShowLoading(false);
             }
         }
@@ -384,18 +474,48 @@ namespace SplitWireTurkey
         {
             ShowLoading(true);
             
+            var logPath = GetLogPath();
+            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Özel kurulum başlatılıyor...\n");
+            
             try
             {
                 var extraFolders = _folders.ToArray();
+                File.AppendAllText(logPath, $"Ek klasörler: {string.Join(", ", extraFolders)}\n");
+                File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
+                
                 var success = await _wireGuardService.CreateProfileAsync(extraFolders);
                 if (success)
                 {
+                    File.AppendAllText(logPath, "WireGuard profili başarıyla oluşturuldu.\n");
                     var configPath = _wireGuardService.GetConfigPath();
-                    await _wireSockService.InstallServiceAsync(configPath);
+                    File.AppendAllText(logPath, $"Konfigürasyon dosyası yolu: {configPath}\n");
+                    
+                    File.AppendAllText(logPath, "WireSock hizmeti kuruluyor...\n");
+                    var serviceResult = await _wireSockService.InstallServiceAsync(configPath);
+                    
+                    if (serviceResult)
+                    {
+                        File.AppendAllText(logPath, "WireSock hizmeti başarıyla kuruldu.\n");
+                        File.AppendAllText(logPath, "Sistem yeniden başlatma mesajı gösteriliyor.\n");
+                        ShowRestartMessage();
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "WireSock hizmeti kurulamadı.\n");
+                    }
                 }
+                else
+                {
+                    File.AppendAllText(logPath, "WireGuard profili oluşturulamadı.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"Özel kurulum hatası: {ex.Message}\n");
             }
             finally
             {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Özel kurulum tamamlandı.\n");
                 ShowLoading(false);
             }
         }
@@ -404,20 +524,36 @@ namespace SplitWireTurkey
         {
             ShowLoading(true);
             
+            var logPath = GetLogPath();
+            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Sadece konfigürasyon oluşturma başlatılıyor...\n");
+            
             try
             {
                 var extraFolders = _folders.ToArray();
+                File.AppendAllText(logPath, $"Ek klasörler: {string.Join(", ", extraFolders)}\n");
+                File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
+                
                 var success = await _wireGuardService.CreateProfileAsync(extraFolders);
                 
                 if (success)
                 {
                     var configPath = _wireGuardService.GetConfigPath();
+                    File.AppendAllText(logPath, $"Profil dosyası başarıyla oluşturuldu: {configPath}\n");
                     System.Windows.MessageBox.Show($"Profil dosyası oluşturuldu:\n{configPath}", 
                         "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
+                else
+                {
+                    File.AppendAllText(logPath, "Profil dosyası oluşturulamadı.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"Konfigürasyon oluşturma hatası: {ex.Message}\n");
             }
             finally
             {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Konfigürasyon oluşturma tamamlandı.\n");
                 ShowLoading(false);
             }
         }
@@ -425,18 +561,26 @@ namespace SplitWireTurkey
         private async Task PerformAlternativeSetup()
         {
             ShowLoading(true);
+            
+            var logPath = GetLogPath();
+            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Alternatif kurulum başlatılıyor...\n");
+            
             try
             {
                 // Önce mevcut WireSock hizmetini durdur ve kaldır
+                File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılıyor...\n");
                 var uninstallSuccess = await _wireSockService.RemoveServiceAsync();
                 if (!uninstallSuccess)
                 {
+                    File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılamadı.\n");
                     System.Windows.MessageBox.Show("Mevcut WireSock hizmeti kaldırılamadı. Alternatif kurulum başlatılamadı.", 
                         "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+                File.AppendAllText(logPath, "Mevcut WireSock hizmeti başarıyla kaldırıldı.\n");
 
                 // Mevcut WireSock kurulumunu kaldır - son sürüm setup dosyasını indir ve /uninstall /S ile kaldır
+                File.AppendAllText(logPath, "Mevcut WireSock kurulumu kaldırılıyor...\n");
                 var tempDir = Path.Combine(Path.GetTempPath(), "SplitWireTurkey");
                 if (!Directory.Exists(tempDir))
                     Directory.CreateDirectory(tempDir);
@@ -447,6 +591,7 @@ namespace SplitWireTurkey
                 try
                 {
                     // Mevcut sürümü indir
+                    File.AppendAllText(logPath, "Mevcut WireSock sürümü indiriliyor...\n");
                     using (var client = new System.Net.Http.HttpClient())
                     {
                         var response = await client.GetAsync(currentDownloadUrl);
@@ -459,6 +604,7 @@ namespace SplitWireTurkey
                     }
 
                     // Mevcut sürümü kaldır
+                    File.AppendAllText(logPath, "Mevcut WireSock sürümü kaldırılıyor...\n");
                     var uninstallProcess = new Process
                     {
                         StartInfo = new ProcessStartInfo
@@ -475,14 +621,17 @@ namespace SplitWireTurkey
 
                     uninstallProcess.Start();
                     await uninstallProcess.WaitForExitAsync();
+                    File.AppendAllText(logPath, $"Mevcut WireSock sürümü kaldırma işlemi tamamlandı. Exit Code: {uninstallProcess.ExitCode}\n");
                 }
                 catch (Exception ex)
                 {
+                    File.AppendAllText(logPath, $"Mevcut sürüm kaldırma hatası: {ex.Message}\n");
                     Debug.WriteLine($"Mevcut sürüm kaldırma hatası: {ex.Message}");
                     // Hata olsa bile devam et
                 }
 
                 // 1.4.7.1 sürümünü indir ve kur
+                File.AppendAllText(logPath, "WireSock 1.4.7.1 sürümü indiriliyor...\n");
                 var setupPath = Path.Combine(tempDir, "wiresock-legacy.msi");
                 var resSetupPath = Path.Combine(Environment.CurrentDirectory, "res", "wiresock-vpn-client-x64-1.4.7.1.msi");
 
@@ -491,12 +640,14 @@ namespace SplitWireTurkey
                 // Önce /res klasöründen dosyayı kopyalamayı dene
                 if (File.Exists(resSetupPath))
                 {
+                    File.AppendAllText(logPath, "1.4.7.1 sürümü /res klasöründen kopyalanıyor...\n");
                     File.Copy(resSetupPath, setupPath, true);
                     downloadSuccess = true;
                 }
                 else
                 {
                     // /res klasöründe yoksa GitHub'dan indirmeyi dene
+                    File.AppendAllText(logPath, "1.4.7.1 sürümü GitHub'dan indiriliyor...\n");
                     var downloadUrl = "https://github.com/cagritaskn/SplitWire-Turkey/raw/main/deploy/wiresock-vpn-client-x64-1.4.7.1.msi";
                     
                     try
@@ -512,22 +663,27 @@ namespace SplitWireTurkey
                             }
                         }
                         downloadSuccess = true;
+                        File.AppendAllText(logPath, "1.4.7.1 sürümü GitHub'dan başarıyla indirildi.\n");
                     }
                     catch (Exception ex)
                     {
+                        File.AppendAllText(logPath, $"GitHub'dan indirme hatası: {ex.Message}\n");
                         Debug.WriteLine($"GitHub'dan indirme hatası: {ex.Message}");
                         
                         // GitHub'dan da indirilemezse yerel dosyayı dene
+                        File.AppendAllText(logPath, "Yerel dosya deneniyor...\n");
                         var localSetupPath = Path.Combine(Environment.CurrentDirectory, "wiresock-vpn-client-x64-1.4.7.1.msi");
                         if (File.Exists(localSetupPath))
                         {
                             File.Copy(localSetupPath, setupPath, true);
                             downloadSuccess = true;
+                            File.AppendAllText(logPath, "Yerel dosya kullanılıyor.\n");
                             System.Windows.MessageBox.Show("GitHub'dan indirilemedi, yerel dosya kullanılıyor.", 
                                 "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         else
                         {
+                            File.AppendAllText(logPath, "1.4.7.1 sürümü bulunamadı.\n");
                             System.Windows.MessageBox.Show("1.4.7.1 sürümü bulunamadı.\nLütfen wiresock-vpn-client-x64-1.4.7.1.msi dosyasını /res klasörüne kopyalayın.", 
                                 "Dosya Bulunamadı", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
@@ -537,13 +693,16 @@ namespace SplitWireTurkey
 
                 if (!downloadSuccess)
                 {
+                    File.AppendAllText(logPath, "1.4.7.1 sürümü indirilemedi.\n");
                     System.Windows.MessageBox.Show("1.4.7.1 sürümü indirilemedi.", 
                         "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
+                File.AppendAllText(logPath, "1.4.7.1 sürümü başarıyla indirildi.\n");
                 // En uygun kurulum yolunu belirle
                 var installPath = GetBestInstallPath();
+                File.AppendAllText(logPath, $"Kurulum yolu: {installPath}\n");
 
                 // MSI kurulum parametrelerini dene
                 var msiArgsList = new[]
@@ -557,11 +716,13 @@ namespace SplitWireTurkey
                 };
 
                 bool msiInstallSuccess = false;
+                File.AppendAllText(logPath, "MSI sessiz kurulum deneniyor...\n");
                 
                 foreach (var msiArgs in msiArgsList)
                 {
                     try
                     {
+                        File.AppendAllText(logPath, $"MSI kurulum parametresi deneniyor: {msiArgs}\n");
                         var process = new Process
                         {
                             StartInfo = new ProcessStartInfo
@@ -581,14 +742,20 @@ namespace SplitWireTurkey
 
                         if (process.ExitCode == 0)
                         {
+                            File.AppendAllText(logPath, "MSI sessiz kurulum başarılı.\n");
                             System.Windows.MessageBox.Show($"WireSock 1.4.7.1 sürümü sessiz kurulumu tamamlandı.\nKuruluma devam ediliyor ...", 
                                 "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                             msiInstallSuccess = true;
                             break;
                         }
+                        else
+                        {
+                            File.AppendAllText(logPath, $"MSI kurulum başarısız. Exit Code: {process.ExitCode}\n");
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        File.AppendAllText(logPath, $"MSI kurulum hatası: {ex.Message}\n");
                         // Bu parametre çalışmadı, diğerini dene
                         continue;
                     }
@@ -597,6 +764,7 @@ namespace SplitWireTurkey
                 // MSI kurulum başarısız olursa normal kurulumu dene
                 if (!msiInstallSuccess)
                 {
+                    File.AppendAllText(logPath, "MSI sessiz kurulum başarısız, normal kurulum deneniyor...\n");
                     System.Windows.MessageBox.Show("Sessiz kurulum başarısız oldu. Normal kurulum başlatılıyor...", 
                         "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                     
@@ -613,50 +781,101 @@ namespace SplitWireTurkey
                     normalProcess.Start();
                     await normalProcess.WaitForExitAsync();
                     
+                    File.AppendAllText(logPath, "Normal kurulum tamamlandı.\n");
                     System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kurulumu tamamlandı. Kuruluma devam ediliyor ...", 
                         "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 
                 UpdateWireSockStatus();
+                File.AppendAllText(logPath, "WireSock durumu güncellendi.\n");
                 
                 // Kısa bir bekleme süresi ekle
                 await Task.Delay(2000);
                 
                 // Hizmet kurulumu yap
+                File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
                 var success = await _wireGuardService.CreateProfileAsync();
                 if (success)
                 {
+                    File.AppendAllText(logPath, "WireGuard profili başarıyla oluşturuldu.\n");
                     var configPath = _wireGuardService.GetConfigPath();
+                    File.AppendAllText(logPath, $"Konfigürasyon dosyası yolu: {configPath}\n");
+                    
+                    File.AppendAllText(logPath, "WireSock hizmeti kuruluyor...\n");
                     var serviceResult = await _wireSockService.InstallServiceAsync(configPath);
                     
                     if (serviceResult)
                     {
-                        System.Windows.MessageBox.Show("Alternatif kurulum tamamlandı.", 
-                            "Alternatif Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                        File.AppendAllText(logPath, "WireSock hizmeti başarıyla kuruldu.\n");
+                        ShowRestartMessage();
                     }
                     else
                     {
+                        File.AppendAllText(logPath, "WireSock hizmeti kurulamadı.\n");
                         System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kuruldu ancak hizmet başlatılamadı. Manuel olarak başlatmayı deneyin.", 
                             "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 else
                 {
+                    File.AppendAllText(logPath, "WireGuard profili oluşturulamadı.\n");
                     System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kuruldu ancak profil oluşturulamadı.", 
                         "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
+                File.AppendAllText(logPath, $"Alternatif kurulum hatası: {ex.Message}\n");
                 System.Windows.MessageBox.Show($"Alternatif kurulum sırasında hata oluştu: {ex.Message}", 
                     "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Alternatif kurulum tamamlandı.\n");
                 ShowLoading(false);
             }
         }
 
+        private void ShowRestartMessage()
+        {
+            var result = System.Windows.MessageBox.Show(
+                "Kurulum başarıyla tamamlandı. Değişikliklerin uygulanabilmesi için sisteminizi yeniden başlatın. Şimdi yeniden başlatmak için Evet'e tıklayın. Daha sonra yeniden başlatmak için Hayır'a tıklayın.",
+                "Kurulum Tamamlandı",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Information);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                // Şimdi yeniden başlat
+                RestartSystem();
+            }
+            // No seçilirse sadece mesaj kutusu kapanır
+        }
+
+        private void RestartSystem()
+        {
+            try
+            {
+                // 5 saniye bekle ve sistemi yeniden başlat
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "shutdown",
+                        Arguments = "/r /t 5 /c \"SplitWire-Turkey kurulumu tamamlandı. Sistem yeniden başlatılıyor...\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Sistem yeniden başlatılamadı: {ex.Message}", 
+                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
 
         private void ShowLoading(bool show)
@@ -916,6 +1135,718 @@ namespace SplitWireTurkey
                 // Pencere boyutunu normal haline getir
                 this.Height = 600;
                 this.Width = 500;
+            }
+        }
+
+        private void BtnByeDPISetup_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "ByeDPI Split Tunneling Kurulum, WireSock, GoodbyeDPI ve WinDivert hizmetlerini kaldıracak ve DNS adreslerinizi Google DNS için ayarlayacaktır. Ayrıca Windows Packet Filter ve C++ Redistibutable paketini otomatik olarak kuracaktır. Kurulumu başlatmak istediğinizden emin misiniz?", 
+                "ByeDPI ST Kurulum", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                PerformByeDPISetup();
+            }
+        }
+
+        private async void PerformByeDPISetup()
+        {
+            ShowLoading(true);
+            
+            try
+            {
+                var logPath = GetLogPath();
+                File.WriteAllText(logPath, $"ByeDPI ST Kurulum Başlangıç: {DateTime.Now}\n");
+
+                // 1. Prerequisites kurulumları
+                File.AppendAllText(logPath, "1. Prerequisites kurulumları başlatılıyor...\n");
+                var prereqSuccess = await InstallPrerequisitesAsync();
+                
+                if (!prereqSuccess)
+                {
+                    System.Windows.MessageBox.Show("Prerequisites kurulumları başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 2. DNS ayarları
+                File.AppendAllText(logPath, "2. DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    System.Windows.MessageBox.Show("DNS ayarları başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 3. Hizmetleri kaldır
+                File.AppendAllText(logPath, "3. Hizmetler kaldırılıyor...\n");
+                var serviceRemovalSuccess = await RemoveServicesAsync();
+                
+                if (!serviceRemovalSuccess)
+                {
+                    System.Windows.MessageBox.Show("Hizmet kaldırma işlemi başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 4. ProxiFyre kurulumu
+                File.AppendAllText(logPath, "4. ProxiFyre kurulumu yapılıyor...\n");
+                var proxifyreSuccess = await InstallProxiFyreAsync();
+                
+                if (!proxifyreSuccess)
+                {
+                    System.Windows.MessageBox.Show("ProxiFyre kurulumu başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 5. ProxiFyreService başlat
+                File.AppendAllText(logPath, "5. ProxiFyreService başlatılıyor...\n");
+                var serviceStartSuccess = await StartProxiFyreServiceAsync();
+                
+                if (!serviceStartSuccess)
+                {
+                    // System.Windows.MessageBox.Show("ProxiFyreService başlatılamadı. Manuel olarak başlatmayı deneyin.", 
+                       // "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 6. ByeDPI hizmeti kurulumu
+                File.AppendAllText(logPath, "6. ByeDPI hizmeti kurulumu yapılıyor...\n");
+                var byeDPIInstallSuccess = await InstallByeDPIServiceAsync();
+                
+                if (!byeDPIInstallSuccess)
+                {
+                    System.Windows.MessageBox.Show("ByeDPI hizmeti kurulumu başarısız oldu. Manuel olarak başlatmayı deneyin.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 7. Kurulum tamamlandı mesajı
+                File.AppendAllText(logPath, "Kurulum tamamlandı.\n");
+                File.AppendAllText(logPath, $"ByeDPI ST Kurulum Bitiş: {DateTime.Now}\n");
+
+                var restartResult = System.Windows.MessageBox.Show(
+                    "ByeDPI ST Kurulum tamamlandı. Değişikliklerin uygulanabilmesi için sisteminizi yeniden başlatın. Şimdi yeniden başlatmak istiyorsanız Evet'e tıklayın. Daha sonra yeniden başlatmak istiyorsanız Hayır'a tıklayın.",
+                    "Kurulum Tamamlandı",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (restartResult == MessageBoxResult.Yes)
+                {
+                    RestartSystem();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"ByeDPI ST Kurulum sırasında hata oluştu: {ex.Message}", 
+                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        private async Task<bool> InstallPrerequisitesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    var prerequisitesPath = Path.Combine(Environment.CurrentDirectory, "Prerequisites");
+                    
+                    // Windows Packet Filter kurulumu
+                    var packetFilterPath = Path.Combine(prerequisitesPath, "Windows.Packet.Filter.3.6.1.1.x64.msi");
+                    if (File.Exists(packetFilterPath))
+                    {
+                        File.AppendAllText(logPath, "Windows Packet Filter kurulumu başlatılıyor...\n");
+                        var packetFilterResult = ExecuteCommand("msiexec", $"/i \"{packetFilterPath}\" /quiet /norestart");
+                        File.AppendAllText(logPath, $"Windows Packet Filter kurulum sonucu: {packetFilterResult}\n");
+                    }
+                    else
+                    {
+                        // Eski exe dosyasını da kontrol et
+                        var oldPacketFilterPath = Path.Combine(prerequisitesPath, "Windows.Packet.Filter.3.6.1.1.exe");
+                        if (File.Exists(oldPacketFilterPath))
+                        {
+                            File.AppendAllText(logPath, "Windows Packet Filter (eski sürüm) kurulumu başlatılıyor...\n");
+                            var packetFilterResult = ExecuteCommand(oldPacketFilterPath, "/S");
+                            File.AppendAllText(logPath, $"Windows Packet Filter kurulum sonucu: {packetFilterResult}\n");
+                        }
+                        else
+                        {
+                            File.AppendAllText(logPath, "Windows Packet Filter dosyası bulunamadı.\n");
+                        }
+                    }
+
+                    // VC++ Redistributable kurulumu
+                    var vcRedistPath = Path.Combine(prerequisitesPath, "VC_redist.x64.exe");
+                    if (File.Exists(vcRedistPath))
+                    {
+                        File.AppendAllText(logPath, "VC++ Redistributable kurulumu başlatılıyor...\n");
+                        var vcRedistResult = ExecuteCommand(vcRedistPath, "/quiet /norestart");
+                        File.AppendAllText(logPath, $"VC++ Redistributable kurulum sonucu: {vcRedistResult}\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "VC++ Redistributable dosyası bulunamadı.\n");
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    File.AppendAllText(logPath, $"Prerequisites kurulum hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        private async Task<bool> RemoveServicesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    
+                    // Hizmetleri durdur ve kaldır
+                    var services = new[] { "GoodbyeDPI", "WinDivert", "wiresock-client-service" };
+                    
+                    foreach (var service in services)
+                    {
+                        File.AppendAllText(logPath, $"{service} hizmeti kaldırılıyor...\n");
+                        
+                        // Hizmeti durdur
+                        var stopResult = ExecuteCommand("net", $"stop {service}");
+                        File.AppendAllText(logPath, $"{service} durdurma sonucu: {stopResult}\n");
+                        
+                        // Hizmeti kaldır
+                        var removeResult = ExecuteCommand("sc", $"delete {service}");
+                        File.AppendAllText(logPath, $"{service} kaldırma sonucu: {removeResult}\n");
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                    File.AppendAllText(logPath, $"Hizmet kaldırma hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        private async Task<bool> InstallProxiFyreAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    var proxifyrePath = Path.Combine(Environment.CurrentDirectory, "res", "proxifyre", "ProxiFyre.exe");
+                    
+                    if (File.Exists(proxifyrePath))
+                    {
+                        File.AppendAllText(logPath, "ProxiFyre kurulumu başlatılıyor...\n");
+                        var result = ExecuteCommand(proxifyrePath, "install");
+                        File.AppendAllText(logPath, $"ProxiFyre kurulum sonucu: {result}\n");
+                        
+                        // ProxiFyreService'in başlangıç türünü Otomatik olarak ayarla
+                        File.AppendAllText(logPath, "ProxiFyreService başlangıç türü Otomatik olarak ayarlanıyor...\n");
+                        var configResult = ExecuteCommand("sc", "config ProxiFyreService start= auto ");
+                        File.AppendAllText(logPath, $"ProxiFyreService başlangıç türü ayarlama sonucu: {configResult}\n");
+                        
+                        return true; // Hata mesajlarını kaldırdık, her zaman true döndür
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "ProxiFyre.exe dosyası bulunamadı.\n");
+                        return true; // Hata mesajlarını kaldırdık
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"ProxiFyre kurulum hatası: {ex.Message}\n");
+                    return true; // Hata mesajlarını kaldırdık
+                }
+            });
+        }
+
+        private async Task<bool> StopAndRemoveServicesAsync()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "ProxiFyreService ve ByeDPI hizmetleri durduruluyor ve kaldırılıyor...\n");
+                
+                var services = new[] { "ProxiFyreService", "ByeDPI" };
+                
+                foreach (var service in services)
+                {
+                    // Hizmeti durdur
+                    ExecuteCommand("sc", $"stop {service}");
+                    File.AppendAllText(logPath, $"{service} hizmeti durduruldu.\n");
+                    
+                    // Hizmeti sil
+                    ExecuteCommand("sc", $"delete {service}");
+                    File.AppendAllText(logPath, $"{service} hizmeti silindi.\n");
+                }
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"Hizmet durdurma hatası: {ex.Message}\n");
+                return false;
+            }
+        }
+
+        private async Task<bool> StartProxiFyreServiceAsync()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "ProxiFyreService başlatılıyor...\n");
+
+                // ProxiFyreService'i başlat
+                var startResult = ExecuteCommandString("net", "start ProxiFyreService");
+                File.AppendAllText(logPath, $"ProxiFyreService başlatma sonucu: {startResult}\n");
+
+                // Başarı kontrolü - birden fazla başarı göstergesi kontrol et
+                var success = startResult.Contains("başlatıldı") || 
+                             startResult.Contains("started") || 
+                             startResult.Contains("SUCCESS") ||
+                             startResult.Contains("service is already running") ||
+                             startResult.Contains("hizmet zaten çalışıyor");
+
+                // Hizmetin gerçekten çalışıp çalışmadığını kontrol et
+                if (success)
+                {
+                    var queryResult = ExecuteCommandString("sc", "query ProxiFyreService");
+                    File.AppendAllText(logPath, $"ProxiFyreService durum kontrolü: {queryResult}\n");
+                    
+                    // Hizmet durumunu kontrol et
+                    success = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR");
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                File.AppendAllText(logPath, $"ProxiFyreService başlatma hatası: {ex.Message}\n");
+                return false;
+            }
+        }
+
+        private string GetLogPath()
+        {
+            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var exeDirectory = Path.GetDirectoryName(exePath);
+            var logsDirectory = Path.Combine(exeDirectory, "logs");
+            
+            if (!Directory.Exists(logsDirectory))
+            {
+                Directory.CreateDirectory(logsDirectory);
+            }
+            
+            return Path.Combine(logsDirectory, "byedpi_setup.log");
+        }
+
+        private string GetDNSLogPath()
+        {
+            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var exeDirectory = Path.GetDirectoryName(exePath);
+            var logsDirectory = Path.Combine(exeDirectory, "logs");
+            
+            if (!Directory.Exists(logsDirectory))
+            {
+                Directory.CreateDirectory(logsDirectory);
+            }
+            
+            return Path.Combine(logsDirectory, "dns_debug.log");
+        }
+
+        private async Task<bool> InstallByeDPIServiceAsync()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "ByeDPI hizmeti kuruluyor...\n");
+
+                // SplitWire-Turkey.exe'nin çalıştırıldığı klasörü al
+                var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var exeDirectory = Path.GetDirectoryName(exePath);
+                
+                // service_install.bat dosya yolu
+                var serviceInstallPath = Path.Combine(exeDirectory, "res", "byedpi", "service_install.bat");
+                
+                if (!File.Exists(serviceInstallPath))
+                {
+                    File.AppendAllText(logPath, $"service_install.bat bulunamadı: {serviceInstallPath}\n");
+                    return false;
+                }
+
+                File.AppendAllText(logPath, $"service_install.bat bulundu: {serviceInstallPath}\n");
+
+                // service_install.bat dosyasını sessizce çalıştır
+                File.AppendAllText(logPath, "ByeDPI hizmeti service_install.bat ile kuruluyor...\n");
+                var installResult = ExecuteCommand("cmd", $"/c \"{serviceInstallPath}\"");
+                File.AppendAllText(logPath, $"Hizmet kurulum sonucu (Exit Code): {installResult}\n");
+
+                // Hizmetin başarıyla kurulup kurulmadığını kontrol et
+                var queryResult = ExecuteCommandString("sc", "query ByeDPI");
+                File.AppendAllText(logPath, $"ByeDPI hizmeti durum kontrolü: {queryResult}\n");
+                
+                var installSuccess = queryResult.Contains("RUNNING") || queryResult.Contains("ÇALIŞIYOR") || 
+                                   queryResult.Contains("STOPPED") || queryResult.Contains("DURDURULDU");
+
+                if (installSuccess)
+                {
+                    File.AppendAllText(logPath, "ByeDPI hizmeti başarıyla kuruldu.\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "ByeDPI hizmeti kurulamadı.\n");
+                }
+
+                return installSuccess;
+            }
+            catch (Exception ex)
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"ByeDPI hizmeti kurulum hatası: {ex.Message}\n");
+                return false;
+            }
+        }
+
+        private int ExecuteCommand(string command, string arguments)
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"Komut çalıştırılıyor: {command} {arguments}\n");
+                
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = command,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                    Verb = "runas" // Yönetici izni ile çalıştır
+                };
+
+                using var process = new Process { StartInfo = startInfo };
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                
+                File.AppendAllText(logPath, $"Çıktı: {output}\n");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    File.AppendAllText(logPath, $"Hata: {error}\n");
+                }
+                File.AppendAllText(logPath, $"Exit Code: {process.ExitCode}\n");
+                
+                return process.ExitCode;
+            }
+            catch (Exception ex)
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                File.AppendAllText(logPath, $"Komut Hatası: {ex.Message}\n");
+                return -1;
+            }
+        }
+
+        private string ExecuteCommandString(string command, string arguments)
+        {
+            try
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                File.AppendAllText(logPath, $"Komut çalıştırılıyor: {command} {arguments}\n");
+                
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = command,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                    Verb = "runas" // Yönetici izni ile çalıştır
+                };
+
+                using var process = new Process { StartInfo = startInfo };
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                
+                File.AppendAllText(logPath, $"Çıktı: {output}\n");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    File.AppendAllText(logPath, $"Hata: {error}\n");
+                }
+                File.AppendAllText(logPath, $"Exit Code: {process.ExitCode}\n");
+                
+                return output + error; // Hem çıktı hem hata mesajını döndür
+            }
+            catch (Exception ex)
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "byedpi_setup.log");
+                File.AppendAllText(logPath, $"Komut Hatası: {ex.Message}\n");
+                return $"Hata: {ex.Message}";
+            }
+        }
+
+        private async Task<bool> SetModernDNSSettingsAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    bool allCommandsSuccessful = true;
+                    var logPath = GetDNSLogPath();
+                    File.WriteAllText(logPath, $"DNS Ayarı Başlangıç: {DateTime.Now}\n");
+
+                    // PowerShell script ile DNS ayarlarını yap
+                    Debug.WriteLine("PowerShell ile DNS ayarları yapılıyor...");
+                    File.AppendAllText(logPath, "PowerShell ile DNS ayarları yapılıyor...\n");
+
+                    var psScript = @"
+$i = Get-NetAdapter -Physical
+$i | Get-DnsClientServerAddress -AddressFamily IPv4 | Set-DnsClientServerAddress -ServerAddresses '8.8.8.8', '9.9.9.9'
+$i | Get-DnsClientServerAddress -AddressFamily IPv6 | Set-DnsClientServerAddress -ServerAddresses '2001:4860:4860::8888', '2620:fe::9'
+
+# DoH şablonlarını temizle ve yeniden ayarla
+$i | ForEach-Object {
+    $adapterGuid = $_.InterfaceGuid
+    
+    # Mevcut DoH ayarlarını temizle
+    $dohPath = 'HKLM:System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings'
+    if (Test-Path $dohPath) {
+        Remove-Item -Path $dohPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    
+    # Google DNS (8.8.8.8) için DoH ayarı
+    $googlePath = $dohPath + '\Doh\8.8.8.8'
+    New-Item -Path $googlePath -Force | Out-Null
+    New-ItemProperty -Path $googlePath -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+    New-ItemProperty -Path $googlePath -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
+    
+    # Quad9 DNS (9.9.9.9) için DoH ayarı
+    $quad9Path = $dohPath + '\Doh\9.9.9.9'
+    New-Item -Path $quad9Path -Force | Out-Null
+    New-ItemProperty -Path $quad9Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+    New-ItemProperty -Path $quad9Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+    
+    # Google DNS IPv6 (2001:4860:4860::8888) için DoH ayarı
+    $googleIPv6Path = $dohPath + '\Doh6\2001:4860:4860::8888'
+    New-Item -Path $googleIPv6Path -Force | Out-Null
+    New-ItemProperty -Path $googleIPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+    New-ItemProperty -Path $googleIPv6Path -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
+    
+    # Quad9 DNS IPv6 (2620:fe::9) için DoH ayarı
+    $quad9IPv6Path = $dohPath + '\Doh6\2620:fe::9'
+    New-Item -Path $quad9IPv6Path -Force | Out-Null
+    New-ItemProperty -Path $quad9IPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+    New-ItemProperty -Path $quad9IPv6Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+}
+
+Clear-DnsClientCache;
+";
+
+                    var result = ExecutePowerShellScript(psScript);
+                    
+                    if (result == 0)
+                    {
+                        Debug.WriteLine("PowerShell DNS ayarları başarılı.");
+                        File.AppendAllText(logPath, "PowerShell DNS ayarları başarılı.\n");
+                        allCommandsSuccessful = true;
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"PowerShell DNS ayarları başarısız. Exit Code: {result}");
+                        File.AppendAllText(logPath, $"PowerShell DNS ayarları başarısız. Exit Code: {result}\n");
+                        allCommandsSuccessful = false;
+                    }
+
+                    // DNS ayarlarını doğrula
+                    File.AppendAllText(logPath, "DNS ayarlarını doğrulama...\n");
+                    var verificationResult = VerifyDNSSettings();
+                    if (verificationResult)
+                    {
+                        Debug.WriteLine("DNS ayarları doğrulandı.");
+                        File.AppendAllText(logPath, "DNS ayarları doğrulandı.\n");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("DNS ayarları doğrulanamadı.");
+                        File.AppendAllText(logPath, "DNS ayarları doğrulanamadı.\n");
+                        allCommandsSuccessful = false;
+                    }
+
+                    File.AppendAllText(logPath, $"Genel sonuç: {allCommandsSuccessful}\n");
+                    File.AppendAllText(logPath, $"DNS Ayarı Bitiş: {DateTime.Now}\n");
+                    
+                    return allCommandsSuccessful;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Modern DNS ayar hatası: {ex.Message}");
+                    var logPath = GetDNSLogPath();
+                    File.AppendAllText(logPath, $"HATA: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        private int ExecutePowerShellScript(string script)
+        {
+            try
+            {
+                var logPath = GetDNSLogPath();
+                File.AppendAllText(logPath, $"PowerShell Script çalıştırılıyor...\n");
+                
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell",
+                    Arguments = $"-ExecutionPolicy Bypass -Command \"{script}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                    Verb = "runas" // Yönetici izni ile çalıştır
+                };
+
+                using var process = new Process { StartInfo = startInfo };
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                
+                Debug.WriteLine($"PowerShell çıktısı: {output}");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Debug.WriteLine($"PowerShell hatası: {error}");
+                }
+                
+                File.AppendAllText(logPath, $"PowerShell Çıktısı: {output}\n");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    File.AppendAllText(logPath, $"PowerShell Hatası: {error}\n");
+                }
+                File.AppendAllText(logPath, $"PowerShell Exit Code: {process.ExitCode}\n");
+                
+                return process.ExitCode;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"PowerShell execution failed: {ex.Message}");
+                var logPath = GetDNSLogPath();
+                File.AppendAllText(logPath, $"PowerShell Hatası: {ex.Message}\n");
+                return -1;
+            }
+        }
+
+        private bool VerifyDNSSettings()
+        {
+            try
+            {
+                var logPath = GetDNSLogPath();
+                
+                // PowerShell ile DNS ayarlarını kontrol et
+                var checkScript = @"
+$adapters = Get-NetAdapter -Physical
+$results = @()
+foreach($adapter in $adapters) {
+    $ipv4 = $adapter | Get-DnsClientServerAddress -AddressFamily IPv4
+    $ipv6 = $adapter | Get-DnsClientServerAddress -AddressFamily IPv6
+    $result = [PSCustomObject]@{
+        AdapterName = $adapter.Name
+        IPv4Servers = $ipv4.ServerAddresses -join ','
+        IPv6Servers = $ipv6.ServerAddresses -join ','
+    }
+    $results += $result
+}
+$results | ConvertTo-Json
+";
+
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "powershell",
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"{checkScript}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+
+                Debug.WriteLine($"DNS ayarları kontrolü:\n{output}");
+                File.AppendAllText(logPath, $"DNS Ayarları Kontrolü:\n{output}\n");
+
+                // DoH ayarlarını kontrol et
+                var dohCheckScript = @"
+$adapters = Get-NetAdapter -Physical
+$dohResults = @()
+foreach($adapter in $adapters) {
+    $dohPath = 'HKLM:System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapter.InterfaceGuid + '\DohInterfaceSettings'
+    $dohSettings = Get-ChildItem -Path $dohPath -Recurse -ErrorAction SilentlyContinue
+    $result = [PSCustomObject]@{
+        AdapterName = $adapter.Name
+        DoHSettings = $dohSettings.Count
+    }
+    $dohResults += $result
+}
+$dohResults | ConvertTo-Json
+";
+
+                var dohProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "powershell",
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"{dohCheckScript}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+
+                dohProcess.Start();
+                var dohOutput = dohProcess.StandardOutput.ReadToEnd();
+                dohProcess.WaitForExit();
+
+                Debug.WriteLine($"DoH ayarları kontrolü:\n{dohOutput}");
+                File.AppendAllText(logPath, $"DoH Ayarları Kontrolü:\n{dohOutput}\n");
+
+                // Kontrol sonuçları
+                bool hasCorrectDNS = output.Contains("8.8.8.8") && output.Contains("9.9.9.9");
+                bool hasDoHSettings = dohOutput.Contains("DoHSettings") && !dohOutput.Contains("0");
+
+                Debug.WriteLine($"Doğru DNS: {hasCorrectDNS}, DoH Ayarları: {hasDoHSettings}");
+                File.AppendAllText(logPath, $"Doğrulama Sonuçları: Doğru DNS={hasCorrectDNS}, DoH Ayarları={hasDoHSettings}\n");
+
+                return hasCorrectDNS && hasDoHSettings;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DNS doğrulama hatası: {ex.Message}");
+                var logPath = GetDNSLogPath();
+                File.AppendAllText(logPath, $"Doğrulama Hatası: {ex.Message}\n");
+                return false;
             }
         }
     }

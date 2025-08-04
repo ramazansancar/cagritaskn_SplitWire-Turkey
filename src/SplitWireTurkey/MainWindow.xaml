@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="SplitWire-Turkey" 
-        Height="600" Width="500"
-        MinHeight="600" MinWidth="500"
+        Height="700" Width="500"
+        MinHeight="700" MinWidth="500"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -64,6 +64,11 @@
                                 Content="Alternatif Kurulum" 
                                 Style="{StaticResource MainButtonStyle}"
                                 Click="BtnAlternativeSetup_Click"/>
+                        
+                        <Button x:Name="btnByeDPISetup" 
+                                Content="ByeDPI ST Kurulum" 
+                                Style="{StaticResource MainButtonStyle}"
+                                Click="BtnByeDPISetup_Click"/>
                         
                         <Button x:Name="btnExit" 
                                 Content="Çıkış" 
@@ -147,15 +152,17 @@
                                 Style="{StaticResource MainButtonStyle}"
                                 Click="BtnGenerateConfig_Click"/>
                         
-                        <Button x:Name="btnGoodbyeDPI" 
-                                Content="GoodbyeDPI Hizmetini Kaldır" 
+                        <Button x:Name="btnRemoveAllServices" 
+                                Content="Hizmetleri Kaldır" 
                                 Style="{StaticResource MainButtonStyle}"
-                                Click="BtnGoodbyeDPI_Click"/>
+                                Click="BtnRemoveAllServices_Click"/>
                         
-                        <Button x:Name="btnRemoveService" 
-                                Content="WireSock Hizmetini Kaldır" 
-                                Style="{StaticResource MainButtonStyle}"
-                                Click="BtnRemoveService_Click"/>
+                        <Button x:Name="btnHeartInfo" 
+                                Content="♥" 
+                                Style="{StaticResource InfoButtonStyle}"
+                                Click="BtnHeartInfo_Click"
+                                HorizontalAlignment="Center"
+                                Margin="0,20,0,0"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
