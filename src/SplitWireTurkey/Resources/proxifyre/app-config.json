@@ -1,0 +1,10 @@
+{
+    "logLevel": "Info",
+    "proxies": [
+        {
+            "appNames": ["roblox", "discord", "Discord.exe", "Update.exe"],
+            "socks5ProxyEndpoint": "127.0.0.1:1080",
+            "supportedProtocols": ["TCP", "UDP"]
+        }
+    ]
+}
