@@ -212,9 +212,11 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 
 ### Atıflar ve Teşekkürler:
 
-- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
-- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
 - **[ByeDPI Split Tunneling Metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** by **[Bal Porsuğu](https://www.youtube.com/@sauali)**
+- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
+- **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
+- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
 
 ## Sorumluluk Reddi Beyanı
 
