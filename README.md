@@ -10,31 +10,31 @@
 
 ## Özet
 
-SplitWire-Turkey, WireGuard VPN yapılandırmasını kolaylaştırmak için geliştirilmiş açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
+SplitWire-Turkey, birden çok metot ile DPI engelini bertaraf etmek için geliştirilmiştir. WireGuard VPN yapılandırmasını kolaylaştırmak, ByeDPI ve Proxifyre ile otomatik kurulum yapan açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını, ByeDPI ve ProxiFyre kullanarak ayrık tünelleme yapılabilmesini sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
 
 **Özellikler:**
 -  **Hızlı Kurulum:** Tek tıkla kullanım
 -  **Özelleştirilmiş Kurulum:** Gelişmiş ayarlarla özel yapılandırma
--  **Servis Yönetimi:** WireSock servisini otomatik olarak kurma/kaldırma
+-  **Servis Yönetimi:** Gerekli hizmetleri kurup/kaldırma
 -  **Klasör Yönetimi:** Tercih edilen uygulama klasörlerini kolayca ekleme/çıkarma
--  **Ücretsiz:** Programı kullanmak ve Cloudflare konfigürasyon dosyası oluşturmak tamamen ücretsiz
+-  **Ücretsiz:** Programı kullanmak tamamen ücretsiz
 
 ## SplitWire-Turkey
 
-SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir WireGuard yapılandırma ve ücretsiz Cloudflare profili oluşturup kullanma aracıdır. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak isteyen kullanıcılar için geliştirilmiştir. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
+SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir DPI aşımı otomasyonu projesidir. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak, ByeDPI'u kolay yoldan kullanarak ayrık tünelleme yapmak isteyen kullanıcılar için geliştirilmiştir. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
 
 > [!NOTE]
-> Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir.
+> Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir. (Otomatik yönetici izni talep edilir ancak bazı durumlarda bu izin alınamazsa manuel olarak yetki yükseltmesi yapmak gerekebilir)
 
 ## SplitWire-Turkey Kullanımı
 
 > [!IMPORTANT]
-> GoodbyeDPI veya Cloudflare WARP ya da farklı bir VPN uygulaması kullanıyorsanız bu uygulamayı kaldırmalısınız. [GoodbyeDPI-Turkey Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)'ni takip ederek kaldırma işlemini gerçekleştirebilirsiniz.
+> GoodbyeDPI veya Cloudflare WARP ya da farklı bir VPN uygulaması kullanıyorsanız bu uygulamayı kaldırmalısınız. SplitWire-Turkey, kurulumlardan herhangi birini başlatmanız halinde GoodbyeDPI hizmetini otomatik olarak kaldırır ancak bu bir sorundan dolayı gerçekleşemez ise; [GoodbyeDPI-Turkey Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)'ni takip ederek kaldırma işlemini gerçekleştirebilirsiniz.
 
 ### Standart Kurulum (Tavsiye Edilen)
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır.)
+- Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
 - "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
@@ -44,7 +44,7 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 ### Alternatif Kurulum (Standart Kurulum İşe Yaramazsa)
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Alternatif Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır.)
+- Alternatif Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
 - "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
@@ -52,7 +52,18 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 > Alternatif kurulum yalnızca Discord için WireSock koruması sağlar.
 **[Bal Porsuğu](https://www.technopat.net/sosyal/uye/bal-porsugu.101438/)**'na alternatif sürüm için WireSock kurulum dosyasını bulduğu ve yaptığı testler için teşekkürler.
 
-### Gelişmiş Kurulum (Özelleştirilmiş Konfigürasyon Dosyasıyla)
+### ByeDPI ST Kurulum (Split Tunneling)
+- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
+- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- ByeDPI ST Kurulum butonuna tıklayın. (WPF ve C++ Redistributable Paketi kurulumları otomatik olarak gerçekleşecektir)
+- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
+
+> [!NOTE]
+> Bu yöntem yalnızca Discord için DPI aşımı yapar. Discord'un ilk açılışı normalden biraz daha uzun sürebilir.
+
+### Özelleştirilmiş Kurulum (Tercih Edilen Klasörler İçin)
+NOT: Bu yöntem WireSock ve wgcf kullanarak çalışır. (ByeDPI değil)
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - Gelişmiş sekmesine gidin.
@@ -64,24 +75,28 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 > Yalnızca seçtiğiniz klasörler özelinde düzenlenmiş "wgcf-profile.conf" dosyası oluşturmak istiyorsanız klasör listesini hazırladıktan sonra "Özelleştirilmiş Profil Dosyası Oluştur" butonuna tıklayabilirsiniz.
 
 > [!NOTE]
-> SplitWire-Turkey uygulamasını daha önce kullandıysanız, yeni bir kurulum yapmadan önce "Gelişmiş" sekmesinden "WireSock Hizmetini Kaldır" butonuna tıklamanız daha sağlıklı bir kurulum gerçekleştirmenizi sağlar.
+> SplitWire-Turkey uygulamasını daha önce kullandıysanız, yeni bir kurulum yapmadan önce "Gelişmiş" sekmesinden "Hizmetleri Kaldır" butonuna tıklamanız daha sağlıklı bir kurulum gerçekleştirmenizi sağlar.
 
 > [!NOTE]
-> SplitWire-Turkey uygulamasını set-up dosyasını kullanmadan ve sisteminize yerleşik bir şekilde kurmadan, **[SplitWire-Turkey-ZIP-Windows.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-ZIP-Windows.zip)** isimli ZIP dosyasını indirip bir klasöre ayıkladıktan sonra **SplitWire-Turkey.exe**'yi çalıştırarak da kullanabilirsiniz. .NET Desktop Runtime hatası alırsanız \Prerequisites klasöründeki kurulum dosyaları ile .NET kurulumu yapabilirsiniz.
+> SplitWire-Turkey uygulamasını set-up dosyasını kullanmadan ve sisteminize yerleşik bir şekilde kurmadan, **[SplitWire-Turkey-ZIP-Windows.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-ZIP-Windows.zip)** isimli ZIP dosyasını indirip bir klasöre ayıkladıktan sonra **SplitWire-Turkey.exe**'yi çalıştırarak da kullanabilirsiniz. .NET Desktop Runtime hatası alırsanız /Prerequisites klasöründeki kurulum dosyaları ile .NET kurulumu yapabilirsiniz.
+
+## Karşılaşılabilecek Sorunlar ve Hata Bildirimi
+- Hizmet kurulumları sırasında hata: Hizmetler penceresi açıkken bu uygulamayı kullanmayın.
+- "Checking for updates" ekranında kalma: Eğer ByeDPI ST Kurulum butonu ile kurulum yaptıysanız ve "Checking for updates" ekranında kaldıysanız, SplitWire-Turkey'in kurulu olduğu klasörün içindeki (Genellikle Program Files/SplitWire-Turkey klasörüne kurulur) **/logs klasörünün içeriği ile birlikte** **[Issues](https://github.com/cagritaskn/SplitWire-Turkey/issues)** kısmından hata bildiriminde bulunun.
 
 ### WireSock ve SplitWire-Turkey'i Sistemden Kaldırmak
 - SplitWire-Turkey uygulamasını çalıştırın.
-- "Gelişmiş" sekmesindeki "WireSock Hizmetini Kaldır" butonuna tıklayın. 
-- Daha sonra Windows'un Program Ekle/Kaldır bölümünden hem WireSock Secure Client'i hem de SplitWire-Turkey'i kaldırın. (Ya da SplitWire-Turkey'in kurulum klasöründe bulunan "unins000.exe" isimli yürütülebilir ile kaldırın)
+- "Gelişmiş" sekmesindeki "Hizmetleri Kaldır" butonuna tıklayın. 
+- Daha sonra Windows'un Program Ekle/Kaldır bölümünden SplitWire-Turkey ve metodların çalışması için gereken ön yüklemelerden tercih ettiklerinizi kaldırın. (Ya da SplitWire-Turkey'in kurulum klasöründe bulunan "unins000.exe" isimli yürütülebilir ile kaldırın)
 
 ## Virüs & SmartScreen Uyarısı
-Program açık kaynak kodlu olduğundan tüm kodu görüp inceleyebilirsiniz. SplitWire-Turkey.dll için 72 adet antivirüs yazılımından yalnızca MalwareBytes isimli antivirüs uygulaması tehdit algılamıştır. Bu sonuç, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırmasından kaynaklanır. (MalwareBytes makine öğrenme ile tespit edilen bir tehdit uyarısı veriyor, uyarının kaldırılması için rapor gönderildi). Tüm program açık kaynak kodludur ve kaynak kodu /src klasörü içerisinden incelenebilir, tercih edilirse tekrar derlenebilir. Programı kullanmak istemeyen ve güvenmeyen kullanıcılar kullanmak zorunda değildir, programı kullanmak kullanıcının inisiyatifindedir.
+Program açık kaynak kodlu olduğundan tüm kodu görüp inceleyebilirsiniz. Tüm program açık kaynak kodludur ve kaynak kodu /src klasörü içerisinden incelenebilir, tercih edilirse tekrar derlenebilir. Programı kullanmak istemeyen ve güvenmeyen kullanıcılar, programı kullanmak zorunda değildir, programı kullanmak kullanıcının inisiyatifindedir.
 Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak kodlarını [VirusTotal](https://www.virustotal.com/gui/home/upload) gibi bir sitede taratıp sonuçları inceleyebilir, dilerseniz C# dili biliyorsanız veya bilen bir tanıdığınız varsa başvurup kodun ne yapmaya çalıştığını anlayabilirsiniz. Programı imzalamadan yayınlamak bu gibi sorunlara yol açabiliyor. Programı imzalamak döviz kuruyla düzenli ödeme yapmayı gerektirdiği ve bu program ücretsiz olduğu, bununla birlikte gelir elde etmeden bakımı yapıldığı için imzalama girişiminde bulunamıyorum.
 > [!NOTE]
-> **[SplitWire-Turkey.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/7113da9f8fb88e0e81e3c31a455056a1e05574c9c2f2dc633ab788645ea047b4)** 72 adet antivirüs progamı içerisinde hiçbir antivirüs programı tehdit algılamamıştır.
+> **[SplitWire-Turkey-Setup-Windows.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/3b15b36dc5a5b3596a7528cf605f8c32f9b4ad74a327ee9a1a82379d95f8bc45?nocache=1)** 72 adet antivirüs progamı içerisinde 2 adet antivirüs yazılımı tehdit algılamıştır ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Bunun sebebi, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
 
 > [!NOTE]
-> **[SplitWire-Turkey.dll VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/9b82ec51f8abea3eed580826c9bb49e4b5b97b706db4915fb76709bf81db6720)** 72 adet antivirüs progamı içerisinde yalnızca bir adet (MalwareBytes) antivirüs uygulaması tehdit algılamıştır. Bu sonuç, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırmasından kaynaklanır. MalwareBytes isimli antivirüs yazılımını kullanıyorsanız, raporumuz sonuçlanana kadar farklı bir antivirüs yazılımı tercih etmeyi düşünebilirsiniz.
+> **[SplitWire-Turkey.dll VirusTotal sonuçlarında](https://www.virustotal.com/gui/file-analysis/MjU5MjllNDc4MzA3MTQ1YjVlNTE5ZjU0MGJmZTMzN2E6MTc1NDI5MjE0Nw==)** 72 adet antivirüs progamı içerisinde yalnızca iki adet antivirüs yazılımı tehdit algılamıştır. Bunun sebebi, SplitWire-Turkey'in wgcf.exe ve WireSock Set-up dosyalarını internet üzerinden indirip çalıştırması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi) Google'ın zararlı yazılım tehdidi algılaması üzerine raporu gönderdik. Raporun sonunçlanması veya SplitWire-Turkey'in daha fazla indirilmesi durumunda bu tehdit algılaması otomatik olarak kaldırılacaktır. Eğer bir şekilde bu tehdit algılaması kaldırılmazsa bazı özellikleri programdan çıkarmam gerekebilir. (Kullanıcı çekinceleri sebebi ile)
 
 ## Gelişmiş Ayarlar
 
@@ -195,19 +210,21 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 
 [![Static Badge](https://img.shields.io/badge/cagritaskn-purple?logo=patreon&label=Patreon)](https://www.patreon.com/cagritaskn/membership)
 
-### Kullanılan İşlevsellik Programları ve Yaratıcıları:
+### Atıflar ve Teşekkürler:
 
 - **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
 - **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[ByeDPI Split Tunneling Metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** by **[Bal Porsuğu](https://www.youtube.com/@sauali)**
 
 ## Sorumluluk Reddi Beyanı
 
 **Bu yazılım eğitim amaçlı oluşturulmuştur.**
 
-- Bu araç sadece eğitim ve kişisel kullanım amaçlıdır
+- Bu araç sadece kodlama eğitimi ve kişisel kullanım amaçlıdır
 - Ticari kullanım için uygun değildir
 - Geliştirici, bu yazılımın kullanımından doğabilecek herhangi bir zarardan sorumlu değildir
 - Kullanıcılar bu yazılımı kendi sorumluluklarında kullanırlar
+- Discord isimli programın seçilmesi, ilgili yazılımın DPI ile erişilemez kılınan bir program üzerinde denenmesi gerekmesidir
 - Yasal düzenlemelere uygun kullanım kullanıcının sorumluluğundadır
 > [!IMPORTANT]
 > Bu programın kullanımından doğan her türlü yasal sorumluluk kullanan kişiye aittir. Uygulama yalnızca eğitim ve araştırma amaçları ile yazılmış ve düzenlenmiş olup; bu uygulamayı bu şartlar altında kullanmak ya da kullanmamak kullanıcının kendi seçimidir. Açık kaynak kodlarının paylaşıldığı Github isimli platformdaki bu proje, bilgi paylaşımı ve kodlama eğitimi amaçları ile yazılmış ve düzenlenmiştir.
