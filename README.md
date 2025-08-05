@@ -56,11 +56,21 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - ByeDPI ST Kurulum butonuna tıklayın. (WPF ve C++ Redistributable Paketi kurulumları otomatik olarak gerçekleşecektir)
-- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- "Kurulum başarıyla tamamlandı." uyarısını aldığınızda program çalışmaya başlamış demektir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
 > Bu yöntem yalnızca Discord için DPI aşımı yapar. Discord'un ilk açılışı normalden biraz daha uzun sürebilir.
+
+### ByeDPI DLL Kurulum (ByeDPI ve drover Sayesinde)
+- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
+- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- ByeDPI DLL Kurulum butonuna tıklayın. (ByeDPI ve drover kurulumu otomatik olarak gerçekleşecektir)
+- "Kurulum başarıyla tamamlandı." uyarısını aldığınızda program çalışmaya başlamış demektir.
+- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
+
+> [!NOTE]
+> Bu yöntem yalnızca Discord için DPI aşımı yapar. Eğer droveri kaldırmak isterseniz Gelişmiş sekmesindeki Hizmetleri Kaldır butonuna tıklayabilir ya da farklı bir kurulum başlatabilirsiniz.
 
 ### Özelleştirilmiş Kurulum (Tercih Edilen Klasörler İçin)
 NOT: Bu yöntem WireSock ve wgcf kullanarak çalışır. (ByeDPI değil)
@@ -217,6 +227,7 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 - **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
 - **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
 - **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
 
 ## Sorumluluk Reddi Beyanı
 
