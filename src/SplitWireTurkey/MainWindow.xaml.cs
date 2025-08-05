@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -184,7 +185,7 @@ namespace SplitWireTurkey
         private async void BtnRemoveAllServices_Click(object sender, RoutedEventArgs e)
         {
             var result = System.Windows.MessageBox.Show(
-                "wiresock-client-service, GoodbyeDPI, WinDivert, ByeDPI, ProxiFyreService hizmetlerini durdurup kaldırmak istediğinizden emin misiniz?",
+                "wiresock-client-service, GoodbyeDPI, WinDivert, ByeDPI, ProxiFyreService hizmetlerini durdurup kaldırmak ve Discord klasöründeki drover dosyalarını silmek istediğinizden emin misiniz?",
                 "Hizmetleri Kaldır", MessageBoxButton.YesNo, MessageBoxImage.Question);
             
             if (result != MessageBoxResult.Yes) return;
@@ -212,7 +213,11 @@ namespace SplitWireTurkey
                 File.AppendAllText(logPath, "Windows Firewall kuralları temizleniyor...\n");
                 await RemoveFirewallRulesAsync();
                 
-                System.Windows.MessageBox.Show("Tüm hizmetler ve firewall kuralları başarıyla kaldırıldı.", 
+                // Drover dosyalarını temizle
+                File.AppendAllText(logPath, "Discord klasöründeki drover dosyaları temizleniyor...\n");
+                await CleanupDroverFilesAsync();
+                
+                System.Windows.MessageBox.Show("Tüm hizmetler, firewall kuralları ve drover dosyaları başarıyla kaldırıldı.", 
                     "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             finally
@@ -480,6 +485,19 @@ namespace SplitWireTurkey
             
             try
             {
+                // Drover dosyalarını temizle
+                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
+                await CleanupDroverFilesAsync();
+                
+                // DNS ayarları
+                File.AppendAllText(logPath, "DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+
                 File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
                 var success = await _wireGuardService.CreateProfileAsync();
                 
@@ -528,6 +546,19 @@ namespace SplitWireTurkey
             
             try
             {
+                // Drover dosyalarını temizle
+                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
+                await CleanupDroverFilesAsync();
+                
+                // DNS ayarları
+                File.AppendAllText(logPath, "DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+
                 var extraFolders = _folders.ToArray();
                 File.AppendAllText(logPath, $"Ek klasörler: {string.Join(", ", extraFolders)}\n");
                 File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
@@ -616,6 +647,19 @@ namespace SplitWireTurkey
             
             try
             {
+                // Drover dosyalarını temizle
+                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
+                await CleanupDroverFilesAsync();
+                
+                // DNS ayarları
+                File.AppendAllText(logPath, "DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+
                 // Önce mevcut WireSock hizmetini durdur ve kaldır
                 File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılıyor...\n");
                 var uninstallSuccess = await _wireSockService.RemoveServiceAsync();
@@ -1199,6 +1243,18 @@ namespace SplitWireTurkey
             }
         }
 
+        private void BtnByeDPIDLLSetup_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "ByeDPI DLL Kurulum, GoodbyeDPI, WinDivert, ProxiFyre, wiresock-client-service, ByeDPI hizmetlerini durdurup kaldıracak ve Discord.exe için drover dosyalarını kuracaktır. Kurulumu başlatmak istediğinizden emin misiniz?", 
+                "ByeDPI DLL Kurulum", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                PerformByeDPIDLLSetup();
+            }
+        }
+
         private async void PerformByeDPISetup()
         {
             ShowLoading(true);
@@ -1296,6 +1352,110 @@ namespace SplitWireTurkey
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"ByeDPI ST Kurulum sırasında hata oluştu: {ex.Message}", 
+                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        private async void PerformByeDPIDLLSetup()
+        {
+            ShowLoading(true);
+            
+            try
+            {
+                var logPath = GetLogPath();
+                File.WriteAllText(logPath, $"ByeDPI DLL Kurulum Başlangıç: {DateTime.Now}\n");
+
+                // 1. Discord.exe'yi durdur
+                File.AppendAllText(logPath, "1. Discord.exe durduruluyor...\n");
+                var discordStopSuccess = await StopDiscordProcessAsync();
+                
+                if (!discordStopSuccess)
+                {
+                    File.AppendAllText(logPath, "Discord.exe durdurulamadı veya çalışmıyor.\n");
+                }
+
+                // 2. Hizmetleri durdur ve kaldır
+                File.AppendAllText(logPath, "2. Hizmetler durduruluyor ve kaldırılıyor...\n");
+                var serviceRemovalSuccess = await RemoveAllServicesForDLLSetupAsync();
+                
+                if (!serviceRemovalSuccess)
+                {
+                    System.Windows.MessageBox.Show("Hizmet kaldırma işlemi başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 3. Prerequisites kurulumları
+                File.AppendAllText(logPath, "3. Prerequisites kurulumları başlatılıyor...\n");
+                var prereqSuccess = await InstallPrerequisitesAsync();
+                
+                if (!prereqSuccess)
+                {
+                    System.Windows.MessageBox.Show("Prerequisites kurulumları başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 4. DNS ayarları
+                File.AppendAllText(logPath, "4. DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    System.Windows.MessageBox.Show("DNS ayarları başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 5. ByeDPI hizmeti kurulumu
+                File.AppendAllText(logPath, "5. ByeDPI hizmeti kurulumu yapılıyor...\n");
+                var byeDPIInstallSuccess = await InstallByeDPIServiceAsync();
+                
+                if (!byeDPIInstallSuccess)
+                {
+                    System.Windows.MessageBox.Show("ByeDPI hizmeti kurulumu başarısız oldu. Manuel olarak başlatmayı deneyin.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 6. Windows Firewall kuralları ekleme (sadece ByeDPI için)
+                File.AppendAllText(logPath, "6. Windows Firewall kuralları ekleniyor...\n");
+                var firewallSuccess = await AddByeDPIFirewallRulesAsync();
+                
+                if (!firewallSuccess)
+                {
+                    System.Windows.MessageBox.Show("Windows Firewall kuralları eklenirken hata oluştu. Manuel olarak izin vermeniz gerekebilir.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 7. Drover dosyalarını kopyala
+                File.AppendAllText(logPath, "7. Drover dosyaları kopyalanıyor...\n");
+                var droverSuccess = await InstallDroverFilesAsync();
+                
+                if (!droverSuccess)
+                {
+                    System.Windows.MessageBox.Show("Drover dosyaları kopyalanamadı. Manuel olarak kopyalamayı deneyin.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 8. Kurulum tamamlandı mesajı
+                File.AppendAllText(logPath, "Kurulum tamamlandı.\n");
+                File.AppendAllText(logPath, $"ByeDPI DLL Kurulum Bitiş: {DateTime.Now}\n");
+
+                var restartResult = System.Windows.MessageBox.Show(
+                    "ByeDPI DLL Kurulum tamamlandı. Değişikliklerin uygulanabilmesi için sisteminizi yeniden başlatın. Şimdi yeniden başlatmak istiyorsanız Evet'e tıklayın. Daha sonra yeniden başlatmak istiyorsanız Hayır'a tıklayın.",
+                    "Kurulum Tamamlandı",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (restartResult == MessageBoxResult.Yes)
+                {
+                    RestartSystem();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"ByeDPI DLL Kurulum sırasında hata oluştu: {ex.Message}", 
                     "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -2011,6 +2171,460 @@ $dohResults | ConvertTo-Json
                     return false;
                 }
             });
+        }
+
+        /// <summary>
+        /// Drover dosyalarını temizler
+        /// </summary>
+        private async Task<bool> CleanupDroverFilesAsync()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
+
+                // Önce Discord.exe'yi durdur
+                File.AppendAllText(logPath, "Discord.exe durduruluyor...\n");
+                var discordProcesses = Process.GetProcessesByName("Discord");
+                if (discordProcesses.Length > 0)
+                {
+                    foreach (var process in discordProcesses)
+                    {
+                        try
+                        {
+                            process.Kill();
+                            process.WaitForExit(5000); // 5 saniye bekle
+                            File.AppendAllText(logPath, $"Discord.exe işlemi durduruldu. PID: {process.Id}\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"Discord.exe işlemi durdurulurken hata: {ex.Message}\n");
+                        }
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "Discord.exe işlemi çalışmıyor.\n");
+                }
+
+                // Kısa bir bekleme süresi ekle
+                Thread.Sleep(2000);
+
+                // Discord.exe'nin bulunduğu klasörü bul (timeout ile)
+                var discordPath = await FindDiscordPathWithTimeoutAsync();
+                if (!string.IsNullOrEmpty(discordPath))
+                {
+                    var versionDllPath = Path.Combine(discordPath, "version.dll");
+                    var droverIniPath = Path.Combine(discordPath, "drover.ini");
+
+                    // Dosyaları sil
+                    if (File.Exists(versionDllPath))
+                    {
+                        try
+                        {
+                            File.Delete(versionDllPath);
+                            File.AppendAllText(logPath, $"version.dll silindi: {versionDllPath}\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"version.dll silinirken hata: {ex.Message}\n");
+                        }
+                    }
+
+                    if (File.Exists(droverIniPath))
+                    {
+                        try
+                        {
+                            File.Delete(droverIniPath);
+                            File.AppendAllText(logPath, $"drover.ini silindi: {droverIniPath}\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"drover.ini silinirken hata: {ex.Message}\n");
+                        }
+                    }
+
+                    File.AppendAllText(logPath, "Drover dosyaları başarıyla temizlendi.\n");
+                    return true;
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "Discord.exe bulunamadı, drover dosyaları temizlenmedi.\n");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"Drover dosyaları temizleme hatası: {ex.Message}\n");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Discord.exe'nin bulunduğu klasörü bulur (timeout ile)
+        /// </summary>
+        private async Task<string> FindDiscordPathWithTimeoutAsync()
+        {
+            try
+            {
+                // 10 saniye timeout ile Discord yolu bulma işlemini çalıştır
+                var timeoutTask = Task.Run(() => FindDiscordPath());
+                var completedTask = await Task.WhenAny(timeoutTask, Task.Delay(10000)); // 10 saniye timeout
+                
+                if (completedTask == timeoutTask)
+                {
+                    return await timeoutTask; // Timeout olmadan tamamlandı
+                }
+                else
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "Discord yolu bulma işlemi timeout nedeniyle iptal edildi.\n");
+                    return null; // Timeout oldu
+                }
+            }
+            catch (Exception ex)
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"Discord yolu bulma timeout hatası: {ex.Message}\n");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Discord.exe'nin bulunduğu klasörü bulur
+        /// </summary>
+        private string FindDiscordPath()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "Discord.exe yolu aranıyor...\n");
+
+                // Önce Discord.exe'yi çalışan işlemler arasında ara
+                var discordProcesses = Process.GetProcessesByName("Discord");
+                if (discordProcesses.Length > 0)
+                {
+                    var process = discordProcesses[0];
+                    var processPath = process.MainModule?.FileName;
+                    if (!string.IsNullOrEmpty(processPath))
+                    {
+                        var directory = Path.GetDirectoryName(processPath);
+                        File.AppendAllText(logPath, $"Discord.exe çalışan işlemden bulundu: {directory}\n");
+                        return directory;
+                    }
+                }
+
+                // LocalAppData klasöründe Discord klasörünü ara
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var discordBasePath = Path.Combine(localAppData, "Discord");
+
+                if (Directory.Exists(discordBasePath))
+                {
+                    File.AppendAllText(logPath, $"Discord base path bulundu: {discordBasePath}\n");
+                    
+                    // app-* klasörlerini ara
+                    var appDirectories = Directory.GetDirectories(discordBasePath, "app-*");
+                    File.AppendAllText(logPath, $"{appDirectories.Length} adet app-* klasörü bulundu.\n");
+                    
+                    foreach (var appDir in appDirectories)
+                    {
+                        var discordExePath = Path.Combine(appDir, "Discord.exe");
+                        if (File.Exists(discordExePath))
+                        {
+                            File.AppendAllText(logPath, $"Discord.exe app klasöründe bulundu: {appDir}\n");
+                            return appDir;
+                        }
+                    }
+
+                    // Eğer app-* klasörü bulunamazsa, Discord klasörünün kendisini kontrol et
+                    var discordExeInBase = Path.Combine(discordBasePath, "Discord.exe");
+                    if (File.Exists(discordExeInBase))
+                    {
+                        File.AppendAllText(logPath, $"Discord.exe base klasörde bulundu: {discordBasePath}\n");
+                        return discordBasePath;
+                    }
+                }
+
+                File.AppendAllText(logPath, "Discord.exe otomatik olarak bulunamadı.\n");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, $"Discord yolu bulma hatası: {ex.Message}\n");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Discord.exe işlemini durdurur
+        /// </summary>
+        private async Task<bool> StopDiscordProcessAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "Discord.exe işlemi durduruluyor...\n");
+
+                    var discordProcesses = Process.GetProcessesByName("Discord");
+                    if (discordProcesses.Length > 0)
+                    {
+                        foreach (var process in discordProcesses)
+                        {
+                            try
+                            {
+                                process.Kill();
+                                process.WaitForExit(5000); // 5 saniye bekle
+                                File.AppendAllText(logPath, $"Discord.exe işlemi durduruldu. PID: {process.Id}\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"Discord.exe işlemi durdurulurken hata: {ex.Message}\n");
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "Discord.exe işlemi çalışmıyor.\n");
+                        return true; // Çalışmıyorsa başarılı say
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Discord işlemi durdurma hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// ByeDPI DLL kurulumu için tüm hizmetleri kaldırır
+        /// </summary>
+        private async Task<bool> RemoveAllServicesForDLLSetupAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "ByeDPI DLL kurulumu için hizmetler kaldırılıyor...\n");
+                    
+                    var services = new[] { "GoodbyeDPI", "WinDivert", "ProxiFyre", "wiresock-client-service", "ByeDPI" };
+                    
+                    foreach (var service in services)
+                    {
+                        File.AppendAllText(logPath, $"{service} hizmeti kaldırılıyor...\n");
+                        
+                        // Hizmeti durdur
+                        var stopResult = ExecuteCommand("net", $"stop {service}");
+                        File.AppendAllText(logPath, $"{service} durdurma sonucu: {stopResult}\n");
+                        
+                        // Hizmeti kaldır
+                        var removeResult = ExecuteCommand("sc", $"delete {service}");
+                        File.AppendAllText(logPath, $"{service} kaldırma sonucu: {removeResult}\n");
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Hizmet kaldırma hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// ByeDPI için firewall kuralları ekler
+        /// </summary>
+        private async Task<bool> AddByeDPIFirewallRulesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "ByeDPI için Windows Firewall kuralları ekleniyor...\n");
+
+                    // SplitWire-Turkey.exe'nin çalıştırıldığı klasörü al
+                    var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    var exeDirectory = Path.GetDirectoryName(exePath);
+                    
+                    // ciadpi.exe yolu
+                    var ciadpiPath = Path.Combine(exeDirectory, "res", "byedpi", "ciadpi.exe");
+
+                    bool allRulesAdded = true;
+
+                    // ciadpi.exe için firewall kuralı ekle
+                    if (File.Exists(ciadpiPath))
+                    {
+                        File.AppendAllText(logPath, $"ciadpi.exe firewall kuralı ekleniyor: {ciadpiPath}\n");
+                        
+                        // Gelen bağlantılar için kural
+                        var inboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ByeDPI ciadpi Inbound\" dir=in action=allow program=\"{ciadpiPath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ciadpi Inbound kural sonucu: {inboundResult}\n");
+                        
+                        // Giden bağlantılar için kural
+                        var outboundResult = ExecuteCommand("netsh", $"advfirewall firewall add rule name=\"ByeDPI ciadpi Outbound\" dir=out action=allow program=\"{ciadpiPath}\" enable=yes");
+                        File.AppendAllText(logPath, $"ciadpi Outbound kural sonucu: {outboundResult}\n");
+
+                        if (inboundResult != 0 || outboundResult != 0)
+                        {
+                            File.AppendAllText(logPath, "ciadpi firewall kuralları eklenirken hata oluştu.\n");
+                            allRulesAdded = false;
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"ciadpi.exe bulunamadı: {ciadpiPath}\n");
+                        allRulesAdded = false;
+                    }
+
+                    if (allRulesAdded)
+                    {
+                        File.AppendAllText(logPath, "ByeDPI Windows Firewall kuralları başarıyla eklendi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "ByeDPI Windows Firewall kuralları eklenirken hata oluştu.\n");
+                    }
+
+                    return allRulesAdded;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"ByeDPI firewall kural ekleme hatası: {ex.Message}\n");
+                    return false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Drover dosyalarını Discord klasörüne kopyalar
+        /// </summary>
+        private async Task<bool> InstallDroverFilesAsync()
+        {
+            try
+            {
+                var logPath = GetLogPath();
+                File.AppendAllText(logPath, "Drover dosyaları kopyalanıyor...\n");
+
+                // Discord.exe'nin bulunduğu klasörü bul (timeout ile)
+                var discordPath = await FindDiscordPathWithTimeoutAsync();
+                    if (string.IsNullOrEmpty(discordPath))
+                    {
+                        // Discord.exe bulunamadı, manuel seçim için dialog aç
+                        File.AppendAllText(logPath, "Discord.exe bulunamadı, manuel seçim için dialog açılıyor...\n");
+                        
+                        var result = System.Windows.MessageBox.Show(
+                            "Discord.exe otomatik olarak bulunamadı. Manuel olarak Discord klasörünü seçmek ister misiniz?",
+                            "Discord Klasörü Bulunamadı",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+                        
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            var dialog = new FolderBrowserDialog
+                            {
+                                Description = "Discord.exe'nin bulunduğu klasörü seçin"
+                            };
+
+                            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                            {
+                                discordPath = dialog.SelectedPath;
+                                File.AppendAllText(logPath, $"Manuel seçilen Discord yolu: {discordPath}\n");
+                            }
+                            else
+                            {
+                                File.AppendAllText(logPath, "Manuel seçim iptal edildi.\n");
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            File.AppendAllText(logPath, "Manuel seçim reddedildi.\n");
+                            return false;
+                        }
+                    }
+
+                    // Drover dosyalarının kaynak yolları
+                    var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    var exeDirectory = Path.GetDirectoryName(exePath);
+                    var droverSourcePath = Path.Combine(exeDirectory, "res", "drover");
+                    
+                    var versionDllSource = Path.Combine(droverSourcePath, "version.dll");
+                    var droverIniSource = Path.Combine(droverSourcePath, "drover.ini");
+                    
+                    // Hedef yolları
+                    var versionDllTarget = Path.Combine(discordPath, "version.dll");
+                    var droverIniTarget = Path.Combine(discordPath, "drover.ini");
+
+                    bool allFilesCopied = true;
+
+                    // version.dll kopyala
+                    if (File.Exists(versionDllSource))
+                    {
+                        try
+                        {
+                            File.Copy(versionDllSource, versionDllTarget, true);
+                            File.AppendAllText(logPath, $"version.dll kopyalandı: {versionDllTarget}\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"version.dll kopyalama hatası: {ex.Message}\n");
+                            allFilesCopied = false;
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"version.dll kaynak dosyası bulunamadı: {versionDllSource}\n");
+                        allFilesCopied = false;
+                    }
+
+                    // drover.ini kopyala
+                    if (File.Exists(droverIniSource))
+                    {
+                        try
+                        {
+                            File.Copy(droverIniSource, droverIniTarget, true);
+                            File.AppendAllText(logPath, $"drover.ini kopyalandı: {droverIniTarget}\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"drover.ini kopyalama hatası: {ex.Message}\n");
+                            allFilesCopied = false;
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"drover.ini kaynak dosyası bulunamadı: {droverIniSource}\n");
+                        allFilesCopied = false;
+                    }
+
+                    if (allFilesCopied)
+                    {
+                        File.AppendAllText(logPath, "Drover dosyaları başarıyla kopyalandı.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "Bazı drover dosyaları kopyalanamadı.\n");
+                    }
+
+                    return allFilesCopied;
+                }
+                catch (Exception ex)
+                {
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Drover dosyaları kopyalama hatası: {ex.Message}\n");
+                    return false;
+                }
         }
 
         /// <summary>

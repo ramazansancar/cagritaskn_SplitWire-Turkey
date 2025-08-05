@@ -37,4 +37,11 @@
     <Resource Include="Resources\loading.gif" Condition="Exists('Resources\loading.gif')" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Resources\drover\**" Condition="Exists('Resources\drover')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>res\drover\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project> 
