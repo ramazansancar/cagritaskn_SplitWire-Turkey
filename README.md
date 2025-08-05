@@ -115,9 +115,9 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - **Özelleştirilmiş Profil Oluşturma:** Oluşturulan ücretsiz Cloudflare konfigürasyon dosyasına, klasör listesine eklediğiniz dizinleri ekleyerek "\res" klasörü içerisinde konfigürasyon dosyasının son halini kaydeder. Bu sayede başka WireGuard uygulamaları ile de bu dosyayı kullanabilirsiniz.
 - **WireSock Hizmetini Kaldır:** "WireSock Hizmetini Kaldır" butonu, WireSock hizmetini kaldırıp korumayı durdurmak için veya tekrar yeni bir hizmet kurulumu yapmak için kullanılabilir.
 
-### WireSock ve GoodbyeDPI Hizmetlerini Kaldırma
-- WireSock hizmetini kaldırmak için **WireSock Hizmetini Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
-- GoodbyeDPI Hizmeti sebepten dolayı otomatik olarak kaldırılamazsa **GoodbyeDPI Hizmetini Kaldır** butonu ile hizmeti kaldırmayı deneyebilirsiniz.
+### WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI Hizmetlerini & drover Dosyalarını Kaldırma
+- WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI hizmetlerini kaldırmak için Gelişmiş sekmesindeki **Hizmetleri Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
+- GoodbyeDPI Hizmeti bir sebepten dolayı otomatik olarak kaldırılamazsa **[GoodbyeDPI Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)**'ni takip ederek kaldırmayı deneyebilirsiniz.
 
 ### El ile Yapılandırma
 ```xml
@@ -133,24 +133,11 @@ AllowedApps = C:\Program Files\Program Z\ProgramZ.exe, C:\Users\kullanici-adi\Ap
 
 ## Nasıl Çalışır
 
-### İşlem Akışı
+### Standart, Alternatif ve Özelleştirilmiş Kurulum
+Öncelikle wgcf ile profil dosyası oluşturup WireSock istemcisi ile bu profil dosyasını kullanır ve yanlızca Discord için ayrık tünelleme başlatır.
 
-1. **WireGuard Profil Oluşturma**
-   ```
-   wgcf register → wgcf generate → wgcf-profile.conf
-   ```
-2. **Yapılandırma Modifikasyonu**
-   ```
-   wgcf-profile.conf + AllowedApps (Standart olarak yalnızca Discord) = Uygulama klasörleri eklenmiş konfigürasyon dosyası
-   ```
-3. **WireSock Servis Kurulumu**
-   ```
-   wiresock-client.exe install → net start → sc start
-   ```
-4. **Profil Aktivasyonu**
-   ```
-   WireSock hizmeti + wgcf-profile.conf = Aktif WireSock bağlantısı
-   ```
+### ByeDPI ST ve ByeDPI DLL Kurulum
+Öncelikle ByeDPI hizmeti kurulur ve ST metodunda ProxiFyre kullanarak bu proxy seçili uygulamalar için çalıştırılır, DLL metodunda ise drover dosyaları otomatik DLL enjeksiyonu ile Discord'un localhost'ta ByeDPI tarafından başlatılan proxy'nin kullanılmasını sağlar.
 
 ## Tekrar Derleme (Recompiling)
 
