@@ -683,17 +683,48 @@ namespace SplitWireTurkey
 
                 try
                 {
-                    // Mevcut sürümü indir
-                    File.AppendAllText(logPath, "Mevcut WireSock sürümü indiriliyor...\n");
-                    using (var client = new System.Net.Http.HttpClient())
+                    bool uninstallDownloadSuccess = false;
+                    
+                    // Önce online indirmeyi dene
+                    try
                     {
-                        var response = await client.GetAsync(currentDownloadUrl);
-                        response.EnsureSuccessStatusCode();
-                        
-                        using (var fileStream = File.Create(currentSetupPath))
+                        File.AppendAllText(logPath, "Mevcut WireSock sürümü indiriliyor...\n");
+                        using (var client = new System.Net.Http.HttpClient())
                         {
-                            await response.Content.CopyToAsync(fileStream);
+                            client.Timeout = TimeSpan.FromMinutes(5);
+                            var response = await client.GetAsync(currentDownloadUrl);
+                            response.EnsureSuccessStatusCode();
+                            
+                            using (var fileStream = File.Create(currentSetupPath))
+                            {
+                                await response.Content.CopyToAsync(fileStream);
+                            }
+                            uninstallDownloadSuccess = true;
                         }
+                    }
+                    catch (Exception downloadEx)
+                    {
+                        File.AppendAllText(logPath, $"Online indirme başarısız: {downloadEx.Message}. Yerel dosya kullanılacak...\n");
+                        
+                        // Yerel dosyayı kullan
+                        var localUninstallPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
+                        
+                        if (File.Exists(localUninstallPath))
+                        {
+                            File.Copy(localUninstallPath, currentSetupPath, true);
+                            uninstallDownloadSuccess = true;
+                            File.AppendAllText(logPath, "Yerel kurulum dosyası kaldırma için kullanılacak.\n");
+                        }
+                        else
+                        {
+                            File.AppendAllText(logPath, $"Yerel kurulum dosyası bulunamadı: {localUninstallPath}\n");
+                        }
+                    }
+                    
+                    if (!uninstallDownloadSuccess)
+                    {
+                        File.AppendAllText(logPath, "WireSock kaldırma dosyası alınamadı. Kaldırma atlanıyor...\n");
+                        throw new Exception("WireSock kaldırma dosyası alınamadı");
                     }
 
                     // Mevcut sürümü kaldır
@@ -990,16 +1021,52 @@ namespace SplitWireTurkey
                 var setupPath = Path.Combine(tempDir, "wiresock-setup.exe");
                 var downloadUrl = "https://wiresock.net/_api/download-release.php?product=wiresock-secure-connect&platform=windows_x64&version=latest";
 
-                // Dosyayı indir
-                using (var client = new System.Net.Http.HttpClient())
+                bool downloadSuccess = false;
+
+                // Önce online indirmeyi dene
+                try
                 {
-                    var response = await client.GetAsync(downloadUrl);
-                    response.EnsureSuccessStatusCode();
-                    
-                    using (var fileStream = File.Create(setupPath))
+                    using (var client = new System.Net.Http.HttpClient())
                     {
-                        await response.Content.CopyToAsync(fileStream);
+                        client.Timeout = TimeSpan.FromMinutes(5); // 5 dakika timeout
+                        var response = await client.GetAsync(downloadUrl);
+                        response.EnsureSuccessStatusCode();
+                        
+                        using (var fileStream = File.Create(setupPath))
+                        {
+                            await response.Content.CopyToAsync(fileStream);
+                        }
+                        downloadSuccess = true;
                     }
+                }
+                catch (Exception downloadEx)
+                {
+                    System.Windows.MessageBox.Show($"Online indirme başarısız oldu: {downloadEx.Message}\nYerel kurulum dosyası kullanılacak...", 
+                        "İndirme Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    // Yerel dosyayı kullan
+                    var localSetupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
+                    
+                    if (File.Exists(localSetupPath))
+                    {
+                        File.Copy(localSetupPath, setupPath, true);
+                        downloadSuccess = true;
+                        System.Windows.MessageBox.Show("Yerel kurulum dosyası kullanılacak.", 
+                            "Yerel Dosya Kullanımı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show($"Yerel kurulum dosyası bulunamadı: {localSetupPath}\nKurulum iptal edildi.", 
+                            "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+
+                if (!downloadSuccess)
+                {
+                    System.Windows.MessageBox.Show("WireSock kurulum dosyası alınamadı. Kurulum iptal edildi.", 
+                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
                 // En uygun kurulum yolunu belirle
