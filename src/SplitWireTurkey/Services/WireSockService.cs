@@ -41,8 +41,8 @@ namespace SplitWireTurkey.Services
                 var wiresockExe = FindWireSockPath();
                 if (string.IsNullOrEmpty(wiresockExe) || !File.Exists(wiresockExe))
                 {
-                    System.Windows.MessageBox.Show("WireSock kurulumu bulunamadı.", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show("WireSock kurulumu bulunamadı. Birazdan indirme işlemi için onay alınacak.", 
+                        "WireSock Bulunamadı", MessageBoxButton.OK, MessageBoxImage.Information);
                     return false;
                 }
 
@@ -94,7 +94,7 @@ namespace SplitWireTurkey.Services
                 if (string.IsNullOrEmpty(wiresockExe) || !File.Exists(wiresockExe))
                 {
                     System.Windows.MessageBox.Show("WireSock kurulumu bulunamadı.", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                        "WireSock Bulunamadı", MessageBoxButton.OK, MessageBoxImage.Information);
                     return false;
                 }
 
