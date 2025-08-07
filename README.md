@@ -197,6 +197,15 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 Detaylar için LICENSE dosyasına bakın.
 ```
 
+## Atıflar ve Teşekkürler:
+
+- **[ByeDPI Split Tunneling metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** rehberi ve tüm emekleri için **[Bal Porsuğu](https://www.youtube.com/@sauali)**'na çok teşekkür ederim.
+- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
+- **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
+- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
+
 ## Bağış ve Destek
 
 Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir elde etmiyorum. Ancak çalışmalarıma devam edebilmem için aşağıda bulunan bağış adreslerinden beni destekleyebilirsiniz. Github üzerinden (bu sayfanın en üstünden) projeye yıldız da bırakabilirsiniz.
@@ -209,14 +218,7 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 
 [![Static Badge](https://img.shields.io/badge/cagritaskn-purple?logo=patreon&label=Patreon)](https://www.patreon.com/cagritaskn/membership)
 
-### Atıflar ve Teşekkürler:
 
-- **[ByeDPI Split Tunneling Metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** by **[Bal Porsuğu](https://www.youtube.com/@sauali)**
-- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
-- **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
-- **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
-- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
-- **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
 
 ## Sorumluluk Reddi Beyanı
 
