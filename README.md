@@ -91,8 +91,10 @@ NOT: Bu yöntem WireSock ve wgcf kullanarak çalışır. (ByeDPI değil)
 > SplitWire-Turkey uygulamasını set-up dosyasını kullanmadan ve sisteminize yerleşik bir şekilde kurmadan, **[SplitWire-Turkey-ZIP-Windows.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-ZIP-Windows.zip)** isimli ZIP dosyasını indirip bir klasöre ayıkladıktan sonra **SplitWire-Turkey.exe**'yi çalıştırarak da kullanabilirsiniz. .NET Desktop Runtime hatası alırsanız /Prerequisites klasöründeki kurulum dosyaları ile .NET kurulumu yapabilirsiniz.
 
 ## Karşılaşılabilecek Sorunlar ve Hata Bildirimi
+- "Register failed" hatası: Bazı internet sağlayıcıları ya da CloudFlare'in kendisi, ücretsiz API'sinin kullanımını çeşitli sebeplerle engelleyebiliyor. Bunun en sık görülen sebebi "abusive usage" olarak tanımlanan bölgesel aşırı kullanma istismarıdır. Bu sebeple wgcf, kayıt gerçekleştiremez ve konfigürasyon dosyası oluşturamaz ve bunun sonucunda "Register işlemi başarısız oldu. Return code: 1" hatası alınır. Böyle bir durumda maalesef Standart Kurulum, Alternatif Kurulum ve Özelleştirilmiş Kurulum yöntemleri işlevini yerine getiremez. Geçici olarak bir VPN ya da proxy kullanılarak bu yasak aşılabilse dahi; Cloudflare API'sinden geçici olarak tünellenmiş şekilde oluşturulan private-key ve konfigürasyon dosyası, yalnızca tünellenilmiş haldeki makine için geçerli olacağından kullanıma yine engel olacaktır. Bu hatayı alıyorsanız ByeDPI ST veya ByeDPI DLL yöntemlerini kullanmayı deneyebilirsiniz.
 - Hizmet kurulumları sırasında hata: Hizmetler penceresi açıkken bu uygulamayı kullanmayın.
 - "Checking for updates" ekranında kalma: Eğer ByeDPI ST Kurulum butonu ile kurulum yaptıysanız ve "Checking for updates" ekranında kaldıysanız, SplitWire-Turkey'in kurulu olduğu klasörün içindeki (Genellikle Program Files/SplitWire-Turkey klasörüne kurulur) **/logs klasörünün içeriği ile birlikte** **[Issues](https://github.com/cagritaskn/SplitWire-Turkey/issues)** kısmından hata bildiriminde bulunun.
+
 
 ### WireSock ve SplitWire-Turkey'i Sistemden Kaldırmak
 - SplitWire-Turkey uygulamasını çalıştırın.
