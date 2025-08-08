@@ -139,9 +139,9 @@ begin
   // Check if .NET 6.0 is installed
   if not IsDotNetDetected then
   begin
-    MsgBox('.NET 6.0 Desktop Runtime is required for SplitWire-Turkey.' + #13#10 + 
-           'The installer will now install .NET 6.0 Desktop Runtime automatically.', 
-           mbInformation, MB_OK);
+    // MsgBox('.NET 6.0 Desktop Runtime is required for SplitWire-Turkey.' + #13#10 + 
+          // 'The installer will now install .NET 6.0 Desktop Runtime automatically.', 
+          // mbInformation, MB_OK);
   end;
 end;
 
