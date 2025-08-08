@@ -86,6 +86,38 @@ namespace SplitWireTurkey
             }
         }
 
+        private async Task UpdateWireSockStatusAsync()
+        {
+            try
+            {
+                var isInstalled = await _wireSockService.IsWireSockInstalledAsync();
+                
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    if (isInstalled)
+                    {
+                        txtWiresockStatus.Text = "";
+                        txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Green;
+                    }
+                    else
+                    {
+                        txtWiresockStatus.Text = "WireSock yüklü değil!";
+                        txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Red;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UpdateWireSockStatusAsync hatası: {ex.Message}");
+                // Hata durumunda varsayılan durumu göster
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    txtWiresockStatus.Text = "Durum kontrol ediliyor...";
+                    txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Orange;
+                });
+            }
+        }
+
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
             var result = System.Windows.MessageBox.Show("Hızlı kurulum başlatmak istediğinizden emin misiniz?", 
@@ -95,31 +127,77 @@ namespace SplitWireTurkey
 
             ShowLoading(true);
             
+            // Standart kurulum log dosyasını başlat
+            var standardLogPath = GetStandardSetupLogPath();
+            File.WriteAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] === STANDART KURULUM BAŞLATILIYOR ===\n");
+            
             try
             {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. AŞAMA: Hizmet temizliği başlatılıyor...\n");
+                
                 // Önce ProxiFyreService ve ByeDPI hizmetlerini durdur ve kaldır
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1.1. ProxiFyreService ve ByeDPI hizmetleri kaldırılıyor...\n");
                 await StopAndRemoveServicesAsync();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1.1. ProxiFyreService ve ByeDPI hizmetleri kaldırma tamamlandı.\n");
                 
                 // Önce tüm hizmetleri kaldır
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1.2. Tüm hizmetler kaldırılıyor...\n");
                 await RemoveAllServicesAsync();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1.2. Tüm hizmetler kaldırma tamamlandı.\n");
+                
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. AŞAMA: Hizmet temizliği tamamlandı.\n");
 
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. AŞAMA: WireSock kurulum kontrolü başlatılıyor...\n");
+                
                 if (!_wireSockService.IsLatestWireSockInstalled())
                 {
-                    var downloadResult = System.Windows.MessageBox.Show("WireSock'un son sürümü yüklü değil. WireSock kurulum dosyasını indirip çalıştırmak ister misiniz?", 
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.1. WireSock son sürümü yüklü değil. Kurulum gerekli.\n");
+                    
+                    var downloadResult = System.Windows.MessageBox.Show("WireSock'un son sürümü yüklü değil. WireSock kurulum dosyasını çalıştırmak ister misiniz?", 
                         "WireSock Son Sürüm Yüklü Değil", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     
                     if (downloadResult == MessageBoxResult.Yes)
                     {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu başlatılıyor...\n");
                         await DownloadAndInstallWireSock();
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu tamamlandı.\n");
+                        
+                        // Kurulum sonrası tekrar kontrol et
+                        if (!_wireSockService.IsLatestWireSockInstalled())
+                        {
+                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. UYARI: WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı.\n");
+                            System.Windows.MessageBox.Show("WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı. Kuruluma devam ediliyor...", 
+                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        else
+                        {
+                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. WireSock kurulumu başarıyla doğrulandı.\n");
+                        }
                     }
                     else
                     {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. Kullanıcı WireSock kurulumunu iptal etti.\n");
                         ShowLoading(false);
                         return;
                     }
                 }
+                else
+                {
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.1. WireSock son sürümü zaten yüklü.\n");
+                }
+                
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. AŞAMA: WireSock kurulum kontrolü tamamlandı.\n");
 
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. AŞAMA: Hızlı kurulum başlatılıyor...\n");
                 await PerformFastSetup();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. AŞAMA: Hızlı kurulum tamamlandı.\n");
+                
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] === STANDART KURULUM BAŞARIYLA TAMAMLANDI ===\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Standart kurulum sırasında hata oluştu: {ex.Message}\n");
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] === STANDART KURULUM HATA İLE SONLANDI ===\n");
             }
             finally
             {
@@ -242,6 +320,24 @@ namespace SplitWireTurkey
             }
         }
 
+        private void BtnRecepBaltas_Click(object sender, RoutedEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                "Yazılımın geliştirilmesine katkıda bulunan Techolay.net kurucusu Recep Baltaş'a çok teşekkür ederim. Techolay.net Sosyal'i ziyaret etmek için Evet butonuna basın.",
+                "Recep Baltaş", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://techolay.net/sosyal/",
+                    UseShellExecute = true
+                });
+            }
+        }
+
+
+
         private void BtnAddFolder_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new FolderBrowserDialog
@@ -294,7 +390,7 @@ namespace SplitWireTurkey
 
                 if (!_wireSockService.IsWireSockInstalled())
                 {
-                    var downloadResult = System.Windows.MessageBox.Show("WireSock yüklü değil. WireSock kurulum dosyasını indirip çalıştırmak ister misiniz?", 
+                    var downloadResult = System.Windows.MessageBox.Show("WireSock yüklü değil. WireSock kurulum dosyasını çalıştırmak ister misiniz?", 
                         "WireSock Yüklü Değil", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     
                     if (downloadResult == MessageBoxResult.Yes)
@@ -478,62 +574,64 @@ namespace SplitWireTurkey
 
         private async Task PerformFastSetup()
         {
-            ShowLoading(true);
-            
-            var logPath = GetLogPath();
-            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Hızlı kurulum başlatılıyor...\n");
+            var standardLogPath = GetStandardSetupLogPath();
             
             try
             {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.1. Drover dosyaları temizleniyor...\n");
                 // Drover dosyalarını temizle
-                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
                 await CleanupDroverFilesAsync();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.1. Drover dosyaları temizleme tamamlandı.\n");
                 
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2. DNS ayarları yapılıyor...\n");
                 // DNS ayarları
-                File.AppendAllText(logPath, "DNS ayarları yapılıyor...\n");
                 var dnsSuccess = await SetModernDNSSettingsAsync();
                 
                 if (!dnsSuccess)
                 {
-                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2. UYARI: DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+                else
+                {
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2. DNS ayarları başarıyla yapıldı.\n");
                 }
 
-                File.AppendAllText(logPath, "WireGuard profili oluşturuluyor...\n");
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.3. WireGuard profili oluşturuluyor...\n");
                 var success = await _wireGuardService.CreateProfileAsync();
                 
                 if (success)
                 {
-                    File.AppendAllText(logPath, "WireGuard profili başarıyla oluşturuldu.\n");
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.3. WireGuard profili başarıyla oluşturuldu.\n");
                     var configPath = _wireGuardService.GetConfigPath();
-                    File.AppendAllText(logPath, $"Konfigürasyon dosyası yolu: {configPath}\n");
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.3. Konfigürasyon dosyası yolu: {configPath}\n");
                     
-                    File.AppendAllText(logPath, "WireSock hizmeti kuruluyor...\n");
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.4. WireSock hizmeti kuruluyor...\n");
                     var serviceResult = await _wireSockService.InstallServiceAsync(configPath);
                     
                     if (serviceResult)
                     {
-                        File.AppendAllText(logPath, "WireSock hizmeti başarıyla kuruldu.\n");
-                        File.AppendAllText(logPath, "Sistem yeniden başlatma mesajı gösteriliyor.\n");
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.4. WireSock hizmeti başarıyla kuruldu.\n");
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.5. Sistem yeniden başlatma mesajı gösteriliyor.\n");
                         ShowRestartMessage();
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.5. Sistem yeniden başlatma mesajı gösterildi.\n");
                     }
                     else
                     {
-                        File.AppendAllText(logPath, "WireSock hizmeti kurulamadı.\n");
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.4. UYARI: WireSock hizmeti kurulamadı.\n");
                     }
                 }
                 else
                 {
-                    File.AppendAllText(logPath, "WireGuard profili oluşturulamadı.\n");
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.3. HATA: WireGuard profili oluşturulamadı.\n");
                 }
             }
             catch (Exception ex)
             {
-                File.AppendAllText(logPath, $"Hızlı kurulum hatası: {ex.Message}\n");
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. HATA: Hızlı kurulum sırasında hata oluştu: {ex.Message}\n");
             }
             finally
             {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Hızlı kurulum tamamlandı.\n");
-                ShowLoading(false);
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. AŞAMA: Hızlı kurulum tamamlandı.\n");
             }
         }
 
@@ -557,6 +655,10 @@ namespace SplitWireTurkey
                 if (!dnsSuccess)
                 {
                     File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarıyla yapıldı.\n");
                 }
 
                 var extraFolders = _folders.ToArray();
@@ -659,6 +761,10 @@ namespace SplitWireTurkey
                 {
                     File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
                 }
+                else
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarıyla yapıldı.\n");
+                }
 
                 // Önce mevcut WireSock hizmetini durdur ve kaldır
                 File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılıyor...\n");
@@ -672,90 +778,52 @@ namespace SplitWireTurkey
                 }
                 File.AppendAllText(logPath, "Mevcut WireSock hizmeti başarıyla kaldırıldı.\n");
 
-                // Mevcut WireSock kurulumunu kaldır - son sürüm setup dosyasını indir ve /uninstall /S ile kaldır
+                // Mevcut WireSock kurulumunu kaldır - /res klasöründeki dosyayı kullan
                 File.AppendAllText(logPath, "Mevcut WireSock kurulumu kaldırılıyor...\n");
-                var tempDir = Path.Combine(Path.GetTempPath(), "SplitWireTurkey");
-                if (!Directory.Exists(tempDir))
-                    Directory.CreateDirectory(tempDir);
-
-                var currentSetupPath = Path.Combine(tempDir, "wiresock-current.exe");
-                var currentDownloadUrl = "https://wiresock.net/_api/download-release.php?product=wiresock-secure-connect&platform=windows_x64&version=latest";
-
-                try
+                
+                var localUninstallPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
+                
+                if (File.Exists(localUninstallPath))
                 {
-                    bool uninstallDownloadSuccess = false;
-                    
-                    // Önce online indirmeyi dene
                     try
                     {
-                        File.AppendAllText(logPath, "Mevcut WireSock sürümü indiriliyor...\n");
-                        using (var client = new System.Net.Http.HttpClient())
+                        // Mevcut sürümü kaldır
+                        File.AppendAllText(logPath, "Mevcut WireSock sürümü kaldırılıyor...\n");
+                        var uninstallProcess = new Process
                         {
-                            client.Timeout = TimeSpan.FromMinutes(5);
-                            var response = await client.GetAsync(currentDownloadUrl);
-                            response.EnsureSuccessStatusCode();
-                            
-                            using (var fileStream = File.Create(currentSetupPath))
+                            StartInfo = new ProcessStartInfo
                             {
-                                await response.Content.CopyToAsync(fileStream);
+                                FileName = localUninstallPath,
+                                Arguments = "/uninstall /S",
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                                RedirectStandardOutput = true,
+                                RedirectStandardError = true,
+                                Verb = "runas"
                             }
-                            uninstallDownloadSuccess = true;
-                        }
-                    }
-                    catch (Exception downloadEx)
-                    {
-                        File.AppendAllText(logPath, $"Online indirme başarısız: {downloadEx.Message}. Yerel dosya kullanılacak...\n");
-                        
-                        // Yerel dosyayı kullan
-                        var localUninstallPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
-                        
-                        if (File.Exists(localUninstallPath))
-                        {
-                            File.Copy(localUninstallPath, currentSetupPath, true);
-                            uninstallDownloadSuccess = true;
-                            File.AppendAllText(logPath, "Yerel kurulum dosyası kaldırma için kullanılacak.\n");
-                        }
-                        else
-                        {
-                            File.AppendAllText(logPath, $"Yerel kurulum dosyası bulunamadı: {localUninstallPath}\n");
-                        }
-                    }
-                    
-                    if (!uninstallDownloadSuccess)
-                    {
-                        File.AppendAllText(logPath, "WireSock kaldırma dosyası alınamadı. Kaldırma atlanıyor...\n");
-                        throw new Exception("WireSock kaldırma dosyası alınamadı");
-                    }
+                        };
 
-                    // Mevcut sürümü kaldır
-                    File.AppendAllText(logPath, "Mevcut WireSock sürümü kaldırılıyor...\n");
-                    var uninstallProcess = new Process
+                        uninstallProcess.Start();
+                        await uninstallProcess.WaitForExitAsync();
+                        File.AppendAllText(logPath, $"Mevcut WireSock sürümü kaldırma işlemi tamamlandı. Exit Code: {uninstallProcess.ExitCode}\n");
+                    }
+                    catch (Exception ex)
                     {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = currentSetupPath,
-                            Arguments = "/uninstall /S",
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            Verb = "runas"
-                        }
-                    };
-
-                    uninstallProcess.Start();
-                    await uninstallProcess.WaitForExitAsync();
-                    File.AppendAllText(logPath, $"Mevcut WireSock sürümü kaldırma işlemi tamamlandı. Exit Code: {uninstallProcess.ExitCode}\n");
+                        File.AppendAllText(logPath, $"Mevcut sürüm kaldırma hatası: {ex.Message}\n");
+                        Debug.WriteLine($"Mevcut sürüm kaldırma hatası: {ex.Message}");
+                        // Hata olsa bile devam et
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    File.AppendAllText(logPath, $"Mevcut sürüm kaldırma hatası: {ex.Message}\n");
-                    Debug.WriteLine($"Mevcut sürüm kaldırma hatası: {ex.Message}");
-                    // Hata olsa bile devam et
+                    File.AppendAllText(logPath, $"WireSock kaldırma dosyası bulunamadı: {localUninstallPath}\n");
                 }
 
                 // 1.4.7.1 sürümünü indir ve kur
                 File.AppendAllText(logPath, "WireSock 1.4.7.1 sürümü indiriliyor...\n");
+                var tempDir = Path.Combine(Path.GetTempPath(), "SplitWireTurkey");
+                if (!Directory.Exists(tempDir))
+                    Directory.CreateDirectory(tempDir);
                 var setupPath = Path.Combine(tempDir, "wiresock-legacy.msi");
                 var resSetupPath = Path.Combine(Environment.CurrentDirectory, "res", "wiresock-vpn-client-x64-1.4.7.1.msi");
 
@@ -874,7 +942,19 @@ namespace SplitWireTurkey
                         }
                         else
                         {
-                            File.AppendAllText(logPath, $"MSI kurulum başarısız. Exit Code: {process.ExitCode}\n");
+                            // Check if WireSock is actually installed despite the error
+                            if (_wireSockService.IsWireSockInstalled())
+                            {
+                                File.AppendAllText(logPath, $"MSI kurulum başarılı (Exit Code: {process.ExitCode}).\n");
+                                System.Windows.MessageBox.Show($"WireSock 1.4.7.1 sürümü kurulumu tamamlandı (Exit Code: {process.ExitCode}).\nKuruluma devam ediliyor ...", 
+                                    "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                                msiInstallSuccess = true;
+                                break;
+                            }
+                            else
+                            {
+                                File.AppendAllText(logPath, $"MSI kurulum başarısız. Exit Code: {process.ExitCode}\n");
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -906,11 +986,21 @@ namespace SplitWireTurkey
                     await normalProcess.WaitForExitAsync();
                     
                     File.AppendAllText(logPath, "Normal kurulum tamamlandı.\n");
-                    System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kurulumu tamamlandı. Kuruluma devam ediliyor ...", 
-                        "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // Check if WireSock is actually installed
+                    if (_wireSockService.IsWireSockInstalled())
+                    {
+                        System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kurulumu tamamlandı. Kuruluma devam ediliyor ...", 
+                            "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show("WireSock 1.4.7.1 sürümü kurulumu tamamlandı ancak kurulum doğrulanamadı. Kuruluma devam ediliyor ...", 
+                            "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
                 
-                UpdateWireSockStatus();
+                await UpdateWireSockStatusAsync();
                 File.AppendAllText(logPath, "WireSock durumu güncellendi.\n");
                 
                 // Kısa bir bekleme süresi ekle
@@ -1009,154 +1099,122 @@ namespace SplitWireTurkey
 
         private async Task DownloadAndInstallWireSock()
         {
+            var standardLogPath = GetStandardSetupLogPath();
+            
             try
             {
                 ShowLoading(true);
                 
-                // Temp klasörü oluştur
-                var tempDir = Path.Combine(Path.GetTempPath(), "SplitWireTurkey");
-                if (!Directory.Exists(tempDir))
-                    Directory.CreateDirectory(tempDir);
-
-                var setupPath = Path.Combine(tempDir, "wiresock-setup.exe");
-                var downloadUrl = "https://wiresock.net/_api/download-release.php?product=wiresock-secure-connect&platform=windows_x64&version=latest";
-
-                bool downloadSuccess = false;
-
-                // Önce online indirmeyi dene
-                try
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.1. WireSock kurulum dosyası kontrol ediliyor...\n");
+                
+                // Doğrudan /res klasöründeki dosyayı kullan
+                var localSetupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
+                
+                if (!File.Exists(localSetupPath))
                 {
-                    using (var client = new System.Net.Http.HttpClient())
-                    {
-                        client.Timeout = TimeSpan.FromMinutes(5); // 5 dakika timeout
-                        var response = await client.GetAsync(downloadUrl);
-                        response.EnsureSuccessStatusCode();
-                        
-                        using (var fileStream = File.Create(setupPath))
-                        {
-                            await response.Content.CopyToAsync(fileStream);
-                        }
-                        downloadSuccess = true;
-                    }
-                }
-                catch (Exception downloadEx)
-                {
-                    System.Windows.MessageBox.Show($"Online indirme başarısız oldu: {downloadEx.Message}\nYerel kurulum dosyası kullanılacak...", 
-                        "İndirme Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    
-                    // Yerel dosyayı kullan
-                    var localSetupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "wiresock-secure-connect-x64-2.4.16.1.exe");
-                    
-                    if (File.Exists(localSetupPath))
-                    {
-                        File.Copy(localSetupPath, setupPath, true);
-                        downloadSuccess = true;
-                        System.Windows.MessageBox.Show("Yerel kurulum dosyası kullanılacak.", 
-                            "Yerel Dosya Kullanımı", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        System.Windows.MessageBox.Show($"Yerel kurulum dosyası bulunamadı: {localSetupPath}\nKurulum iptal edildi.", 
-                            "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                }
-
-                if (!downloadSuccess)
-                {
-                    System.Windows.MessageBox.Show("WireSock kurulum dosyası alınamadı. Kurulum iptal edildi.", 
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.1. HATA: WireSock kurulum dosyası bulunamadı: {localSetupPath}\n");
+                    System.Windows.MessageBox.Show($"WireSock kurulum dosyası bulunamadı: {localSetupPath}\nKurulum iptal edildi.", 
                         "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+                
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.1. WireSock kurulum dosyası bulundu: {localSetupPath}\n");
 
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.2. Kurulum yolu belirleniyor...\n");
                 // En uygun kurulum yolunu belirle
                 var installPath = GetBestInstallPath();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.2. Kurulum yolu belirlendi: {installPath}\n");
 
-                // Farklı sessiz kurulum parametrelerini dene
-                var silentArgsList = new[]
-                {
-                    $"/S /D={installPath}",
-                    $"/SILENT /D={installPath}",
-                    $"/VERYSILENT /D={installPath}",
-                    "/S",
-                    "/SILENT",
-                    "/VERYSILENT"
-                };
-
-                bool silentInstallSuccess = false;
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3. WireSock kurulum işlemi başlatılıyor...\n");
                 
-                foreach (var silentArgs in silentArgsList)
+                // Sadece /S parametresi ile kurulum yap
+                try
                 {
-                    try
-                    {
-                        var process = new Process
-                        {
-                            StartInfo = new ProcessStartInfo
-                            {
-                                FileName = setupPath,
-                                Arguments = silentArgs,
-                                UseShellExecute = false,
-                                CreateNoWindow = true,
-                                RedirectStandardOutput = true,
-                                RedirectStandardError = true
-                            }
-                        };
-
-                        process.Start();
-                        await process.WaitForExitAsync();
-
-                        if (process.ExitCode == 0)
-                        {
-                            System.Windows.MessageBox.Show($"WireSock Secure Connect sessiz kurulumu tamamlandı.\nKuruluma devam ediliyor...", 
-                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
-                            silentInstallSuccess = true;
-                            break;
-                        }
-                    }
-                    catch
-                    {
-                        // Bu parametre çalışmadı, diğerini dene
-                        continue;
-                    }
-                }
-
-                // Sessiz kurulum başarısız olursa normal kurulumu dene
-                if (!silentInstallSuccess)
-                {
-                    System.Windows.MessageBox.Show("Sessiz kurulum başarısız oldu. Normal kurulum başlatılıyor...", 
-                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.1. Kurulum komutu: {localSetupPath} /S\n");
                     
-                    var normalProcess = new Process
+                    var process = new Process
                     {
                         StartInfo = new ProcessStartInfo
                         {
-                            FileName = setupPath,
-                            UseShellExecute = true
+                            FileName = localSetupPath,
+                            Arguments = "/S",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
                         }
                     };
 
-                    normalProcess.Start();
-                    await normalProcess.WaitForExitAsync();
-                    
-                    System.Windows.MessageBox.Show("WireSock Secure Connect kurulumu tamamlandı. Kuruluma devam ediliyor ...", 
-                        "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.2. Kurulum süreci başlatılıyor...\n");
+                    process.Start();
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.3. Kurulum süreci başlatıldı, bekleniyor...\n");
+                    await process.WaitForExitAsync();
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.4. Kurulum süreci tamamlandı. Exit Code: {process.ExitCode}\n");
+
+                    if (process.ExitCode == 0)
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.5. Kurulum başarılı (Exit Code: 0)\n");
+                        System.Windows.MessageBox.Show($"WireSock Secure Connect sessiz kurulumu tamamlandı.\nKuruluma devam ediliyor...", 
+                            "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.5. Kurulum Exit Code: {process.ExitCode}, kurulum doğrulanıyor...\n");
+                        
+                        // Check if WireSock is actually installed despite the error
+                        if (_wireSockService.IsWireSockInstalled())
+                        {
+                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.6. Kurulum doğrulandı (Exit Code: {process.ExitCode})\n");
+                            System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu tamamlandı (Exit Code: {process.ExitCode}).\nKuruluma devam ediliyor...", 
+                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.6. UYARI: Kurulum doğrulanamadı (Exit Code: {process.ExitCode})\n");
+                            System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu tamamlandı ancak kurulum doğrulanamadı (Exit Code: {process.ExitCode}).\nKuruluma devam ediliyor...", 
+                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3. HATA: Kurulum sırasında hata oluştu: {ex.Message}\n");
+                    System.Windows.MessageBox.Show($"WireSock kurulumu sırasında hata oluştu: {ex.Message}\nKuruluma devam ediliyor...", 
+                        "Kurulum Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
+
+
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4. Kurulum sonrası temizlik işlemleri başlatılıyor...\n");
+                
                 // Kurulum tamamlandıktan sonra WiresockConnect.exe'yi kapat
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.1. WiresockConnect.exe süreçleri kapatılıyor...\n");
                 var wiresockProcesses = Process.GetProcessesByName("WiresockConnect");
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.1. Bulunan WiresockConnect süreçleri: {wiresockProcesses.Length}\n");
+                
                 foreach (var proc in wiresockProcesses)
                 {
                     try
                     {
                         proc.Kill();
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.1. WiresockConnect süreci kapatıldı: {proc.Id}\n");
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.1. WiresockConnect süreci kapatılırken hata: {ex.Message}\n");
+                    }
                 }
                 
-                UpdateWireSockStatus();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.2. WireSock durumu güncelleniyor...\n");
+                await UpdateWireSockStatusAsync();
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.2. WireSock durumu güncellendi.\n");
+                
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4. Kurulum sonrası temizlik işlemleri tamamlandı.\n");
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulum işlemi tamamlandı.\n");
             }
             catch (Exception ex)
             {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. HATA: WireSock kurulumu sırasında hata oluştu: {ex.Message}\n");
                 System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu sırasında hata oluştu: {ex.Message}", 
                     "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -1347,8 +1405,11 @@ namespace SplitWireTurkey
                 
                 if (!dnsSuccess)
                 {
-                    System.Windows.MessageBox.Show("DNS ayarları başarısız oldu. Kurulum devam ediyor...", 
-                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarıyla yapıldı.\n");
                 }
 
                 // 3. Hizmetleri kaldır
@@ -1471,8 +1532,11 @@ namespace SplitWireTurkey
                 
                 if (!dnsSuccess)
                 {
-                    System.Windows.MessageBox.Show("DNS ayarları başarısız oldu. Kurulum devam ediyor...", 
-                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarıyla yapıldı.\n");
                 }
 
                 // 5. ByeDPI hizmeti kurulumu
@@ -1763,6 +1827,20 @@ namespace SplitWireTurkey
             return Path.Combine(logsDirectory, "dns_debug.log");
         }
 
+        private string GetStandardSetupLogPath()
+        {
+            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var exeDirectory = Path.GetDirectoryName(exePath);
+            var logsDirectory = Path.Combine(exeDirectory, "logs");
+            
+            if (!Directory.Exists(logsDirectory))
+            {
+                Directory.CreateDirectory(logsDirectory);
+            }
+            
+            return Path.Combine(logsDirectory, "setup_standard.log");
+        }
+
         private async Task<bool> InstallByeDPIServiceAsync()
         {
             return await Task.Run(() =>
@@ -1903,104 +1981,183 @@ namespace SplitWireTurkey
 
         private async Task<bool> SetModernDNSSettingsAsync()
         {
-            return await Task.Run(() =>
+            var standardLogPath = GetStandardSetupLogPath();
+            
+            try
             {
-                try
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. DNS ayarları timeout ile başlatılıyor (60 saniye)...\n");
+                
+                // 60 saniye timeout ile DNS ayarlarını yap
+                var timeoutTask = Task.Run(() =>
                 {
-                    bool allCommandsSuccessful = true;
-                    var logPath = GetDNSLogPath();
-                    File.WriteAllText(logPath, $"DNS Ayarı Başlangıç: {DateTime.Now}\n");
+                    try
+                    {
+                        bool allCommandsSuccessful = true;
+                        var logPath = GetDNSLogPath();
+                        File.WriteAllText(logPath, $"DNS Ayarı Başlangıç: {DateTime.Now}\n");
 
-                    // PowerShell script ile DNS ayarlarını yap
-                    Debug.WriteLine("PowerShell ile DNS ayarları yapılıyor...");
-                    File.AppendAllText(logPath, "PowerShell ile DNS ayarları yapılıyor...\n");
+                        // PowerShell script ile DNS ayarlarını yap
+                        Debug.WriteLine("PowerShell ile DNS ayarları yapılıyor...");
+                        File.AppendAllText(logPath, "PowerShell ile DNS ayarları yapılıyor...\n");
 
-                    var psScript = @"
-$i = Get-NetAdapter -Physical
-$i | Get-DnsClientServerAddress -AddressFamily IPv4 | Set-DnsClientServerAddress -ServerAddresses '8.8.8.8', '9.9.9.9'
-$i | Get-DnsClientServerAddress -AddressFamily IPv6 | Set-DnsClientServerAddress -ServerAddresses '2001:4860:4860::8888', '2620:fe::9'
+                        var psScript = @"
+# Fiziksel ağ adaptörlerini al
+$adapters = Get-NetAdapter -Physical
 
-# DoH şablonlarını temizle ve yeniden ayarla
-$i | ForEach-Object {
-    $adapterGuid = $_.InterfaceGuid
+# Her adaptör için DNS ayarlarını yap
+foreach ($adapter in $adapters) {
+    $adapterName = $adapter.Name
+    $adapterGuid = $adapter.InterfaceGuid
     
-    # Mevcut DoH ayarlarını temizle
-    $dohPath = 'HKLM:System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings'
-    if (Test-Path $dohPath) {
-        Remove-Item -Path $dohPath -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host ""Adaptör: $adapterName (GUID: $adapterGuid)""
+    
+    # IPv4 DNS ayarları
+    try {
+        Set-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -ServerAddresses '8.8.8.8', '9.9.9.9' -ErrorAction Stop
+        Write-Host ""IPv4 DNS ayarları başarılı: $adapterName""
+    }
+    catch {
+        Write-Host ""IPv4 DNS ayarları başarısız: $adapterName - $($_.Exception.Message)""
     }
     
-    # Google DNS (8.8.8.8) için DoH ayarı
-    $googlePath = $dohPath + '\Doh\8.8.8.8'
-    New-Item -Path $googlePath -Force | Out-Null
-    New-ItemProperty -Path $googlePath -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
-    New-ItemProperty -Path $googlePath -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
+    # IPv6 DNS ayarları
+    try {
+        Set-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv6 -ServerAddresses '2001:4860:4860::8888', '2620:fe::9' -ErrorAction Stop
+        Write-Host ""IPv6 DNS ayarları başarılı: $adapterName""
+    }
+    catch {
+        Write-Host ""IPv6 DNS ayarları başarısız: $adapterName - $($_.Exception.Message)""
+    }
     
-    # Quad9 DNS (9.9.9.9) için DoH ayarı
-    $quad9Path = $dohPath + '\Doh\9.9.9.9'
-    New-Item -Path $quad9Path -Force | Out-Null
-    New-ItemProperty -Path $quad9Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
-    New-ItemProperty -Path $quad9Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+    # DoH ayarları için registry yolu
+    $dohPath = 'HKLM:System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings'
     
-    # Google DNS IPv6 (2001:4860:4860::8888) için DoH ayarı
-    $googleIPv6Path = $dohPath + '\Doh6\2001:4860:4860::8888'
-    New-Item -Path $googleIPv6Path -Force | Out-Null
-    New-ItemProperty -Path $googleIPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
-    New-ItemProperty -Path $googleIPv6Path -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
-    
-    # Quad9 DNS IPv6 (2620:fe::9) için DoH ayarı
-    $quad9IPv6Path = $dohPath + '\Doh6\2620:fe::9'
-    New-Item -Path $quad9IPv6Path -Force | Out-Null
-    New-ItemProperty -Path $quad9IPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
-    New-ItemProperty -Path $quad9IPv6Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+    try {
+        # Mevcut DoH ayarlarını temizle
+        if (Test-Path $dohPath) {
+            Remove-Item -Path $dohPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        
+        # Google DNS (8.8.8.8) için DoH ayarı
+        $googlePath = $dohPath + '\Doh\8.8.8.8'
+        New-Item -Path $googlePath -Force | Out-Null
+        New-ItemProperty -Path $googlePath -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+        New-ItemProperty -Path $googlePath -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
+        
+        # Quad9 DNS (9.9.9.9) için DoH ayarı
+        $quad9Path = $dohPath + '\Doh\9.9.9.9'
+        New-Item -Path $quad9Path -Force | Out-Null
+        New-ItemProperty -Path $quad9Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+        New-ItemProperty -Path $quad9Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+        
+        # Google DNS IPv6 (2001:4860:4860::8888) için DoH ayarı
+        $googleIPv6Path = $dohPath + '\Doh6\2001:4860:4860::8888'
+        New-Item -Path $googleIPv6Path -Force | Out-Null
+        New-ItemProperty -Path $googleIPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+        New-ItemProperty -Path $googleIPv6Path -Name 'DohTemplate' -Value 'https://dns.google/dns-query' -PropertyType String | Out-Null
+        
+        # Quad9 DNS IPv6 (2620:fe::9) için DoH ayarı
+        $quad9IPv6Path = $dohPath + '\Doh6\2620:fe::9'
+        New-Item -Path $quad9IPv6Path -Force | Out-Null
+        New-ItemProperty -Path $quad9IPv6Path -Name 'DohFlags' -Value 1 -PropertyType Qword | Out-Null
+        New-ItemProperty -Path $quad9IPv6Path -Name 'DohTemplate' -Value 'https://dns.quad9.net/dns-query' -PropertyType String | Out-Null
+        
+        Write-Host ""DoH ayarları başarılı: $adapterName""
+    }
+    catch {
+        Write-Host ""DoH ayarları başarısız: $adapterName - $($_.Exception.Message)""
+    }
 }
 
-Clear-DnsClientCache;
+# DNS önbelleğini temizle
+Clear-DnsClientCache
+Write-Host ""DNS ayarları tamamlandı.""
 ";
 
-                    var result = ExecutePowerShellScript(psScript);
-                    
-                    if (result == 0)
-                    {
-                        Debug.WriteLine("PowerShell DNS ayarları başarılı.");
-                        File.AppendAllText(logPath, "PowerShell DNS ayarları başarılı.\n");
-                        allCommandsSuccessful = true;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"PowerShell DNS ayarları başarısız. Exit Code: {result}");
-                        File.AppendAllText(logPath, $"PowerShell DNS ayarları başarısız. Exit Code: {result}\n");
-                        allCommandsSuccessful = false;
-                    }
+                        var result = ExecutePowerShellScript(psScript);
+                        
+                        if (result == 0)
+                        {
+                            Debug.WriteLine("PowerShell DNS ayarları başarılı.");
+                            File.AppendAllText(logPath, "PowerShell DNS ayarları başarılı.\n");
+                            allCommandsSuccessful = true;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"PowerShell DNS ayarları başarısız. Exit Code: {result}");
+                            File.AppendAllText(logPath, $"PowerShell DNS ayarları başarısız. Exit Code: {result}\n");
+                            allCommandsSuccessful = false;
+                        }
 
-                    // DNS ayarlarını doğrula
-                    File.AppendAllText(logPath, "DNS ayarlarını doğrulama...\n");
-                    var verificationResult = VerifyDNSSettings();
-                    if (verificationResult)
-                    {
-                        Debug.WriteLine("DNS ayarları doğrulandı.");
-                        File.AppendAllText(logPath, "DNS ayarları doğrulandı.\n");
-                    }
-                    else
-                    {
-                        Debug.WriteLine("DNS ayarları doğrulanamadı.");
-                        File.AppendAllText(logPath, "DNS ayarları doğrulanamadı.\n");
-                        allCommandsSuccessful = false;
-                    }
+                        // DNS ayarlarını doğrula
+                        File.AppendAllText(logPath, "DNS ayarlarını doğrulama...\n");
+                        var verificationResult = VerifyDNSSettings();
+                        if (verificationResult)
+                        {
+                            Debug.WriteLine("DNS ayarları doğrulandı.");
+                            File.AppendAllText(logPath, "DNS ayarları doğrulandı.\n");
+                        }
+                        else
+                        {
+                            Debug.WriteLine("DNS ayarları doğrulanamadı.");
+                            File.AppendAllText(logPath, "DNS ayarları doğrulanamadı.\n");
+                            allCommandsSuccessful = false;
+                        }
 
-                    File.AppendAllText(logPath, $"Genel sonuç: {allCommandsSuccessful}\n");
-                    File.AppendAllText(logPath, $"DNS Ayarı Bitiş: {DateTime.Now}\n");
-                    
-                    return allCommandsSuccessful;
-                }
-                catch (Exception ex)
+                        File.AppendAllText(logPath, $"DNS Ayarı Bitiş: {DateTime.Now}\n");
+                        return allCommandsSuccessful;
+                    }
+                    catch (Exception ex)
+                    {
+                        var logPath = GetDNSLogPath();
+                        File.AppendAllText(logPath, $"DNS Ayarı Hatası: {ex.Message}\n");
+                        Debug.WriteLine($"DNS ayar hatası: {ex.Message}");
+                        return false;
+                    }
+                });
+
+                // 60 saniye timeout ile bekle
+                var timeout = TimeSpan.FromSeconds(60);
+                var completedTask = await Task.WhenAny(timeoutTask, Task.Delay(timeout));
+
+                if (completedTask == timeoutTask)
                 {
-                    Debug.WriteLine($"Modern DNS ayar hatası: {ex.Message}");
-                    var logPath = GetDNSLogPath();
-                    File.AppendAllText(logPath, $"HATA: {ex.Message}\n");
-                    return false;
+                    // DNS ayarları tamamlandı
+                    var result = await timeoutTask;
+                    if (result)
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. DNS ayarları başarıyla tamamlandı.\n");
+                        return true;
+                    }
+                    else
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. DNS ayarları başarısız oldu.\n");
+                        return false;
+                    }
                 }
-            });
+                else
+                {
+                    // Timeout oluştu - Yedek DNS ayarlarını dene
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. DNS ayarları timeout (60 saniye) - YEDEK DNS AYARLARI DENENİYOR.\n");
+                    
+                    var backupResult = await SetBackupDNSSettingsAsync();
+                    if (backupResult)
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. YEDEK DNS AYARLARI BAŞARILI - kuruluma devam ediliyor.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. YEDEK DNS AYARLARI DA BAŞARISIZ - kuruluma devam ediliyor.\n");
+                    }
+                    
+                    return false; // False döndür ama kuruluma devam et
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3.2.1. HATA: DNS ayarları sırasında hata oluştu: {ex.Message}\n");
+                return false;
+            }
         }
 
         private int ExecutePowerShellScript(string script)
@@ -2245,87 +2402,135 @@ $dohResults | ConvertTo-Json
         /// </summary>
         private async Task<bool> CleanupDroverFilesAsync()
         {
-            try
+            return await Task.Run(() =>
             {
-                var logPath = GetLogPath();
-                File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
-
-                // Önce Discord.exe'yi durdur
-                File.AppendAllText(logPath, "Discord.exe durduruluyor...\n");
-                var discordProcesses = Process.GetProcessesByName("Discord");
-                if (discordProcesses.Length > 0)
+                try
                 {
-                    foreach (var process in discordProcesses)
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, "Drover dosyaları temizleniyor...\n");
+
+                    // Önce Discord.exe'yi durdur
+                    File.AppendAllText(logPath, "Discord.exe durduruluyor...\n");
+                    var discordProcesses = Process.GetProcessesByName("Discord");
+                    if (discordProcesses.Length > 0)
                     {
-                        try
+                        foreach (var process in discordProcesses)
                         {
-                            process.Kill();
-                            process.WaitForExit(5000); // 5 saniye bekle
-                            File.AppendAllText(logPath, $"Discord.exe işlemi durduruldu. PID: {process.Id}\n");
-                        }
-                        catch (Exception ex)
-                        {
-                            File.AppendAllText(logPath, $"Discord.exe işlemi durdurulurken hata: {ex.Message}\n");
+                            try
+                            {
+                                process.Kill();
+                                process.WaitForExit(5000); // 5 saniye bekle
+                                File.AppendAllText(logPath, $"Discord.exe işlemi durduruldu. PID: {process.Id}\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"Discord.exe işlemi durdurulurken hata: {ex.Message}\n");
+                            }
                         }
                     }
-                }
-                else
-                {
-                    File.AppendAllText(logPath, "Discord.exe işlemi çalışmıyor.\n");
-                }
-
-                // Kısa bir bekleme süresi ekle
-                Thread.Sleep(2000);
-
-                // Discord.exe'nin bulunduğu klasörü bul (timeout ile)
-                var discordPath = await FindDiscordPathWithTimeoutAsync();
-                if (!string.IsNullOrEmpty(discordPath))
-                {
-                    var versionDllPath = Path.Combine(discordPath, "version.dll");
-                    var droverIniPath = Path.Combine(discordPath, "drover.ini");
-
-                    // Dosyaları sil
-                    if (File.Exists(versionDllPath))
+                    else
                     {
-                        try
-                        {
-                            File.Delete(versionDllPath);
-                            File.AppendAllText(logPath, $"version.dll silindi: {versionDllPath}\n");
-                        }
-                        catch (Exception ex)
-                        {
-                            File.AppendAllText(logPath, $"version.dll silinirken hata: {ex.Message}\n");
-                        }
+                        File.AppendAllText(logPath, "Discord.exe işlemi çalışmıyor.\n");
                     }
 
-                    if (File.Exists(droverIniPath))
+                    // Kısa bir bekleme süresi ekle
+                    Thread.Sleep(2000);
+
+                    bool allFilesCleaned = true;
+                    int cleanedFolders = 0;
+
+                    // Discord base path'i bul
+                    var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    var discordBasePath = Path.Combine(localAppData, "Discord");
+
+                    if (Directory.Exists(discordBasePath))
                     {
-                        try
+                        // Tüm app-* klasörlerini bul
+                        var appDirectories = Directory.GetDirectories(discordBasePath, "app-*");
+                        File.AppendAllText(logPath, $"{appDirectories.Length} adet app-* klasörü bulundu.\n");
+
+                        // Her app-* klasöründe Discord.exe var mı kontrol et ve temizle
+                        foreach (var appDir in appDirectories)
                         {
-                            File.Delete(droverIniPath);
-                            File.AppendAllText(logPath, $"drover.ini silindi: {droverIniPath}\n");
+                            var discordExePath = Path.Combine(appDir, "Discord.exe");
+                            if (File.Exists(discordExePath))
+                            {
+                                File.AppendAllText(logPath, $"Discord.exe bulundu: {appDir}\n");
+                                
+                                var versionDllPath = Path.Combine(appDir, "version.dll");
+                                var droverIniPath = Path.Combine(appDir, "drover.ini");
+
+                                bool folderCleaned = true;
+
+                                // version.dll sil
+                                if (File.Exists(versionDllPath))
+                                {
+                                    try
+                                    {
+                                        File.Delete(versionDllPath);
+                                        File.AppendAllText(logPath, $"version.dll silindi: {versionDllPath}\n");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        File.AppendAllText(logPath, $"version.dll silinirken hata ({appDir}): {ex.Message}\n");
+                                        folderCleaned = false;
+                                    }
+                                }
+
+                                // drover.ini sil
+                                if (File.Exists(droverIniPath))
+                                {
+                                    try
+                                    {
+                                        File.Delete(droverIniPath);
+                                        File.AppendAllText(logPath, $"drover.ini silindi: {droverIniPath}\n");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        File.AppendAllText(logPath, $"drover.ini silinirken hata ({appDir}): {ex.Message}\n");
+                                        folderCleaned = false;
+                                    }
+                                }
+
+                                if (folderCleaned)
+                                {
+                                    cleanedFolders++;
+                                    File.AppendAllText(logPath, $"Klasör başarıyla temizlendi: {appDir}\n");
+                                }
+                                else
+                                {
+                                    allFilesCleaned = false;
+                                    File.AppendAllText(logPath, $"Klasör temizlenemedi: {appDir}\n");
+                                }
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            File.AppendAllText(logPath, $"drover.ini silinirken hata: {ex.Message}\n");
-                        }
+
+                        File.AppendAllText(logPath, $"Toplam {cleanedFolders} adet klasörden drover dosyaları temizlendi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"Discord base path bulunamadı: {discordBasePath}\n");
+                        allFilesCleaned = false;
                     }
 
-                    File.AppendAllText(logPath, "Drover dosyaları başarıyla temizlendi.\n");
-                    return true;
+                    if (allFilesCleaned)
+                    {
+                        File.AppendAllText(logPath, "Tüm drover dosyaları başarıyla temizlendi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "Bazı drover dosyaları temizlenemedi.\n");
+                    }
+
+                    return allFilesCleaned;
                 }
-                else
+                catch (Exception ex)
                 {
-                    File.AppendAllText(logPath, "Discord.exe bulunamadı, drover dosyaları temizlenmedi.\n");
+                    var logPath = GetLogPath();
+                    File.AppendAllText(logPath, $"Drover dosyaları temizleme hatası: {ex.Message}\n");
                     return false;
                 }
-            }
-            catch (Exception ex)
-            {
-                var logPath = GetLogPath();
-                File.AppendAllText(logPath, $"Drover dosyaları temizleme hatası: {ex.Message}\n");
-                return false;
-            }
+            });
         }
 
         /// <summary>
@@ -2628,56 +2833,98 @@ $dohResults | ConvertTo-Json
                     
                     var versionDllSource = Path.Combine(droverSourcePath, "version.dll");
                     var droverIniSource = Path.Combine(droverSourcePath, "drover.ini");
-                    
-                    // Hedef yolları
-                    var versionDllTarget = Path.Combine(discordPath, "version.dll");
-                    var droverIniTarget = Path.Combine(discordPath, "drover.ini");
 
                     bool allFilesCopied = true;
+                    int copiedFolders = 0;
 
-                    // version.dll kopyala
-                    if (File.Exists(versionDllSource))
+                    // Discord base path'i bul
+                    var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    var discordBasePath = Path.Combine(localAppData, "Discord");
+
+                    if (Directory.Exists(discordBasePath))
                     {
-                        try
+                        // Tüm app-* klasörlerini bul
+                        var appDirectories = Directory.GetDirectories(discordBasePath, "app-*");
+                        File.AppendAllText(logPath, $"{appDirectories.Length} adet app-* klasörü bulundu.\n");
+
+                        // Her app-* klasöründe Discord.exe var mı kontrol et ve kopyala
+                        foreach (var appDir in appDirectories)
                         {
-                            File.Copy(versionDllSource, versionDllTarget, true);
-                            File.AppendAllText(logPath, $"version.dll kopyalandı: {versionDllTarget}\n");
+                            var discordExePath = Path.Combine(appDir, "Discord.exe");
+                            if (File.Exists(discordExePath))
+                            {
+                                File.AppendAllText(logPath, $"Discord.exe bulundu: {appDir}\n");
+                                
+                                // Hedef yolları
+                                var versionDllTarget = Path.Combine(appDir, "version.dll");
+                                var droverIniTarget = Path.Combine(appDir, "drover.ini");
+
+                                bool folderCopied = true;
+
+                                // version.dll kopyala
+                                if (File.Exists(versionDllSource))
+                                {
+                                    try
+                                    {
+                                        File.Copy(versionDllSource, versionDllTarget, true);
+                                        File.AppendAllText(logPath, $"version.dll kopyalandı: {versionDllTarget}\n");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        File.AppendAllText(logPath, $"version.dll kopyalama hatası ({appDir}): {ex.Message}\n");
+                                        folderCopied = false;
+                                    }
+                                }
+                                else
+                                {
+                                    File.AppendAllText(logPath, $"version.dll kaynak dosyası bulunamadı: {versionDllSource}\n");
+                                    folderCopied = false;
+                                }
+
+                                // drover.ini kopyala
+                                if (File.Exists(droverIniSource))
+                                {
+                                    try
+                                    {
+                                        File.Copy(droverIniSource, droverIniTarget, true);
+                                        File.AppendAllText(logPath, $"drover.ini kopyalandı: {droverIniTarget}\n");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        File.AppendAllText(logPath, $"drover.ini kopyalama hatası ({appDir}): {ex.Message}\n");
+                                        folderCopied = false;
+                                    }
+                                }
+                                else
+                                {
+                                    File.AppendAllText(logPath, $"drover.ini kaynak dosyası bulunamadı: {droverIniSource}\n");
+                                    folderCopied = false;
+                                }
+
+                                if (folderCopied)
+                                {
+                                    copiedFolders++;
+                                    File.AppendAllText(logPath, $"Klasör başarıyla kopyalandı: {appDir}\n");
+                                }
+                                else
+                                {
+                                    allFilesCopied = false;
+                                    File.AppendAllText(logPath, $"Klasör kopyalanamadı: {appDir}\n");
+                                }
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            File.AppendAllText(logPath, $"version.dll kopyalama hatası: {ex.Message}\n");
-                            allFilesCopied = false;
-                        }
+
+                        File.AppendAllText(logPath, $"Toplam {copiedFolders} adet klasöre drover dosyaları kopyalandı.\n");
                     }
                     else
                     {
-                        File.AppendAllText(logPath, $"version.dll kaynak dosyası bulunamadı: {versionDllSource}\n");
-                        allFilesCopied = false;
-                    }
-
-                    // drover.ini kopyala
-                    if (File.Exists(droverIniSource))
-                    {
-                        try
-                        {
-                            File.Copy(droverIniSource, droverIniTarget, true);
-                            File.AppendAllText(logPath, $"drover.ini kopyalandı: {droverIniTarget}\n");
-                        }
-                        catch (Exception ex)
-                        {
-                            File.AppendAllText(logPath, $"drover.ini kopyalama hatası: {ex.Message}\n");
-                            allFilesCopied = false;
-                        }
-                    }
-                    else
-                    {
-                        File.AppendAllText(logPath, $"drover.ini kaynak dosyası bulunamadı: {droverIniSource}\n");
+                        File.AppendAllText(logPath, $"Discord base path bulunamadı: {discordBasePath}\n");
                         allFilesCopied = false;
                     }
 
                     if (allFilesCopied)
                     {
-                        File.AppendAllText(logPath, "Drover dosyaları başarıyla kopyalandı.\n");
+                        File.AppendAllText(logPath, "Tüm drover dosyaları başarıyla kopyalandı.\n");
                     }
                     else
                     {
@@ -2728,6 +2975,214 @@ $dohResults | ConvertTo-Json
                     return false;
                 }
             });
+        }
+
+        /// <summary>
+        /// Yedek DNS ayarlarını CMD komutları ile uygular (PowerShell ve Registry kullanmadan)
+        /// </summary>
+        private async Task<bool> SetBackupDNSSettingsAsync()
+        {
+            var standardLogPath = GetStandardSetupLogPath();
+            
+            try
+            {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] YEDEK DNS AYARLARI BAŞLATILIYOR (60 saniye timeout)...\n");
+                
+                // 60 saniye timeout ile yedek DNS ayarlarını yap
+                var timeoutTask = Task.Run(() =>
+                {
+                    try
+                    {
+                        var logPath = GetLogPath();
+                        File.AppendAllText(logPath, $"=== YEDEK DNS AYARLARI BAŞLATILIYOR: {DateTime.Now} ===\n");
+                        
+                        bool allCommandsSuccessful = true;
+
+                    // 1. Mevcut ağ adaptörlerini listele
+                    File.AppendAllText(logPath, "1. Mevcut ağ adaptörleri listeleniyor...\n");
+                    var interfacesOutput = ExecuteCommandString("netsh", "interface show interface");
+                    File.AppendAllText(logPath, $"Ağ adaptörleri:\n{interfacesOutput}\n");
+
+                    // 2. Ethernet ve Wi-Fi adaptörlerini bul
+                    var lines = interfacesOutput.Split('\n');
+                    var targetInterfaces = new List<string>();
+
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains("Ethernet") || line.Contains("Wi-Fi"))
+                        {
+                            // Interface adını çıkar (genellikle 3. sütunda)
+                            var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (parts.Length >= 4)
+                            {
+                                var interfaceName = parts[3].Trim(); // Satır sonu karakterlerini temizle
+                                if (interfaceName.Contains("Ethernet") || interfaceName.Contains("Wi-Fi"))
+                                {
+                                    targetInterfaces.Add(interfaceName);
+                                    File.AppendAllText(logPath, $"Hedef adaptör bulundu: {interfaceName}\n");
+                                }
+                            }
+                        }
+                    }
+
+                    if (targetInterfaces.Count == 0)
+                    {
+                        File.AppendAllText(logPath, "HATA: Ethernet veya Wi-Fi adaptörü bulunamadı!\n");
+                        return false;
+                    }
+
+                    // 3. Her adaptör için DNS ayarlarını yap
+                    foreach (var interfaceName in targetInterfaces)
+                    {
+                        File.AppendAllText(logPath, $"3. {interfaceName} adaptörü için DNS ayarları yapılıyor...\n");
+
+                        // IPv4 DNS ayarları
+                        var ipv4Result = ExecuteCommand("netsh", $"interface ip set dns \"{interfaceName}\" static 8.8.8.8");
+                        File.AppendAllText(logPath, $"IPv4 birincil DNS (8.8.8.8) ayarlandı: {ipv4Result}\n");
+
+                        var ipv4SecondaryResult = ExecuteCommand("netsh", $"interface ip add dns \"{interfaceName}\" 9.9.9.9 index=2");
+                        File.AppendAllText(logPath, $"IPv4 ikincil DNS (9.9.9.9) ayarlandı: {ipv4SecondaryResult}\n");
+
+                        // IPv6 DNS ayarları
+                        var ipv6Result = ExecuteCommand("netsh", $"interface ipv6 set dns \"{interfaceName}\" static 2001:4860:4860::8888");
+                        File.AppendAllText(logPath, $"IPv6 birincil DNS (2001:4860:4860::8888) ayarlandı: {ipv6Result}\n");
+
+                        var ipv6SecondaryResult = ExecuteCommand("netsh", $"interface ipv6 add dns \"{interfaceName}\" 2620:fe::9 index=2");
+                        File.AppendAllText(logPath, $"IPv6 ikincil DNS (2620:fe::9) ayarlandı: {ipv6SecondaryResult}\n");
+
+                        // DNS önbelleğini temizle
+                        var flushResult = ExecuteCommand("ipconfig", "/flushdns");
+                        File.AppendAllText(logPath, $"DNS önbelleği temizlendi: {flushResult}\n");
+
+                        // DoH ayarlarını etkinleştir (Windows 11 için)
+                        File.AppendAllText(logPath, $"4. {interfaceName} için DoH ayarları yapılıyor...\n");
+                        
+                        // DoH ayarlarını etkinleştir (sadece bir kez)
+                        if (interfaceName == targetInterfaces[0]) // Sadece ilk adaptör için DoH ayarlarını yap
+                        {
+                            File.AppendAllText(logPath, "4.1. DoH otomatik şablon ayarları yapılıyor...\n");
+                            
+                            // DoH'u etkinleştir
+                            var dohResult = ExecuteCommand("netsh", $"dns add global doh=yes");
+                            File.AppendAllText(logPath, $"DoH global ayarı: {dohResult}\n");
+
+                            var dotResult = ExecuteCommand("netsh", $"dns add global dot=yes");
+                            File.AppendAllText(logPath, $"DoT global ayarı: {dotResult}\n");
+
+                            // PowerShell ile DoH ayarları
+                            File.AppendAllText(logPath, "4.2. PowerShell ile DoH ayarları yapılıyor...\n");
+                            
+                            // PowerShell script ile DoH ayarları
+                            var psDohScript = @"
+# DoH'u etkinleştir
+Set-DnsClientDohServerAddress -ServerAddress '8.8.8.8' -DohTemplate 'https://dns.google/dns-query' -AllowFallbackToUdp $true
+Set-DnsClientDohServerAddress -ServerAddress '9.9.9.9' -DohTemplate 'https://dns.quad9.net/dns-query' -AllowFallbackToUdp $true
+Set-DnsClientDohServerAddress -ServerAddress '2001:4860:4860::8888' -DohTemplate 'https://dns.google/dns-query' -AllowFallbackToUdp $true
+Set-DnsClientDohServerAddress -ServerAddress '2620:fe::9' -DohTemplate 'https://dns.quad9.net/dns-query' -AllowFallbackToUdp $true
+
+# DoH'u global olarak etkinleştir
+Set-DnsClientDohServerAddress -ServerAddress '8.8.8.8' -DohTemplate 'https://dns.google/dns-query' -AllowFallbackToUdp $true -AutoUpgrade $true
+Set-DnsClientDohServerAddress -ServerAddress '9.9.9.9' -DohTemplate 'https://dns.quad9.net/dns-query' -AllowFallbackToUdp $true -AutoUpgrade $true
+";
+
+                            var psDohResult = ExecutePowerShellScript(psDohScript);
+                            File.AppendAllText(logPath, $"PowerShell DoH ayarları: {psDohResult}\n");
+
+                            // DNS client servisini yeniden başlat
+                            File.AppendAllText(logPath, "4.3. DNS client servisi yeniden başlatılıyor...\n");
+                            var restartDns = ExecuteCommand("net", "stop dnscache");
+                            File.AppendAllText(logPath, $"DNS servisi durduruldu: {restartDns}\n");
+                            
+                            var startDns = ExecuteCommand("net", "start dnscache");
+                            File.AppendAllText(logPath, $"DNS servisi başlatıldı: {startDns}\n");
+                        }
+                    }
+
+                    // 5. PowerShell ile DoH şablonlarını ayarla
+                    File.AppendAllText(logPath, "5. PowerShell ile DoH şablonları ayarlanıyor...\n");
+                    
+                    // PowerShell script ile DoH şablonları
+                    var psDohTemplatesScript = @"
+# Mevcut DoH ayarlarını temizle
+Get-DnsClientDohServerAddress | Remove-DnsClientDohServerAddress -Force
+
+# Google DNS için DoH şablonu
+Set-DnsClientDohServerAddress -ServerAddress '8.8.8.8' -DohTemplate 'https://dns.google/dns-query' -AllowFallbackToUdp $true
+
+# Quad9 DNS için DoH şablonu
+Set-DnsClientDohServerAddress -ServerAddress '9.9.9.9' -DohTemplate 'https://dns.quad9.net/dns-query' -AllowFallbackToUdp $true
+
+# Google DNS IPv6 için DoH şablonu
+Set-DnsClientDohServerAddress -ServerAddress '2001:4860:4860::8888' -DohTemplate 'https://dns.google/dns-query' -AllowFallbackToUdp $true
+
+# Quad9 DNS IPv6 için DoH şablonu
+Set-DnsClientDohServerAddress -ServerAddress '2620:fe::9' -DohTemplate 'https://dns.quad9.net/dns-query' -AllowFallbackToUdp $true
+
+# DoH ayarlarını doğrula
+Get-DnsClientDohServerAddress
+";
+
+                    var psDohTemplatesResult = ExecutePowerShellScript(psDohTemplatesScript);
+                    File.AppendAllText(logPath, $"PowerShell DoH şablonları: {psDohTemplatesResult}\n");
+
+                    // 6. DNS ayarlarını doğrula
+                    File.AppendAllText(logPath, "6. DNS ayarları doğrulanıyor...\n");
+                    var verificationOutput = ExecuteCommandString("ipconfig", "/all");
+                    File.AppendAllText(logPath, $"IP yapılandırması:\n{verificationOutput}\n");
+
+                    // 7. DoH durumunu kontrol et
+                    var dohStatusOutput = ExecuteCommandString("netsh", "dns show global");
+                    File.AppendAllText(logPath, $"DoH durumu:\n{dohStatusOutput}\n");
+
+                    // 8. DoH şablonlarını kontrol et
+                    var dohTemplatesOutput = ExecuteCommandString("netsh", "dns show global doh");
+                    File.AppendAllText(logPath, $"DoH şablonları:\n{dohTemplatesOutput}\n");
+
+                        File.AppendAllText(logPath, $"=== YEDEK DNS AYARLARI TAMAMLANDI: {DateTime.Now} ===\n");
+                        File.AppendAllText(logPath, $"Genel sonuç: {(allCommandsSuccessful ? "BAŞARILI" : "KISMEN BAŞARILI")}\n");
+
+                        return allCommandsSuccessful;
+                    }
+                    catch (Exception ex)
+                    {
+                        var logPath = GetLogPath();
+                        File.AppendAllText(logPath, $"Yedek DNS ayarları hatası: {ex.Message}\n");
+                        File.AppendAllText(logPath, $"Stack Trace: {ex.StackTrace}\n");
+                        return false;
+                    }
+                });
+
+                // 60 saniye timeout ile bekle
+                var timeout = TimeSpan.FromSeconds(60);
+                var completedTask = await Task.WhenAny(timeoutTask, Task.Delay(timeout));
+
+                if (completedTask == timeoutTask)
+                {
+                    // Yedek DNS ayarları tamamlandı
+                    var result = await timeoutTask;
+                    if (result)
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] YEDEK DNS AYARLARI BAŞARIYLA TAMAMLANDI.\n");
+                        return true;
+                    }
+                    else
+                    {
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] YEDEK DNS AYARLARI BAŞARISIZ OLDU.\n");
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Timeout oluştu
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] YEDEK DNS AYARLARI TIMEOUT (60 saniye) - KURULUMA DEVAM EDİLİYOR.\n");
+                    return false; // False döndür ama kuruluma devam et
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Yedek DNS ayarları sırasında hata oluştu: {ex.Message}\n");
+                return false;
+            }
         }
     }
 } 

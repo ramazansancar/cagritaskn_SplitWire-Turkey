@@ -86,14 +86,28 @@
                                    Margin="0,20,0,0"/>
                     </StackPanel>
                     
-                    <Button x:Name="btnInfo" 
-                            Content="ℹ" 
-                            Style="{StaticResource InfoButtonStyle}"
-                            Click="BtnInfo_Click"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Bottom"
-                            Grid.Row="2"
-                            Margin="0,20,0,10"/>
+                    <StackPanel Grid.Row="2" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Bottom"
+                                Margin="0,20,0,10">
+                        <Button x:Name="btnInfo" 
+                                Content="ℹ" 
+                                Style="{StaticResource InfoButtonStyle}"
+                                Click="BtnInfo_Click"/>
+                        
+                        <Button x:Name="btnRecepBaltas" 
+                                Content="♥" 
+                                Style="{StaticResource InfoButtonStyle}"
+                                Click="BtnRecepBaltas_Click"
+                                Margin="10,0,0,0"/>
+                        
+                        <Button x:Name="btnHeartInfo" 
+                                Content="♥" 
+                                Style="{StaticResource InfoButtonStyle}"
+                                Click="BtnHeartInfo_Click"
+                                Margin="10,0,0,0"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             
@@ -161,13 +175,6 @@
                                 Content="Hizmetleri Kaldır" 
                                 Style="{StaticResource MainButtonStyle}"
                                 Click="BtnRemoveAllServices_Click"/>
-                        
-                        <Button x:Name="btnHeartInfo" 
-                                Content="♥" 
-                                Style="{StaticResource InfoButtonStyle}"
-                                Click="BtnHeartInfo_Click"
-                                HorizontalAlignment="Center"
-                                Margin="0,20,0,0"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
