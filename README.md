@@ -35,7 +35,7 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
-- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
@@ -45,7 +45,7 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - Alternatif Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
-- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
+- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
@@ -56,7 +56,7 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - ByeDPI ST Kurulum butonuna tıklayın. (WPF ve C++ Redistributable Paketi kurulumları otomatik olarak gerçekleşecektir)
-- "Kurulum başarıyla tamamlandı." uyarısını aldığınızda program çalışmaya başlamış demektir.
+- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
@@ -66,7 +66,7 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - ByeDPI DLL Kurulum butonuna tıklayın. (ByeDPI ve drover kurulumu otomatik olarak gerçekleşecektir)
-- "Kurulum başarıyla tamamlandı." uyarısını aldığınızda program çalışmaya başlamış demektir.
+- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
 - Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
 
 > [!NOTE]
