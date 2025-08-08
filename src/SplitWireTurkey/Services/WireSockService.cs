@@ -141,8 +141,6 @@ namespace SplitWireTurkey.Services
                 var wiresockExe = FindWireSockPath();
                 if (string.IsNullOrEmpty(wiresockExe) || !File.Exists(wiresockExe))
                 {
-                    System.Windows.MessageBox.Show("WireSock kurulumu bulunamadı.", 
-                        "WireSock Bulunamadı", MessageBoxButton.OK, MessageBoxImage.Information);
                     return false;
                 }
 
