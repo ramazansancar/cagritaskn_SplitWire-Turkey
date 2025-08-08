@@ -120,7 +120,7 @@ namespace SplitWireTurkey
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            var result = System.Windows.MessageBox.Show("Hızlı kurulum başlatmak istediğinizden emin misiniz?", 
+            var result = System.Windows.MessageBox.Show("Standart kurulum başlatmak istediğinizden emin misiniz?", 
                 "Onay", MessageBoxButton.YesNo, MessageBoxImage.Question);
             
             if (result != MessageBoxResult.Yes) return;
@@ -153,32 +153,20 @@ namespace SplitWireTurkey
                 {
                     File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.1. WireSock son sürümü yüklü değil. Kurulum gerekli.\n");
                     
-                    var downloadResult = System.Windows.MessageBox.Show("WireSock'un son sürümü yüklü değil. WireSock kurulum dosyasını çalıştırmak ister misiniz?", 
-                        "WireSock Son Sürüm Yüklü Değil", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu başlatılıyor...\n");
+                    await DownloadAndInstallWireSock();
+                    File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu tamamlandı.\n");
                     
-                    if (downloadResult == MessageBoxResult.Yes)
+                    // Kurulum sonrası tekrar kontrol et
+                    if (!_wireSockService.IsLatestWireSockInstalled())
                     {
-                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu başlatılıyor...\n");
-                        await DownloadAndInstallWireSock();
-                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. WireSock kurulumu tamamlandı.\n");
-                        
-                        // Kurulum sonrası tekrar kontrol et
-                        if (!_wireSockService.IsLatestWireSockInstalled())
-                        {
-                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. UYARI: WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı.\n");
-                            System.Windows.MessageBox.Show("WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı. Kuruluma devam ediliyor...", 
-                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                        else
-                        {
-                            File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. WireSock kurulumu başarıyla doğrulandı.\n");
-                        }
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. UYARI: WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı.\n");
+                        System.Windows.MessageBox.Show("WireSock kurulumu tamamlandı ancak kurulum doğrulanamadı. Kuruluma devam ediliyor...", 
+                            "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     else
                     {
-                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2. Kullanıcı WireSock kurulumunu iptal etti.\n");
-                        ShowLoading(false);
-                        return;
+                        File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.3. WireSock kurulumu başarıyla doğrulandı.\n");
                     }
                 }
                 else
@@ -198,9 +186,6 @@ namespace SplitWireTurkey
             {
                 File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Standart kurulum sırasında hata oluştu: {ex.Message}\n");
                 File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] === STANDART KURULUM HATA İLE SONLANDI ===\n");
-            }
-            finally
-            {
                 ShowLoading(false);
             }
         }
@@ -507,9 +492,6 @@ namespace SplitWireTurkey
         {
             try
             {
-                System.Windows.MessageBox.Show("Kurulum öncesi mevcut hizmetler kaldırılıyor...", 
-                    "Hizmet Temizliği", MessageBoxButton.OK, MessageBoxImage.Information);
-
                 // WireSock hizmetini kaldır
                 var wiresockRemoved = await _wireSockService.RemoveServiceAsync();
                 
@@ -528,9 +510,6 @@ namespace SplitWireTurkey
                 
                 // Windows Firewall kurallarını da temizle
                 await RemoveFirewallRulesAsync();
-                
-                System.Windows.MessageBox.Show("Tüm hizmetler ve firewall kuralları başarıyla kaldırıldı. Kuruluma devam ediliyor...", 
-                    "Hizmet Temizliği Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 return true;
             }
@@ -771,12 +750,23 @@ namespace SplitWireTurkey
                 var uninstallSuccess = await _wireSockService.RemoveServiceAsync();
                 if (!uninstallSuccess)
                 {
-                    File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılamadı.\n");
-                    System.Windows.MessageBox.Show("Mevcut WireSock hizmeti kaldırılamadı. Alternatif kurulum başlatılamadı.", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    // Hizmet zaten yüklü değilse işlemlere devam et
+                    if (!_wireSockService.IsWireSockInstalled())
+                    {
+                        File.AppendAllText(logPath, "WireSock hizmeti zaten yüklü değil. İşlemlere devam ediliyor...\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, "Mevcut WireSock hizmeti kaldırılamadı.\n");
+                        System.Windows.MessageBox.Show("Mevcut WireSock hizmeti kaldırılamadı. Alternatif kurulum başlatılamadı.", 
+                            "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                 }
-                File.AppendAllText(logPath, "Mevcut WireSock hizmeti başarıyla kaldırıldı.\n");
+                else
+                {
+                    File.AppendAllText(logPath, "Mevcut WireSock hizmeti başarıyla kaldırıldı.\n");
+                }
 
                 // Mevcut WireSock kurulumunu kaldır - /res klasöründeki dosyayı kullan
                 File.AppendAllText(logPath, "Mevcut WireSock kurulumu kaldırılıyor...\n");
@@ -935,8 +925,7 @@ namespace SplitWireTurkey
                         if (process.ExitCode == 0)
                         {
                             File.AppendAllText(logPath, "MSI sessiz kurulum başarılı.\n");
-                            System.Windows.MessageBox.Show($"WireSock 1.4.7.1 sürümü sessiz kurulumu tamamlandı.\nKuruluma devam ediliyor ...", 
-                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
+                            
                             msiInstallSuccess = true;
                             break;
                         }
@@ -1052,6 +1041,9 @@ namespace SplitWireTurkey
 
         private void ShowRestartMessage()
         {
+            // Loading ekranını kapat
+            
+            
             var result = System.Windows.MessageBox.Show(
                 "Kurulum başarıyla tamamlandı. Değişikliklerin uygulanabilmesi için sisteminizi yeniden başlatın. Şimdi yeniden başlatmak için Evet'e tıklayın. Daha sonra yeniden başlatmak için Hayır'a tıklayın.",
                 "Kurulum Tamamlandı",
@@ -1062,8 +1054,10 @@ namespace SplitWireTurkey
             {
                 // Şimdi yeniden başlat
                 RestartSystem();
+                ShowLoading(false);
             }
             // No seçilirse sadece mesaj kutusu kapanır
+            ShowLoading(false);
         }
 
         private void RestartSystem()
@@ -1103,7 +1097,6 @@ namespace SplitWireTurkey
             
             try
             {
-                ShowLoading(true);
                 
                 File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.1. WireSock kurulum dosyası kontrol ediliyor...\n");
                 
@@ -1154,8 +1147,6 @@ namespace SplitWireTurkey
                     if (process.ExitCode == 0)
                     {
                         File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.5. Kurulum başarılı (Exit Code: 0)\n");
-                        System.Windows.MessageBox.Show($"WireSock Secure Connect sessiz kurulumu tamamlandı.\nKuruluma devam ediliyor...", 
-                            "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -1165,8 +1156,6 @@ namespace SplitWireTurkey
                         if (_wireSockService.IsWireSockInstalled())
                         {
                             File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.3.6. Kurulum doğrulandı (Exit Code: {process.ExitCode})\n");
-                            System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu tamamlandı (Exit Code: {process.ExitCode}).\nKuruluma devam ediliyor...", 
-                                "Kurulum Tamamlandı", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         else
                         {
@@ -1220,7 +1209,7 @@ namespace SplitWireTurkey
             }
             finally
             {
-                ShowLoading(false);
+                
             }
         }
 
@@ -1267,15 +1256,11 @@ namespace SplitWireTurkey
                             
                             if (Directory.Exists(existingSecureConnectPath))
                             {
-                                System.Windows.MessageBox.Show($"Mevcut WireSock Secure Connect kurulumu bulundu. Kurulum şu konuma yapılacak:\n{existingSecureConnectPath}", 
-                                    "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Information);
                                 return existingSecureConnectPath;
                             }
 
                             // Mevcut kurulum yoksa yeni WireSock Secure Connect klasörünü kullan
                             var newInstallPath = Path.Combine(programFilesPath, "WireSock Secure Connect");
-                            System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu şu konuma yapılacak:\n{newInstallPath}", 
-                                "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Information);
                             return newInstallPath;
                         }
                         else if (Directory.Exists(programFilesX86Path))
@@ -1285,15 +1270,11 @@ namespace SplitWireTurkey
                             
                             if (Directory.Exists(existingSecureConnectPath))
                             {
-                                System.Windows.MessageBox.Show($"Mevcut WireSock Secure Connect kurulumu bulundu. Kurulum şu konuma yapılacak:\n{existingSecureConnectPath}", 
-                                    "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Information);
                                 return existingSecureConnectPath;
                             }
 
                             // Mevcut kurulum yoksa yeni WireSock Secure Connect klasörünü kullan
                             var newInstallPath = Path.Combine(programFilesX86Path, "WireSock Secure Connect");
-                            System.Windows.MessageBox.Show($"WireSock Secure Connect kurulumu şu konuma yapılacak:\n{newInstallPath}", 
-                                "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Information);
                             return newInstallPath;
                         }
                         else
@@ -1303,15 +1284,11 @@ namespace SplitWireTurkey
                             {
                                 Directory.CreateDirectory(programFilesPath);
                                 var newInstallPath = Path.Combine(programFilesPath, "WireSock Secure Connect");
-                                System.Windows.MessageBox.Show($"Program Files klasörü oluşturuldu ve WireSock Secure Connect kurulumu şu konuma yapılacak:\n{newInstallPath}", 
-                                    "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Information);
                                 return newInstallPath;
                             }
                             catch
                             {
                                 var fallbackInstallPath = Path.Combine(drive.Name, "WireSock Secure Connect");
-                                System.Windows.MessageBox.Show($"Program Files klasörü oluşturulamadı. WireSock Secure Connect kurulumu şu konuma yapılacak:\n{fallbackInstallPath}", 
-                                    "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Warning);
                                 return fallbackInstallPath;
                             }
                         }
@@ -1323,8 +1300,6 @@ namespace SplitWireTurkey
                 if (fallbackDrive != null)
                 {
                     var defaultInstallPath = Path.Combine(fallbackDrive.Name, "Program Files", "WireSock Secure Connect");
-                    System.Windows.MessageBox.Show($"Tercih edilen sürücüler bulunamadı. WireSock Secure Connect kurulumu şu konuma yapılacak:\n{defaultInstallPath}", 
-                        "Kurulum Konumu", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return defaultInstallPath;
                 }
 
@@ -1351,7 +1326,7 @@ namespace SplitWireTurkey
             else // Ana Sayfa sekmesi
             {
                 // Pencere boyutunu normal haline getir
-                this.Height = 600;
+                this.Height = 700;
                 this.Width = 500;
             }
         }

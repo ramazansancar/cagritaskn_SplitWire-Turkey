@@ -30,15 +30,15 @@
         <materialDesign:Card Grid.Row="0" Margin="16,8,16,8" Padding="8">
             <StackPanel>
                 <Image Source="Resources/splitwire-logo-128.png" 
-                       Width="48" 
-                       Height="48" 
+                       Width="96" 
+                       Height="96" 
                        HorizontalAlignment="Center"
-                       Margin="0,8,0,5"/>
+                       Margin="0,0,0,0"/>
                 <Image Source="Resources/splitwireturkeytext.png" 
                        Width="180" 
                        Height="Auto" 
                        HorizontalAlignment="Center"
-                       Margin="0,5,0,8"/>
+                       Margin="0,2,0,2"/>
             </StackPanel>
         </materialDesign:Card>
 
@@ -90,7 +90,7 @@
                                 Orientation="Horizontal" 
                                 HorizontalAlignment="Center" 
                                 VerticalAlignment="Bottom"
-                                Margin="0,20,0,10">
+                                Margin="0,0,0,30">
                         <Button x:Name="btnInfo" 
                                 Content="ℹ" 
                                 Style="{StaticResource InfoButtonStyle}"
