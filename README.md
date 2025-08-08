@@ -23,6 +23,8 @@ SplitWire-Turkey, birden çok metot ile DPI engelini bertaraf etmek için geliş
 
 SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir DPI aşımı otomasyonu projesidir. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak, ByeDPI'u kolay yoldan kullanarak ayrık tünelleme yapmak isteyen kullanıcılar için geliştirilmiştir. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
 
+> [!CAUTION]
+> Windows Defender dışında bir antivirüs yazılımı kullanıyorsanız "Program Files\SplitWire-Turkey\res\byedpi\ciadpi.exe" ve "Program Files\SplitWire-Turkey\res\proxifyre\ProxiFyre.exe" isimli yürütülebilir dosyaları için ilgili antivirüs yazılımı güvenlik duvarında izin verecek kuralları el ile eklemeniz gerekebilir. Windows Defender için güvenlik duvarı kuralları otomatik olarak eklenir ekstra bir işlem yapmanıza gerek yoktur.
 > [!NOTE]
 > Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir. (Otomatik yönetici izni talep edilir ancak bazı durumlarda bu izin alınamazsa manuel olarak yetki yükseltmesi yapmak gerekebilir)
 
