@@ -25,13 +25,11 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 
 > [!CAUTION]
 > Windows Defender dışında bir antivirüs yazılımı kullanıyorsanız "Program Files\SplitWire-Turkey\res\byedpi\ciadpi.exe" ve "Program Files\SplitWire-Turkey\res\proxifyre\ProxiFyre.exe" isimli yürütülebilir dosyaları için ilgili antivirüs yazılımı güvenlik duvarında izin verecek kuralları el ile eklemeniz gerekebilir. Windows Defender için güvenlik duvarı kuralları otomatik olarak eklenir ekstra bir işlem yapmanıza gerek yoktur.
+
 > [!NOTE]
 > Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir. (Otomatik yönetici izni talep edilir ancak bazı durumlarda bu izin alınamazsa manuel olarak yetki yükseltmesi yapmak gerekebilir)
 
 ## SplitWire-Turkey Kullanımı
-
-> [!IMPORTANT]
-> GoodbyeDPI veya Cloudflare WARP ya da farklı bir VPN uygulaması kullanıyorsanız bu uygulamayı kaldırmalısınız. SplitWire-Turkey, kurulumlardan herhangi birini başlatmanız halinde GoodbyeDPI hizmetini otomatik olarak kaldırır ancak bu bir sorundan dolayı gerçekleşemez ise; [GoodbyeDPI-Turkey Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)'ni takip ederek kaldırma işlemini gerçekleştirebilirsiniz.
 
 ### Standart Kurulum (Tavsiye Edilen)
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
