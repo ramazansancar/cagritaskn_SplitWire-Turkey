@@ -34,6 +34,43 @@ namespace SplitWireTurkey.Services
             return null;
         }
 
+        public string FindWireSockPathOptimized()
+        {
+            // Sadece C, D ve E sürücülerini tara
+            var targetDrives = new[] { "C:", "D:", "E:" };
+            
+            foreach (var driveLetter in targetDrives)
+            {
+                try
+                {
+                    var drive = new DriveInfo(driveLetter);
+                    if (!drive.IsReady) continue;
+
+                    var paths = new[]
+                    {
+                        // Yeni sürüm (WireSock Secure Connect)
+                        Path.Combine(drive.Name, "Program Files", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
+                        Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
+                        // Eski sürüm (WireSock VPN Client) - 1.4.7.1
+                        Path.Combine(drive.Name, "Program Files", "WireSock VPN Client", "bin", "wiresock-client.exe"),
+                        Path.Combine(drive.Name, "Program Files (x86)", "WireSock VPN Client", "bin", "wiresock-client.exe")
+                    };
+
+                    foreach (var path in paths)
+                    {
+                        if (File.Exists(path))
+                            return path;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Sürücü {driveLetter} kontrol edilirken hata: {ex.Message}");
+                    continue;
+                }
+            }
+            return null;
+        }
+
         public async Task<bool> InstallServiceAsync(string configPath)
         {
             try
@@ -73,9 +110,20 @@ namespace SplitWireTurkey.Services
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show($"Kurulum başarısız. Return code: {result}", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
+                    // Check if service was actually installed despite the error
+                    var serviceQueryResult = await ExecuteCommandAsync("sc", "query wiresock-client-service");
+                    if (serviceQueryResult == 0)
+                    {
+                        System.Windows.MessageBox.Show($"WireSock hizmeti kuruldu (Return code: {result}). Hizmet zaten mevcut olabilir.", 
+                            "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return true;
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show($"Kurulum başarısız. Return code: {result}", 
+                            "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -153,24 +201,40 @@ namespace SplitWireTurkey.Services
             return !string.IsNullOrEmpty(FindWireSockPath());
         }
 
+        public async Task<bool> IsWireSockInstalledAsync()
+        {
+            return await Task.Run(() => !string.IsNullOrEmpty(FindWireSockPathOptimized()));
+        }
+
         public bool IsLatestWireSockInstalled()
         {
-            var drives = DriveInfo.GetDrives();
-            foreach (var drive in drives)
+            // Sadece C, D ve E sürücülerini tara (optimize edilmiş)
+            var targetDrives = new[] { "C:", "D:", "E:" };
+            
+            foreach (var driveLetter in targetDrives)
             {
-                if (!drive.IsReady) continue;
-
-                var paths = new[]
+                try
                 {
-                    // Sadece yeni sürüm (WireSock Secure Connect)
-                    Path.Combine(drive.Name, "Program Files", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
-                    Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe")
-                };
+                    var drive = new DriveInfo(driveLetter);
+                    if (!drive.IsReady) continue;
 
-                foreach (var path in paths)
+                    var paths = new[]
+                    {
+                        // Sadece yeni sürüm (WireSock Secure Connect)
+                        Path.Combine(drive.Name, "Program Files", "WireSock Secure Connect", "bin", "wiresock-client.exe"),
+                        Path.Combine(drive.Name, "Program Files (x86)", "WireSock Secure Connect", "bin", "wiresock-client.exe")
+                    };
+
+                    foreach (var path in paths)
+                    {
+                        if (File.Exists(path))
+                            return true;
+                    }
+                }
+                catch (Exception ex)
                 {
-                    if (File.Exists(path))
-                        return true;
+                    Debug.WriteLine($"IsLatestWireSockInstalled - Sürücü {driveLetter} kontrol edilirken hata: {ex.Message}");
+                    continue;
                 }
             }
             return false;
