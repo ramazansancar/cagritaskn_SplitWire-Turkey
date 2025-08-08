@@ -199,6 +199,7 @@ Detaylar için LICENSE dosyasına bakın.
 
 ## Atıflar ve Teşekkürler:
 
+- Yazılımın geliştirilmesine katkıda bulunan **[Techolay.net](https://techolay.net/sosyal/)** kurucusu **[Recep Baltaş](https://www.youtube.com/@Techolay/)**'a çok teşekkür ederim.
 - **[ByeDPI Split Tunneling metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** rehberi ve tüm emekleri için **[Bal Porsuğu](https://www.youtube.com/@sauali)**'na çok teşekkür ederim.
 - **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
 - **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
