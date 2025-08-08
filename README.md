@@ -121,6 +121,16 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI hizmetlerini kaldırmak için Gelişmiş sekmesindeki **Hizmetleri Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
 - GoodbyeDPI Hizmeti bir sebepten dolayı otomatik olarak kaldırılamazsa **[GoodbyeDPI Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)**'ni takip ederek kaldırmayı deneyebilirsiniz.
 
+## Teşekkürler ve Atıflar
+
+- Yazılımın geliştirilmesine katkıda bulunan **[Techolay.net](https://techolay.net/sosyal/)** kurucusu **[Recep Baltaş](https://www.youtube.com/@Techolay/)**'a çok teşekkür ederim.
+- **[ByeDPI Split Tunneling metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** rehberi ve tüm emekleri için **[Bal Porsuğu](https://www.youtube.com/@sauali)**'na çok teşekkür ederim.
+- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
+- **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
+- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
+- **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
+
 ### El ile Yapılandırma
 ```xml
 ...
@@ -197,15 +207,6 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 Detaylar için LICENSE dosyasına bakın.
 ```
 
-## Atıflar ve Teşekkürler:
-
-- Yazılımın geliştirilmesine katkıda bulunan **[Techolay.net](https://techolay.net/sosyal/)** kurucusu **[Recep Baltaş](https://www.youtube.com/@Techolay/)**'a çok teşekkür ederim.
-- **[ByeDPI Split Tunneling metodu](https://www.youtube.com/watch?v=rkBL_kHBfm4)** rehberi ve tüm emekleri için **[Bal Porsuğu](https://www.youtube.com/@sauali)**'na çok teşekkür ederim.
-- **[wgcf](https://github.com/ViRb3/wgcf)** by **[ViRb3](https://github.com/ViRb3)**
-- **[ProxiFyre](https://github.com/wiresock/proxifyre)** by **[Vadim Smirnov](https://github.com/wiresock)**
-- **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
-- **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
-- **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
 
 ## Bağış ve Destek
 
