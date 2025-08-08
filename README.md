@@ -131,18 +131,6 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
 - **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
 
-### El ile Yapılandırma
-```xml
-...
-[Peer]
-PublicKey = ...
-AllowedIPs = ...
-Endpoint = ...
-# Eklenebilecek örnek satırlar
-AllowedApps = C:\Program Files\Program Z\ProgramZ.exe, C:\Users\kullanici-adi\AppData\Local\ProgramX\, ProgramY.exe
-...
-```
-
 ## Nasıl Çalışır
 
 ### Standart, Alternatif ve Özelleştirilmiş Kurulum
