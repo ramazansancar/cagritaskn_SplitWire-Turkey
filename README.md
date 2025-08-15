@@ -31,6 +31,9 @@ SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tas
 
 ## SplitWire-Turkey Kullanımı
 
+## Video Rehber
+**Recep Baltaş - Techolay Kurulum ve Kullanım Rehberi:** **[Tek Tıkla Sadece Discord için VPN | SplitWire-Turkey](https://www.youtube.com/watch?v=5PCMAlhMVBU)**
+
 ### Standart Kurulum (Tavsiye Edilen)
 - **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
 - SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
