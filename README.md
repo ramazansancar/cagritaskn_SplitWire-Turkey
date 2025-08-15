@@ -119,7 +119,7 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 ### Klasör Yönetimi
 - **Klasör Yönetimi:** WireSock koruması altında kalacak uygulama klasörlerini ekleyip çıkarmanıza ve gerektiğinde tüm listeyi temizlemenizi sağlar.
 - **Özelleştirilmiş Profil Oluşturma:** Oluşturulan ücretsiz Cloudflare konfigürasyon dosyasına, klasör listesine eklediğiniz dizinleri ekleyerek "\res" klasörü içerisinde konfigürasyon dosyasının son halini kaydeder. Bu sayede başka WireGuard uygulamaları ile de bu dosyayı kullanabilirsiniz.
-- **WireSock Hizmetini Kaldır:** "WireSock Hizmetini Kaldır" butonu, WireSock hizmetini kaldırıp korumayı durdurmak için veya tekrar yeni bir hizmet kurulumu yapmak için kullanılabilir.
+- **Hizmetleri Kaldır:** "Hizmetleri Kaldır" butonu, SplitWire-Turkey ile kurulmuş tüm hizmetleri kaldırıp korumayı durdurmak için veya tekrar yeni bir hizmet kurulum yapmadan önce temizliği sağlamak için kullanılabilir.
 
 ### WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI Hizmetlerini & drover Dosyalarını Kaldırma
 - WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI hizmetlerini kaldırmak için Gelişmiş sekmesindeki **Hizmetleri Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
