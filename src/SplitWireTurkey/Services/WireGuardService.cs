@@ -21,7 +21,7 @@ namespace SplitWireTurkey.Services
                 Directory.CreateDirectory(_resDir);
         }
 
-        public async Task<bool> CreateProfileAsync(string[] extraFolders = null)
+        public async Task<bool> CreateProfileAsync(string[] extraFolders = null, bool includeBrowsers = false)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace SplitWireTurkey.Services
                 var profilePath = Path.Combine(_resDir, "wgcf-profile.conf");
                 if (File.Exists(profilePath))
                 {
-                    return await ModifyConfigurationAsync(profilePath, extraFolders);
+                    return await ModifyConfigurationAsync(profilePath, extraFolders, includeBrowsers);
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace SplitWireTurkey.Services
             }
         }
 
-        private async Task<bool> ModifyConfigurationAsync(string profilePath, string[] extraFolders)
+        private async Task<bool> ModifyConfigurationAsync(string profilePath, string[] extraFolders, bool includeBrowsers = false)
         {
             try
             {
@@ -115,6 +115,23 @@ namespace SplitWireTurkey.Services
                     "RobloxPlayerBeta.exe",
                     "RobloxPlayerInstaller.exe"
                 };
+
+                // Tarayıcı uygulamalarını ekle (eğer isteniyorsa)
+                if (includeBrowsers)
+                {
+                    var browserApps = new[]
+                    {
+                        "browser.exe",
+                        "chrome.exe",
+                        "firefox.exe",
+                        "opera.exe",
+                        "operagx.exe",
+                        "brave.exe",
+                        "vivaldi.exe",
+                        "msedge.exe"
+                    };
+                    appPaths.AddRange(browserApps);
+                }
 
                 if (extraFolders != null)
                 {
