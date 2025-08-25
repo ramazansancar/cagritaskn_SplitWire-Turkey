@@ -156,7 +156,8 @@
 
 ## SplitWire-Turkey'i Sistemden Kaldırma ve Tüm Değişiklikleri Geri Alma
 **SplitWire-Turkey'i** sisteminizden kaldırmanın birçok yolu vardır. Bunlar program içerisindeki **Gelişmiş** sekmesinde **SplitWire-Turkey'i Kaldır** butonunu kullanmak, programın kurulu olduğu konumdaki **unins000.exe** isimli kaldırma paketini kullanmak, Windows Program ekle veya kaldır penceresinde **SplitWire-Turkey**'i bulup sağdaki seçeneklerden Kaldır butonuna tıklayarak kaldırmak olarak sıralanabilir. Bu yollardan herhangi birini izleyerek tüm değişiklikleri geri alıp SplitWire-Turkey'i sisteminizden tamamen kaldırabilirsiniz.
-Eğer ZIP dosyasını indirip ayıklayarak kullanım sağlıyorsanız; **SplitWire-Turkey** içerisinde **Gelişmiş** sekmesinde **SplitWire-Turkey'i Kaldır** butonunu kullandıktan sonra, ZIP dosyasını ayıkladığınız klasörü ve C:\Users\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörünü kullanarak tüm değişiklikleri geri alıp SplitWire-Turkey'i sisteminizden tamamen kaldırabilirsiniz.
+
+> Eğer ZIP dosyasını indirip ayıklayarak kullanım sağlıyorsanız; **SplitWire-Turkey** içerisinde **Gelişmiş** sekmesinde **SplitWire-Turkey'i Kaldır** butonunu kullandıktan sonra, ZIP dosyasını ayıkladığınız klasörü ve C:\Users\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörünü kullanarak tüm değişiklikleri geri alıp SplitWire-Turkey'i sisteminizden tamamen kaldırabilirsiniz.
 
 ---
 
