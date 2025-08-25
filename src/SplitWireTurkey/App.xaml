@@ -10,6 +10,11 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
             
+            <!-- Font Definitions -->
+            <FontFamily x:Key="PoppinsRegular">pack://application:,,,/Resources/Poppins-Regular.ttf#Poppins</FontFamily>
+            <FontFamily x:Key="PoppinsBold">pack://application:,,,/Resources/Poppins-Bold.ttf#Poppins</FontFamily>
+            <FontFamily x:Key="Montserrat">pack://application:,,,/Resources/Montserrat-VariableFont_wght.ttf#Montserrat</FontFamily>
+            
             <!-- Custom Styles -->
             <Style x:Key="MainButtonStyle" TargetType="Button">
                 <Setter Property="Margin" Value="5"/>
@@ -59,10 +64,22 @@
             
             <Style x:Key="InfoButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}">
                 <Setter Property="Margin" Value="5"/>
-                <Setter Property="Width" Value="40"/>
-                <Setter Property="Height" Value="40"/>
+                <Setter Property="Width" Value="28"/>
+                <Setter Property="Height" Value="28"/>
                 <Setter Property="Background" Value="#E0E0E0"/>
                 <Setter Property="Foreground" Value="#424242"/>
+                <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+                <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth2"/>
+            </Style>
+            
+            <Style x:Key="InfoButtonStyleDark" TargetType="Button" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Width" Value="28"/>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="Background" Value="#3f3f40"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp2"/>
+                <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth2"/>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

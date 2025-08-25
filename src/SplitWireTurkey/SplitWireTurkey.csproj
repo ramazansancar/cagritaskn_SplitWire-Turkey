@@ -33,8 +33,15 @@
   <ItemGroup>
     <Resource Include="Resources\splitwire.ico" Condition="Exists('Resources\splitwire.ico')" />
     <Resource Include="Resources\splitwire-logo-128.png" Condition="Exists('Resources\splitwire-logo-128.png')" />
+    <Resource Include="Resources\splitwire-logo-128_inverted.png" Condition="Exists('Resources\splitwire-logo-128_inverted.png')" />
     <Resource Include="Resources\splitwireturkeytext.png" Condition="Exists('Resources\splitwireturkeytext.png')" />
+    <Resource Include="Resources\splitwireturkeytext_inverted.png" Condition="Exists('Resources\splitwireturkeytext_inverted.png')" />
     <Resource Include="Resources\loading.gif" Condition="Exists('Resources\loading.gif')" />
+    <Resource Include="Resources\lightmode.png" Condition="Exists('Resources\lightmode.png')" />
+    <Resource Include="Resources\darkmode.png" Condition="Exists('Resources\darkmode.png')" />
+    <Resource Include="Resources\Poppins-Regular.ttf" Condition="Exists('Resources\Poppins-Regular.ttf')" />
+    <Resource Include="Resources\Poppins-Bold.ttf" Condition="Exists('Resources\Poppins-Bold.ttf')" />
+    <Resource Include="Resources\Montserrat-VariableFont_wght.ttf" Condition="Exists('Resources\Montserrat-VariableFont_wght.ttf')" />
   </ItemGroup>
 
   <ItemGroup>

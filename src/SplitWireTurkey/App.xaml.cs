@@ -1,14 +1,31 @@
 using System;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
+using System.Diagnostics;
 
 namespace SplitWireTurkey
 {
     public partial class App : Application
     {
+        private static Mutex _mutex = null;
+        private const string MutexName = "SplitWireTurkeySingleInstanceMutex";
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            // Check if another instance is already running
+            if (!CheckSingleInstance())
+            {
+                MessageBox.Show(
+                    "SplitWire-Turkey zaten çalışıyor. Pencereyi göremiyorsanız Görev Yöneticisi kullanarak SplitWire-Turkey.exe'yi sonlandırın.",
+                    "Uygulama Zaten Çalışıyor",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                Shutdown();
+                return;
+            }
             
             // Set up global exception handling
             Current.DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -46,6 +63,20 @@ namespace SplitWireTurkey
                 MessageBoxImage.Error);
         }
 
+        private bool CheckSingleInstance()
+        {
+            try
+            {
+                _mutex = new Mutex(true, MutexName, out bool createdNew);
+                return createdNew;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Tek instance kontrolü sırasında hata: {ex.Message}");
+                return false;
+            }
+        }
+
         private bool IsRunningAsAdministrator()
         {
             try
@@ -58,6 +89,19 @@ namespace SplitWireTurkey
             {
                 return false;
             }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Mutex'i temizle
+            if (_mutex != null)
+            {
+                _mutex.ReleaseMutex();
+                _mutex.Dispose();
+                _mutex = null;
+            }
+            
+            base.OnExit(e);
         }
     }
 } 
