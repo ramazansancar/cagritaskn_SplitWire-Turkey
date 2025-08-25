@@ -8,122 +8,172 @@
 [![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 
-## Özet
-
-SplitWire-Turkey, birden çok metot ile DPI engelini bertaraf etmek için geliştirilmiştir. WireGuard VPN yapılandırmasını kolaylaştıran, ByeDPI ve Proxifyre ile otomatik kurulum yapan açık kaynak bir Windows uygulamasıdır. Bu araç, kullanıcıların ücretsiz Cloudflare konfigürasyon dosyası oluşturmalarını ([wgcf](https://github.com/ViRb3/wgcf) aracılığı ile) ve [WireSock](https://www.wiresock.net/) sayesinde bu konfigürasyonu **yalnızca** tercih edilen uygulamalar özelinde kullanmalarını, ByeDPI ve ProxiFyre/drover kullanarak ayrık tünelleme yapabilmelerini sağlar. Ayrıca hizmet kurulumu yaptığı için Windows'u her yeniden başlattığınızda tekrar kurulum yapmanıza gerek kalmaz.
-
-**Özellikler:**
--  **Hızlı Kurulum:** Tek tıkla kullanım
--  **Özelleştirilmiş Kurulum:** Gelişmiş ayarlarla özel yapılandırma
--  **Servis Yönetimi:** Gerekli hizmetleri kurup/kaldırma
--  **Klasör Yönetimi:** Tercih edilen uygulama klasörlerini kolayca ekleme/çıkarma
--  **Ücretsiz:** Programı kullanmak tamamen ücretsiz
+---
 
 ## SplitWire-Turkey
 
-SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir DPI aşımı otomasyonu projesidir. Bu uygulama, WireGuard VPN teknolojisini kullanarak güvenli ve hızlı internet bağlantısı sağlamak, ByeDPI'u kolay yoldan kullanarak ayrık tünelleme yapmak isteyen kullanıcılar için geliştirilmiştir. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
+**SplitWire-Turkey**, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir DPI aşımı ve tünelleme otomasyonu projesidir. İnternet bağlantı hızınızı etkilemeden kısıt aşımı yapmaya yarayan açık kaynak bir Windows uygulamasıdır. Bu araç, tek bir arayüzden birçok kısıt aşım yöntemini otomatik olarak kurmaya ve yönetmeye yarar. Hizmet kurulumu yaptığı için bilgisayarınızı yeniden başlattığınızda ilgili uygulamalara erişmek için fazladan bir işlem yapmanıza gerek kalmaz. Tamamen açık kaynak kodlu olan bu uygulamanın kaynak kodları repository'de bulunan /src klasörünün içinde mevcuttur.
+
+---
+
+# İndirme ve Kurulum 
+
+## Setup Dosyası ile Kurulum (Tavsiye Edilir)
+- **[SplitWire-Turkey-Setup-Windows-1.5.0.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.0/SplitWire-Turkey-Setup-Windows-1.5.0.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
+- **SplitWire-Turkey** uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
+
+## ZIP Dosyası ile Kullanım (Tavsiye Edilmez)
+- **[SplitWire-Turkey-ZIP-Windows-1.5.0.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.0/SplitWire-Turkey-ZIP-Windows-1.5.0.zip)** dosyasını indirerek bir klasöre ayıklayın.
+- ZIP dosyasını ayıkladığınız klasörde bulunan **SplitWire-Turkey.exe** uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
+
+---
+
+# Kullanım Rehberleri
+
+## Ana Sayfa Kullanımı
+
+**Not:** Bu bölümdeki kurulumlar, yalnızca Discord uygulaması için (Eğer tarayıcı tünellemesini aktifleştirdiyseniz tarayıcılar da dahil) çalışır. Bu kurulumları gerçekleştirdikten sonra sisteminizi her yeniden başlatışınızda ilgili yöntem otomatik olarak çalışmaya başlar.
+
+- **Standart Kurulum:** Wgcf ve WireSock 2.4.16.1 araçlarını kullanarak yalnızca Discord için tünelleme gerçekleştirir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
+
+- **Alternatif Kurulum:** Wgcf ve WireSock 1.4.7.1 araçlarını kullanarak YALNIZCA Discord için tünelleme gerçekleştirilir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
+
+- **Tarayıcılar için de tünelleme yap:** Discord uygulaması yanında; Chrome, Firefox, Opera, OperaGX, Brave, Vivaldi ve Edge gibi popüler internet tarayıcıları için de tünelleme yapılır.
+
+- **Klasör listesini özelleştir:** Discord haricinde bir uygulama için tünelleme yapmak isterseniz bu bölümü kullanabilirsiniz.
+  - **Klasör Ekle:** Tünelleyeceğiniz uygulamanın bulunduğu klasörü seçerek listeye ekler.
+  - **Listeyi Temizle:** Klasör listesini temizler.
+  - **Özel Kurulum:** Hazırladığın klasör listesi için Wgcf ve WireSock kullanarak kurulum yapar.
+  - **Özel Config Oluştur:** Hazırladığınız klasör listesi için konfigürasyon dosyası oluşturur.
+
+- **Çıkış:** Programı kapatır.
+
+**Not 2:** Eğer Discord uygulaması Checking for updates… ekranında kalırsa modeminizi kapatıp 15 saniye bekledikten sonra tekrar açın ve ardından bilgisayarınızı yeniden başlatın.
+
+---
+
+## ByeDPI Sayfası Kullanımı 
+
+**Not:** Bu bölümdeki kurulumlar, yalnızca Discord uygulaması için (Eğer tarayıcı tünellemesini aktifleştirdiyseniz tarayıcılar da dahil) çalışır. Bu kurulumları gerçekleştirdikten sonra sisteminizi her yeniden başlatışınızda ilgili yöntem otomatik olarak çalışmaya başlar.
+
+- **ByeDPI Split Tunneling Kurulum:** ByeDPI ve ProxiFyre araçlarını kullanarak yalnızca Discord uygulaması için DPI aşımı gerçekleştirilir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da DPI aşımı yapılır)
+
+- **Tarayıcılar için de tünelleme yap:** Discord uygulaması yanında; Chrome, Firefox, Opera, OperaGX, Brave, Vivaldi ve Edge gibi popüler internet tarayıcıları için de DPI aşımı yapılır. Tarayıcılar için tünelleme seçeneğini değiştirip tekrar kurulum yapmak için önce ByeDPI' Kaldır butonuna tıklayarak ByeDPI'ı kaldırmalısınız.
+
+- **ByeDPI DLL Kurulum:** ByeDPI ve drover (DLL hijacking yöntemi) kullanılarak **YALNIZCA** Discord uygulaması için DPI aşımı gerçekleştirilir. Bu yöntem yalnızca Discord uygulaması için çalışır, tarayıcılar veya diğer programlar için çalışmaz.
+
+- **ByeDPI'ı Kaldır:** ByeDPI'ı kaldırıp drover dosyalarını siler.
+
+**Not 2:** Eğer Discord uygulaması Checking for updates… ekranında kalırsa modeminizi kapatıp 15 saniye bekledikten sonra tekrar açın ve ardından bilgisayarınızı yeniden başlatın.
+
+---
+
+## Zapret Sayfası Kullanımı 
+
+**Not:** Bu bölümdeki kurulumlar, sistem geneli çalışır. Hız kaybına sebep olmasa da bazı web site ve uygulamalarda bağlantı sorunlarına yol açabilir. Bu kurulumları gerçekleştirdikten sonra sisteminizi her yeniden başlatışınızda ilgili yöntem otomatik olarak çalışmaya başlar.
+
+- **Zapret Otomatik Kurulum:** Zapret'in blockcheck isimli strateji bulma yazılımı ile sisteminiz ve internet servis sağlayıcınız için ideal parametreler bulunur ve bu parametreler ile Zapret kurulumu yapılarak DPI aşımı sağlanır.
+
+- **Tarama:** İdeal parametreleri bulmak için gerçekleştirilen taramanın hızını seçer.
+  - **Hızlı:** 2-10 dakika arası sürebilir.
+  - **Standart:** 5-30 dakika arası sürebilir.
+  - **Tam:** 10-50 dakika arası sürebilir.
+
+> Bu süreler tahmini sürelerdir. Sisteminize ve internet sağlayıcınızın paket inceleme politikalarına göre değişiklik gösterebilir.
+
+- **Hazır Ayar:** Zapret için önceden belirlenmiş parametrelerden birini seçer. (Bal Porsuğu'na hazır ayarlar için teşekkürler)
+
+- **Hazır Ayarı Düzenle:** Seçtiğiniz hazır ayar üzerinde ince ayar ya da değişiklik yapmanızı sağlayan metin kutusunu açar. Bu kutuda düzenleme yaptıktan sonra aşağıdaki butonları kullanarak kutudaki parametreler ile kurulum sağlayabilir ya da tek seferlik çalıştırabilirsiniz.
+
+- **Önayarlı Hizmet Kur:** Seçtiğiniz hazır ayar ile (Ya da düzenleme yaptıysanız düzenlenmiş hali ile) Zapret hizmetini kurar.
+
+- **Önayarlı Tek Seferlik:** Seçtiğiniz hazır ayar ile (Ya da düzenleme yaptıysanız düzenlenmiş hali ile) Zapret'i tek seferlik çalıştırır. Açılan konsol penceresini kapattığınızda Zapret çalışmayı durdurur.
+
+- **Zapret'i Kaldır:** Zapret'i kaldırır.
+
+**Not 2:** Eğer Discord uygulaması Checking for updates… ekranında kalırsa modeminizi kapatıp 15 saniye bekledikten sonra tekrar açın ve ardından bilgisayarınızı yeniden başlatın.
+
+---
+
+## GoodbyeDPI Sayfası Kullanımı
+
+**Not:** Bu bölümdeki kurulum, sistem geneli çalışır. Hız kaybına sebep olmasa da bazı web site ve uygulamalarda bağlantı sorunlarına yol açabilir. Bu gibi sorunların önüne geçmek için "Blacklist kullan" seçeneğini aktifleştirebilirsiniz. Bu kurulumu gerçekleştirdikten sonra sisteminizi her yeniden başlatışınızda ilgili yöntem otomatik olarak çalışmaya başlar.
+
+- **Hazır Ayar:** GoodbyeDPI için önceden belirlenmiş parametrelerden birini seçer.
+
+- **Hazır Ayarı Düzenle:** Seçtiğiniz hazır ayar üzerinde ince ayar ya da değişiklik yapmanızı sağlayan metin kutusunu açar. Bu kutuda düzenleme yaptıktan sonra aşağıdaki butonları kullanarak kutudaki parametreler ile kurulum sağlayabilir ya da tek seferlik çalıştırabilirsiniz.
+
+- **Blacklist Kullan:** GoodbyeDPI'ı yalnızca tercih edilen domainler için çalıştırır. Varsayılan olarak Discord, Roblox ve Wattpad için blacklist kullanılır.
+
+- **Blacklisti Düzenle:** GoodbyeDPI'ın üzerinde etkili olacağı domain listesini düzenleyebileceğiniz metin kutusunu açar. Düzenlemeyi yaptıktan sonra Kaydet butonuna basarak değişiklikleri kaydedebilirsiniz.
+
+- **Hizmet Kur:** Üst kısımda belirttiğiniz tercihlere göre (Hazır ayar ve blacklist tercihleri) GoodbyeDPI hizmetini kurar.
+
+- **Tek Seferlik:** Üst kısımda belirttiğiniz tercihlere göre (Hazır ayar ve blacklist tercihleri) GoodbyeDPI'ı tek seferlik çalıştırır. Açılan konsol penceresini kapattığınızda GoodbyeDPI çalışmayı durdurur.
+
+- **GoodbyeDPI'ı Kaldır:** GoodbyeDPI'ı kaldırır.
+
+**Not 2:** Eğer Discord uygulaması Checking for updates… ekranında kalırsa modeminizi kapatıp 15 saniye bekledikten sonra tekrar açın ve ardından bilgisayarınızı yeniden başlatın.
+
+---
+
+## Gelişmiş Sayfası Kullanımı
+
+- **Hizmetler:** SplitWire-Turkey'in kurduğu ya da kullanıcının kurduğu DPI aşma ve tünelleme ile ilgili hizmetlerin listesini gösterir.
+
+- **Tüm Hizmetleri Kaldır:** Listedeki tüm hizmetleri doğru sıra ile kaldırır, Discord klasöründe drover dosyalarını siler ve WireSock Refresh Task Scheduler görevini kaldırır.
+
+- **DNS ve DoH Ayarlarını Geri Al:** SplitWire-Turkey içerisinde bulunan herhangi bir kurulum gerçekleştirildiğinde yapılan DNS ve DoH ayarlarını sıfırlayarak DNS ayarını "Otmatik (DHCP)" ve DoH ayarını "Kapalı" hale getirir.
+
+- **SplitWire-Turkey'i Kaldır:** SplitWire-Turkey'in yaptığı tüm değişiklikleri geri alıp sisteminizi eski hale getirdikten sonra SplitWire-Turkey'i kaldırma aracını başlatır.
+
+**Not:** WinDivert hizmeti, Zapret ya da GoodbyeDPI hizmetleri durdurulmadan kaldırılamaz. Bu sebeple birden fazla onay istenebilir.
+
+---
+
+## Önemli Notlar
 
 > [!CAUTION]
 > Windows Defender dışında bir antivirüs yazılımı kullanıyorsanız "Program Files\SplitWire-Turkey\res\byedpi\ciadpi.exe" ve "Program Files\SplitWire-Turkey\res\proxifyre\ProxiFyre.exe" isimli yürütülebilir dosyaları için ilgili antivirüs yazılımı güvenlik duvarında izin verecek kuralları el ile eklemeniz gerekebilir. Windows Defender için güvenlik duvarı kuralları otomatik olarak eklenir, ekstra bir işlem yapmanıza gerek yoktur. **Kullandığınız antivirüs yazılımının kendisine ait ağ güvenlik duvarı özelliği yoksa ya da Windows Defender dışında bir antivirüs yazılımı kullanmıyorsanız, bu uyarıyı görmezden gelebilirsiniz.**
 
 > [!NOTE]
-> Windows 7, 8, 8.1, 10 veya 11 işletim sistemlerinde **yönetici olarak çalıştırmanız** mecburidir. (Otomatik yönetici izni talep edilir ancak bazı durumlarda bu izin alınamazsa manuel olarak yetki yükseltmesi yapmak gerekebilir)
-
-## SplitWire-Turkey Kullanımı
-
-## Video Rehber
-**Recep Baltaş - Techolay Kurulum ve Kullanım Rehberi:** **[Tek Tıkla Sadece Discord için VPN | SplitWire-Turkey](https://www.youtube.com/watch?v=5PCMAlhMVBU)**
-
-### Standart Kurulum (Tavsiye Edilen)
-- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Standart Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
-- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
-- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
+> WinDivert dosyalarının kullanımı Kaspersky isimli antivirüs yazılımı tarafından engellendiği için, sisteminizde Kaspersky yüklü iken GoodbyeDPI ve Zapret sekmelerini kullanamazsınız. Kaspersky'i sisteminizden tamamen kaldırdıktan sonra **[SplitWire-Turkey-Setup-Windows-1.5.0.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.0/SplitWire-Turkey-Setup-Windows-1.5.0.exe)** dosyasını indirip tekrar kurulum yaparsanız bu sekmeler aktif hale gelecektir. C:\Program Files\SplitWire-Turkey ve C:\Users\\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörlerini Kaspersky istisnalarına ekleyip, SplitWire-Turkey'i tekrar indirip kurulum yaparak bu sorunu çözmeyi de deneyebilirsiniz.
 
 > [!NOTE]
-> Standart kurulum yalnızca Discord için WireSock koruması sağlar.
+> Herhangi bir sebeple SplitWire-Turkey 1.5.0 sürümündeki WinDivert dosyaları ile ilgili sorun yaşarsanız [SplitWire-Turkey Release 1.0.0](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0) adresinden eski sürümü indirip kullanabilirsiniz.
 
-### Alternatif Kurulum (Standart Kurulum İşe Yaramazsa)
-- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Alternatif Kurulum butonuna tıklayın. (Eğer WireSock yüklü değilse sizin için indirip kurulumu başlatacaktır)
-- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
-- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
-
-> [!NOTE]
-> Alternatif kurulum yalnızca Discord için WireSock koruması sağlar.
-**[Bal Porsuğu](https://www.technopat.net/sosyal/uye/bal-porsugu.101438/)**'na alternatif sürüm için WireSock kurulum dosyasını bulduğu ve yaptığı testler için teşekkürler.
-
-### ByeDPI ST Kurulum (Split Tunneling)
-- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- ByeDPI ST Kurulum butonuna tıklayın. (WPF ve C++ Redistributable Paketi kurulumları otomatik olarak gerçekleşecektir)
-- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
-- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
-
-> [!NOTE]
-> Bu yöntem yalnızca Discord için DPI aşımı yapar. Discord'un ilk açılışı normalden biraz daha uzun sürebilir.
-
-### ByeDPI DLL Kurulum (ByeDPI ve drover Sayesinde)
-- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- ByeDPI DLL Kurulum butonuna tıklayın. (ByeDPI ve drover kurulumu otomatik olarak gerçekleşecektir)
-- "Kurulum başarıyla tamamlandı." uyarısını almanız, kurulumun hatasız şekilde sonlandığı anlamına gelir.
-- Sisteminizi yeniden başlatıp seçili uygulamalara erişip erişemediğinizi test edin.
-
-> [!NOTE]
-> Bu yöntem yalnızca Discord için DPI aşımı yapar. Eğer droveri kaldırmak isterseniz Gelişmiş sekmesindeki Hizmetleri Kaldır butonuna tıklayabilir ya da farklı bir kurulum başlatabilirsiniz.
-
-### Özelleştirilmiş Kurulum (Tercih Edilen Klasörler İçin)
-NOT: Bu yöntem WireSock ve wgcf kullanarak çalışır. (ByeDPI değil)
-- **[SplitWire-Turkey-Setup-Windows.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-Setup-Windows.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- SplitWire-Turkey uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
-- Gelişmiş sekmesine gidin.
-- "Klasör Ekle" butonu ile tercih ettiğiniz uygulamanın bulunduğu klasörü seçin.
-- "Özelleştirilmiş Kurulum" butonuna tıklayın.
-- "WireSock hizmeti kuruldu ve başlatıldı" uyarısını aldığınızda program çalışmaya başlamış demektir.
-
-> [!NOTE]
-> Yalnızca seçtiğiniz klasörler özelinde düzenlenmiş "wgcf-profile.conf" dosyası oluşturmak istiyorsanız klasör listesini hazırladıktan sonra "Özelleştirilmiş Profil Dosyası Oluştur" butonuna tıklayabilirsiniz.
-
-> [!NOTE]
-> SplitWire-Turkey uygulamasını daha önce kullandıysanız, yeni bir kurulum yapmadan önce "Gelişmiş" sekmesinden "Hizmetleri Kaldır" butonuna tıklamanız daha sağlıklı bir kurulum gerçekleştirmenizi sağlar.
-
-> [!NOTE]
-> SplitWire-Turkey uygulamasını set-up dosyasını kullanmadan ve sisteminize yerleşik bir şekilde kurmadan, **[SplitWire-Turkey-ZIP-Windows.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.0.0/SplitWire-Turkey-ZIP-Windows.zip)** isimli ZIP dosyasını indirip bir klasöre ayıkladıktan sonra **SplitWire-Turkey.exe**'yi çalıştırarak da kullanabilirsiniz. .NET Desktop Runtime hatası alırsanız /Prerequisites klasöründeki kurulum dosyaları ile .NET kurulumu yapabilirsiniz.
+---
 
 ## Karşılaşılabilecek Sorunlar ve Hata Bildirimi
 - "Register failed"/"Config dosyası bulunamadı" hatası: Bazı internet sağlayıcıları ya da CloudFlare'in kendisi, ücretsiz API'sinin kullanımını çeşitli sebeplerle engelleyebiliyor. Bunun en sık görülen sebebi "abusive usage" olarak tanımlanan bölgesel aşırı kullanma istismarıdır. Bu sebeple wgcf, kayıt gerçekleştiremez ve konfigürasyon dosyası oluşturamaz ve bunun sonucunda "Register işlemi başarısız oldu. Return code: 1" hatası alınır. Böyle bir durumda maalesef Standart Kurulum, Alternatif Kurulum ve Özelleştirilmiş Kurulum yöntemleri işlevini yerine getiremez ve gerekli konfigürasyon dosyası oluşturulamaz. Geçici olarak bir VPN ya da proxy kullanılarak bu yasak aşılabilse dahi; Cloudflare API'sinden geçici olarak tünellenmiş şekilde oluşturulan private-key ve konfigürasyon dosyası, yalnızca tünellenilmiş haldeki makine için geçerli olacağından kullanıma yine engel olacaktır. Bu hatayı alıyorsanız ByeDPI ST veya ByeDPI DLL yöntemlerini kullanmayı deneyebilirsiniz.
 - Hizmet kurulumları sırasında hata: Hizmetler penceresi açıkken bu uygulamayı kullanmayın.
-- "Checking for updates" ekranında kalma: Eğer ByeDPI ST Kurulum veya ByeDPI DLL butonu ile kurulum yaptıysanız ve "Checking for updates" ekranında kaldıysanız, SplitWire-Turkey'in kurulu olduğu klasörün içindeki (Genellikle Program Files/SplitWire-Turkey klasörüne kurulur) **/logs klasörünün içeriği ile birlikte** **[Issues](https://github.com/cagritaskn/SplitWire-Turkey/issues)** kısmından hata bildiriminde bulunun. Bazen Discord önbellek dosyalarını (C:\Users\*Kullanıcı Adınız*\AppData\Roaming\discord\ klasörünü) sildikten  sonra sisteminizi yeniden başlatıp, SplitWire-Turkey ile tekrar ByeDPI kurulumlarından birini gerçekleştirmek sorunu çözebilir.
-- "Starting..." ekranında kalma: Bilinmeyen bir sebepten Discord "Starting..." ekranında sonsuz döngüye girebiliyor. Bu sorunun SplitWire-Turkey ile ilgisi olmamakla beraber potansiyel bir çözümü bulunuyor. C:\Users\-Kullanıcı Adı-\AppData\Local\Discord\app-* konumundaki Discord.exe'ye sağ tıklayıp Özellikler'i seçip, açılan pencerede Uyumluluk sekmesine gelip, "Bu programın çalıştırılacağı uyumluluk modu:" kutucuğunu tikleyip, Windows 8'i seçtikten sonra Uygula ve Tamam butonlarına basıp bilgisayarınızı yeniden başlatırsanız sorun çözülebilir.
+- "Checking for updates" ekranında kalma: Modeminizi kapatıp 15-30 saniye arasında bekledikten sonra tekrar başlatın. Daha sonra bilgisayarınızı yeniden başlatıp sorunun giderilip giderilmediğini test edin.
+- Discord "Mesajlar yüklenemedi" hatası: Discord'un kendisi şüpheli IP değişiklikleri tespit ettiğinde ya da Cloudflare WARP kötüye kullanım tespit ettiğinde bu sorun yaşanıyor. Bu sorunu yaşarsanız, modeminizi kapatıp 15-30 saniye arasında bekledikten sonra tekrar başlatın. Daha sonra bilgisayarınızı yeniden başlatıp sorunun giderilip giderilmediğini test edin. Eğer bu şekilde de çözüme ulaşamazsanız diğer yöntemleri deneyin.
+- "Starting..." ekranında kalma: Bilinmeyen bir sebepten Discord "Starting..." ekranında sonsuz döngüye girebiliyor. Bu sorunun SplitWire-Turkey ile ilgisi olmamakla beraber potansiyel bir çözümü bulunuyor. C:\Users\-Kullanıcı Adı-\AppData\Local\Discord\app-* konumundaki Discord.exe'ye sağ tıklayıp Özellikler'i seçip, açılan pencerede Uyumluluk sekmesine gelip, "Bu programın çalıştırılacağı uyumluluk modu:" kutucuğunu tikleyip, Windows 8'i seçtikten sonra Uygula ve Tamam butonlarına basıp bilgisayarınızı yeniden başlatırsanız sorun çözülebilir. Bu şekilde de çözüme ulaşamazsanız C:\Users\-Kullanıcı Adı-\AppData\Roaming\discord klasörünü silerek Discord önbelleğini sıfırlamayı deneyebilirsiniz. (Bu yöntem Discord hesabınızdan çıkış yapacaktır, tekrar giriş yapmanız istenir) 
 
+---
 
-### WireSock ve SplitWire-Turkey'i Sistemden Kaldırmak
-- SplitWire-Turkey uygulamasını çalıştırın.
-- "Gelişmiş" sekmesindeki "Hizmetleri Kaldır" butonuna tıklayın. 
-- Daha sonra Windows'un Program Ekle/Kaldır bölümünden SplitWire-Turkey ve metodların çalışması için gereken ön yüklemelerden tercih ettiklerinizi kaldırın. (Ya da SplitWire-Turkey'in kurulum klasöründe bulunan "unins000.exe" isimli yürütülebilir ile kaldırın)
+## SplitWire-Turkey'i Sistemden Kaldırma ve Tüm Değişiklikleri Geri Alma
+**SplitWire-Turkey'i** sisteminizden kaldırmanın birçok yolu vardır. Bunlar program içerisindeki **Gelişmiş** sekmesinde **SplitWire-Turkey'i Kaldır** butonunu kullanmak, programın kurulu olduğu konumdaki **unins000.exe** isimli kaldırma paketini kullanmak, Windows Program ekle veya kaldır penceresinde **SplitWire-Turkey**'i bulup sağdaki seçeneklerden Kaldır butonuna tıklayarak kaldırmak olarak sıralanabilir. Bu yollardan herhangi birini izleyerek tüm değişiklikleri geri alıp SplitWire-Turkey'i sisteminizden tamamen kaldırabilirsiniz.
+Eğer ZIP dosyasını indirip ayıklayarak kullanım sağlıyorsanız; **SplitWire-Turkey** içerisinde **Gelişmiş** sekmesinde **SplitWire-Turkey'i Kaldır** butonunu kullandıktan sonra, ZIP dosyasını ayıkladığınız klasörü ve C:\Users\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörünü kullanarak tüm değişiklikleri geri alıp SplitWire-Turkey'i sisteminizden tamamen kaldırabilirsiniz.
+
+---
 
 ## Virüs & SmartScreen Uyarısı
 Program açık kaynak kodlu olduğundan tüm kodu görüp inceleyebilirsiniz. Tüm program açık kaynak kodludur ve kaynak kodu /src klasörü içerisinden incelenebilir, tercih edilirse tekrar derlenebilir. Programı kullanmak istemeyen ve güvenmeyen kullanıcılar, programı kullanmak zorunda değildir, programı kullanmak kullanıcının inisiyatifindedir.
 Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak kodlarını [VirusTotal](https://www.virustotal.com/gui/home/upload) gibi bir sitede taratıp sonuçları inceleyebilir, dilerseniz C# dili biliyorsanız veya bilen bir tanıdığınız varsa başvurup kodun ne yapmaya çalıştığını anlayabilirsiniz. Programı imzalamadan yayınlamak bu gibi sorunlara yol açabiliyor. Programı imzalamak döviz kuruyla düzenli ödeme yapmayı gerektirdiği ve bu program ücretsiz olduğu, bununla birlikte gelir elde etmeden bakımı yapıldığı için imzalama girişiminde bulunamıyorum.
 > [!NOTE]
-> **[SplitWire-Turkey-Setup-Windows.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file-analysis/NGVlMjY0ZmRjMTg3YmIxOWIxMjJlYjJhMWM2YzllNzc6MTc1NDY2ODg1Nw==)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
+> **[SplitWire-Turkey-Setup-Windows-1.5.0.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/9d01f065d4587f1540f27dd15f7c38d5553db8d77c726fde2c5b815c1cbcae70)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
 
 > [!NOTE]
-> **[SplitWire-Turkey-ZIP-Windows.zip VirusTotal sonuçlarında](https://www.virustotal.com/gui/file-analysis/NmQyYjg2ODJjYTg0NGM4MzQ4ZDliMzVkOGEwZjBjOTY6MTc1NDY2ODk2OQ==)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
+> **[SplitWire-Turkey-ZIP-Windows-1.5.0.zip VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/d36133b7438651e9923b1224b141072e76a8ace10e2a4be2c66c37e293b009f3)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
 
-## Gelişmiş Ayarlar
+> [!NOTE]
+> **WinDivert** dosyaları Kaspersky ve birkaç antivirüs yazılımı tarafından RiskTool olarak algılanıyor. Tespit açıklamalarına bakarsanız NotAVirus kelimesini görebilirisiniz. Bu tespit türü, GoodbyeDPI ve Zapret'in kullandığı açık kaynak WinDivert kütüphanesinin Windows üzerindeki ağ paketlerini manipüle etmesi sebebiyle bir risk aracı olarak tanımlanmasıdır. Bu kütüphane açık kaynaklı olup [WinDivert Github](https://github.com/basil00/WinDivert) adresinden erişilebilir. Maalesef hem Rus hem Türk yazılım geliştiricilerinin tüm çabalarına rağmen Rus hükümeti yanlısı Kaspersky ve onunla birlikte birkaç antivirüs yazılım şirketi raporları ve itirazları kabul etmediğinden ilgili antivirüs yazılımları sisteminizde yüklü ise WinDivert kullanan yöntemleri çalıştıramazsınız. Kaspersky ve diğer false positive veren antivirüs yazılımlarını sisteminizden kaldırarak tekrar kurulum yapıp WinDivert kullanan yöntemleri çalıştırabilir ya da [SplitWire-Turkey Release 1.0.0](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0) adresinden eski WinDivert içermeyen sürümü indirip kullanabilirsiniz.
 
-### Klasör Yönetimi
-- **Klasör Yönetimi:** WireSock koruması altında kalacak uygulama klasörlerini ekleyip çıkarmanıza ve gerektiğinde tüm listeyi temizlemenizi sağlar.
-- **Özelleştirilmiş Profil Oluşturma:** Oluşturulan ücretsiz Cloudflare konfigürasyon dosyasına, klasör listesine eklediğiniz dizinleri ekleyerek "\res" klasörü içerisinde konfigürasyon dosyasının son halini kaydeder. Bu sayede başka WireGuard uygulamaları ile de bu dosyayı kullanabilirsiniz.
-- **Hizmetleri Kaldır:** "Hizmetleri Kaldır" butonu, SplitWire-Turkey ile kurulmuş tüm hizmetleri kaldırıp korumayı durdurmak için veya tekrar yeni bir hizmet kurulum yapmadan önce temizliği sağlamak için kullanılabilir.
-
-### WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI Hizmetlerini & drover Dosyalarını Kaldırma
-- WireSock, ByeDPI, ProxiFyre ve GoodbyeDPI hizmetlerini kaldırmak için Gelişmiş sekmesindeki **Hizmetleri Kaldır** butonuna tıklamanız yeterlidir. Bu sayede bağlantınız eski haline gelir.
-- GoodbyeDPI Hizmeti bir sebepten dolayı otomatik olarak kaldırılamazsa **[GoodbyeDPI Doğru Şekilde Kaldırma Rehberi](https://github.com/cagritaskn/GoodbyeDPI-Turkey/blob/master/REVERT.md)**'ni takip ederek kaldırmayı deneyebilirsiniz.
+---
 
 ## Teşekkürler ve Atıflar
 
@@ -134,14 +184,39 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - **[ByeDPI](https://github.com/hufrea/byedpi)** by **[hufrea](https://github.com/hufrea/)**
 - **[WireSock](https://www.wiresock.net/)** by **[Vadim Smirnov](https://github.com/wiresock)**
 - **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
+- **[GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI)** by **[ValdikSS](https://github.com/ValdikSS)**
+- **[zapret](https://github.com/bol-van/zapret)** by **[bol-van](https://github.com/bol-van)**
+- **[WinDivert](https://github.com/basil00/WinDivert)** by **[basil00](https://github.com/basil00)*
+
+---
 
 ## Nasıl Çalışır
 
-### Standart, Alternatif ve Özelleştirilmiş Kurulum
+- Standart, Alternatif ve Özelleştirilmiş Kurulum
 Öncelikle wgcf ile profil dosyası oluşturup WireSock istemcisi ile bu profil dosyasını kullanır ve yanlızca Discord için ayrık tünelleme başlatır.
 
-### ByeDPI ST ve ByeDPI DLL Kurulum
+- ByeDPI Split Tunneling ve ByeDPI DLL Kurulum
 Öncelikle ByeDPI hizmeti kurulur ve ST metodunda ProxiFyre kullanarak bu proxy seçili uygulamalar için çalıştırılır, DLL metodunda ise drover dosyaları otomatik DLL enjeksiyonu ile Discord'un localhost'ta ByeDPI tarafından başlatılan proxy'nin kullanılmasını sağlar.
+
+- Zapret Otomatik Kurulum
+Blockcheck teknolojisi ile sisteminiz ve internet sağlayıcınız için ideal parametreleri bulur ve bu parametreler ile tercihlerinizi birleştirerek hizmet kurulumu sağlar. Tarama hızı seçimi parametre taramasının ne kadar basit ya da derin yapılacağını ayarlar.
+
+- Zapret Önayarlı Kurulum ve Tek Seferlik
+Önceden belirlenmiş hazır ayarlar (ya da düzenleme yaptıysanız düzenlenmiş halleri) ile Zapret hizmeti kurulur ya da tek seferlik çalıştırılır.
+
+- GoodbyeDPI Hizmet Kurulum ve Tek Seferlik
+Önceden belirlenmiş hazır ayarlar (ya da düzenleme yaptıysanız düzenlenmiş halleri) ile GoodbyeDPI hizmeti kurulur ya da tek seferlik çalıştırılır.  Blacklist kullan seçeneği aktifse, yalnızca blacklist içindeki domainler için aşım uygulanır. (Varsayılan olarak Roblox, Discord ve Wattpad için ayarlıdır)
+
+- Tüm Hizmetleri Kaldır
+SplitWire-Turkey'in kurduğu ya da kullanıcı tarafından kurulan aşım hizmetleri listelenir ve tamamı doğru sıra ile kaldırılır. Bu işlemden sonra sisteminizde herhangi bir aşım yöntemi kalmaz.
+
+- DNS ve DoH Ayarlarını Geri Al
+SplitWire-Turkey içerisinde yaptığınız her kurulumdan önce, temiz kurulum için tüm hizmetler temizlenip ardından Windows 11 destekli DoH ayarı aktif hale getirilip IPv4 ve IPv6 DNS ataması yapılır (Google birincil ve Quad9 ikincil DNS). (Windows 10 ve aşağısındaki sürümler için DoH aktifleştirme desteklenmez). DNS ve DoH Ayarlarını Geri Al butonu ise bu ayarları geri alıp DNS atamalarını Otomatik (DHCP) haline geri döndürüp, Windows 11'de DoH'u kapatır. (Windows 10 ve aşağısındaki sürümler için zaten DoH aktifleştirilmez)
+
+- SplitWire-Turkey'i Kaldır
+Bu buton, tüm temizlik işlemlerini gerçekleştirip unins000.exe isimli kaldırma paketini çalıştırır. Bu butonla başlatılan işlemler tamamlandığında SplitWire-Turkey, daha önce sisteminize hiç kurulmamış gibi olur.
+
+---
 
 ## Tekrar Derleme (Recompiling)
 
@@ -190,6 +265,8 @@ Gereksinimler:
    iscc "SplitWire-Turkey-Setup.iss"
    ```
 
+---
+
 ## Telif Hakkı
 
 ```
@@ -199,6 +276,7 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 Detaylar için LICENSE dosyasına bakın.
 ```
 
+---
 
 ## Bağış ve Destek
 
@@ -212,7 +290,7 @@ Bu programı kullanmak tamamen ücretsizdir. Kullanımından herhangi bir gelir 
 
 [![Static Badge](https://img.shields.io/badge/cagritaskn-purple?logo=patreon&label=Patreon)](https://www.patreon.com/cagritaskn/membership)
 
-
+---
 
 ## Sorumluluk Reddi Beyanı
 
