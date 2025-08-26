@@ -18,12 +18,12 @@
 # İndirme ve Kurulum 
 
 ## Setup Dosyası ile Kurulum (Tavsiye Edilir)
-- **[SplitWire-Turkey-Setup-Windows-1.5.1.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.1/SplitWire-Turkey-Setup-Windows-1.5.1.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin.
-- **SplitWire-Turkey** uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- **[SplitWire-Turkey-Setup-Windows-1.5.1.exe](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.1/SplitWire-Turkey-Setup-Windows-1.5.1.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+- **SplitWire-Turkey** uygulamasını açın. 
 - Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
 
 ## ZIP Dosyası ile Kullanım (Tavsiye Edilmez)
-- **[SplitWire-Turkey-ZIP-Windows-1.5.1.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.1/SplitWire-Turkey-ZIP-Windows-1.5.1.zip)** dosyasını indirerek bir klasöre ayıklayın.
+- **[SplitWire-Turkey-ZIP-Windows-1.5.1.zip](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.1/SplitWire-Turkey-ZIP-Windows-1.5.1.zip)** dosyasını indirerek bir klasöre ayıklayın. 
 - ZIP dosyasını ayıkladığınız klasörde bulunan **SplitWire-Turkey.exe** uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
 
@@ -164,6 +164,10 @@
 ## Virüs & SmartScreen Uyarısı
 Program açık kaynak kodlu olduğundan tüm kodu görüp inceleyebilirsiniz. Tüm program açık kaynak kodludur ve kaynak kodu /src klasörü içerisinden incelenebilir, tercih edilirse tekrar derlenebilir. Programı kullanmak istemeyen ve güvenmeyen kullanıcılar, programı kullanmak zorunda değildir, programı kullanmak kullanıcının inisiyatifindedir.
 Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak kodlarını [VirusTotal](https://www.virustotal.com/gui/home/upload) gibi bir sitede taratıp sonuçları inceleyebilir, dilerseniz C# dili biliyorsanız veya bilen bir tanıdığınız varsa başvurup kodun ne yapmaya çalıştığını anlayabilirsiniz. Programı imzalamadan yayınlamak bu gibi sorunlara yol açabiliyor. Programı imzalamak döviz kuruyla düzenli ödeme yapmayı gerektirdiği ve bu program ücretsiz olduğu, bununla birlikte gelir elde etmeden bakımı yapıldığı için imzalama girişiminde bulunamıyorum.
+
+> [!NOTE]
+> **SmartScreen "Windows kişisel bilgisayarınızı korudu"** uyarısı, imzalanmamış yazılımların tamamında çalıştırmadan önce görünür. Bunun sebebi, yazılımların uluslararası kod imzalama sertifikasına tabi olma zorunluluğudur. Ancak bu imzalama işlemi döviz kuru üzerinden düzenli ödeme gerektirdiğinden ve ben bağımsız, gelir elde etmeyen bir geliştirici olduğumdan dolayı yazılımlarım imzasızdır.
+
 > [!NOTE]
 > **[SplitWire-Turkey-Setup-Windows-1.5.1.exe VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/9d01f065d4587f1540f27dd15f7c38d5553db8d77c726fde2c5b815c1cbcae70)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi)
 
