@@ -190,7 +190,7 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 - **[drover](https://github.com/hdrover/discord-drover)** by **[hdrover](https://github.com/hdrover)**
 - **[GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI)** by **[ValdikSS](https://github.com/ValdikSS)**
 - **[zapret](https://github.com/bol-van/zapret)** by **[bol-van](https://github.com/bol-van)**
-- **[WinDivert](https://github.com/basil00/WinDivert)** by **[basil00](https://github.com/basil00)*
+- **[WinDivert](https://github.com/basil00/WinDivert)** by **[basil00](https://github.com/basil00)**
 
 ---
 
