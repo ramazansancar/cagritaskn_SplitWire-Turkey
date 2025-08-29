@@ -79,6 +79,30 @@ namespace SplitWireTurkey
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_LAYERED = 0x80000;
 
+        // Registry sabitleri
+        private const string REG_KEY_PATH = @"Software\SplitWire-Turkey";
+        private const string REG_THEME_KEY = "Theme";
+        private const string REG_IS_DARK_MODE = "IsDarkMode";
+        private const string REG_LAST_UPDATED = "LastUpdated";
+        private const string REG_VERSION = "Version";
+        
+        /// <summary>
+        /// Uygulama versiyonunu alır
+        /// </summary>
+        private string GetApplicationVersion()
+        {
+            try
+            {
+                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                return $"{version.Major}.{version.Minor}.{version.Build}";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Versiyon alma hatası: {ex.Message}");
+                return "1.5.2"; // Fallback versiyon
+            }
+        }
+
         private readonly WireGuardService _wireGuardService;
         private readonly WireSockService _wireSockService;
         private readonly List<string> _folders;
@@ -86,10 +110,10 @@ namespace SplitWireTurkey
         
         // Sekme boyut yönetimi için değişkenler
         private double _mainPageBaseHeight = 610;
-        private double _mainPageAdvancedSettingsHeight = 870;
+        private double _mainPageAdvancedSettingsHeight = 875;
         private double _byeDPIHeight = 640;
-        private double _zapretBaseHeight = 660;
-        private double _zapretManualParamsHeight = 730;
+        private double _zapretBaseHeight = 670;
+        private double _zapretManualParamsHeight = 765;
         private double _goodbyeDPIBaseHeight = 550;
         private double _goodbyeDPIManualParamsHeight = 80;
         private double _goodbyeDPIUseBlacklistHeight = 55;
@@ -146,14 +170,14 @@ namespace SplitWireTurkey
             // Kaspersky ve WARP kontrollerini başlat
             _ = Task.Run(async () => await CheckCompatibilityAsync());
             
-            UpdateWireSockStatus();
+            CheckCompatibility();
             CheckZapretFilesExist(); // Sadece kontrol yap, kopyalama yapma
             LoadZapretPresets();
             LoadGoodbyeDPIPresets();
             CheckAllServices(); // Yeni eklenen servis kontrolü
             
-            // Varsayılan olarak aydınlık modda başlat
-            btnThemeToggle.IsChecked = false;
+            // Registry'den tema ayarını yükle ve uygula
+            LoadThemeFromRegistryAndApply();
             
             // Window yüklendikten sonra overlay metinlerini güncelle
             this.Loaded += MainWindow_Loaded;
@@ -166,6 +190,28 @@ namespace SplitWireTurkey
                 currentDirRun.Text = $" {CurrentProgramDirectory} ";
             if (localAppDataRun != null)
                 localAppDataRun.Text = $" {LocalAppDataSplitWirePath} ";
+            
+            // Pencere yüklendikten sonra görev çubuğu karanlık mod ayarını tekrar uygula
+            // Bu, pencere handle'ının hazır olmasını sağlar
+            if (btnThemeToggle?.IsChecked == true)
+            {
+                // Hemen dene
+                SetTaskbarDarkMode(true);
+                Debug.WriteLine("MainWindow_Loaded: Görev çubuğu karanlık mod ayarı uygulandı");
+                
+                // Pencere tam olarak yüklendikten sonra tekrar dene (güvenlik için)
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    Task.Delay(100).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            SetTaskbarDarkMode(true);
+                            Debug.WriteLine("MainWindow_Loaded: Görev çubuğu karanlık mod ayarı tekrar uygulandı (güvenlik için)");
+                        });
+                    });
+                }));
+            }
         }
         
         private void UpdateKasperskyOverlayColors(bool isDarkMode)
@@ -226,51 +272,345 @@ namespace SplitWireTurkey
             }
         }
 
-        private void UpdateWireSockStatus()
-        {
-            if (_wireSockService.IsWireSockInstalled())
-            {
-                txtWiresockStatus.Text = "";
-                txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Green;
-            }
-            else
-            {
-                txtWiresockStatus.Text = "";
-                txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Red;
-            }
-        }
-
-        private async Task UpdateWireSockStatusAsync()
+        private void CheckCompatibility()
         {
             try
             {
-                var isInstalled = await _wireSockService.IsWireSockInstalledAsync();
+                // Kaspersky AV kontrolü
+                var avpProcesses = Process.GetProcessesByName("avp");
+                var avpuiProcesses = Process.GetProcessesByName("avpui");
+                bool isKasperskyAVRunning = avpProcesses.Length > 0 || avpuiProcesses.Length > 0;
                 
-                await Dispatcher.InvokeAsync(() =>
+                // Kaspersky VPN kontrolü
+                var ksdeProcesses = Process.GetProcessesByName("ksde");
+                var ksdeuiProcesses = Process.GetProcessesByName("ksdeui");
+                bool isKasperskyVPNRunning = ksdeProcesses.Length > 0 || ksdeuiProcesses.Length > 0;
+                
+                // Cloudflare WARP kontrolü
+                var warpSvcProcesses = Process.GetProcessesByName("warp-svc");
+                var warpCliProcesses = Process.GetProcessesByName("warp-cli");
+                var warpDiagProcesses = Process.GetProcessesByName("warp-diag");
+                bool isCloudflareWARPRunning = warpSvcProcesses.Length > 0 || warpCliProcesses.Length > 0 || warpDiagProcesses.Length > 0;
+                
+                // UI'ı güncelle
+                Dispatcher.Invoke(() =>
                 {
-                    if (isInstalled)
-                    {
-                        txtWiresockStatus.Text = "";
-                        txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Green;
-                    }
-                    else
-                    {
-                        txtWiresockStatus.Text = "WireSock yüklü değil!";
-                        txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Red;
-                    }
+                    UpdateCompatibilityText(isKasperskyAVRunning, isKasperskyVPNRunning, isCloudflareWARPRunning);
+                    UpdateButtonTextsForKaspersky(isKasperskyAVRunning);
                 });
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"UpdateWireSockStatusAsync hatası: {ex.Message}");
-                // Hata durumunda varsayılan durumu göster
-                await Dispatcher.InvokeAsync(() =>
-                {
-                    txtWiresockStatus.Text = "Durum kontrol ediliyor...";
-                    txtWiresockStatus.Foreground = System.Windows.Media.Brushes.Orange;
-                });
+                Debug.WriteLine($"Compatibility check error: {ex.Message}");
             }
         }
+        
+        #region Registry Management
+        
+        /// <summary>
+        /// Tema ayarını Registry'ye kaydeder
+        /// </summary>
+        /// <param name="isDarkMode">Karanlık mod aktif mi?</param>
+        private void SaveThemeToRegistry(bool isDarkMode)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.CreateSubKey(REG_KEY_PATH))
+                {
+                    if (key != null)
+                    {
+                        // Ana tema anahtarını oluştur
+                        using (var themeKey = key.CreateSubKey(REG_THEME_KEY))
+                        {
+                            if (themeKey != null)
+                            {
+                                // Tema durumunu kaydet
+                                themeKey.SetValue(REG_IS_DARK_MODE, isDarkMode ? 1 : 0, RegistryValueKind.DWord);
+                                
+                                // Son güncelleme tarihini kaydet
+                                themeKey.SetValue(REG_LAST_UPDATED, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), RegistryValueKind.String);
+                                
+                                // Uygulama versiyonunu kaydet
+                                themeKey.SetValue(REG_VERSION, GetApplicationVersion(), RegistryValueKind.String);
+                                
+                                Debug.WriteLine($"Tema ayarı Registry'ye kaydedildi: {(isDarkMode ? "Karanlık" : "Aydınlık")}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Tema ayarı Registry'ye kaydedilemedi: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Tema ayarını Registry'den okur
+        /// </summary>
+        /// <returns>Karanlık mod aktif mi? Hata durumunda false (aydınlık mod)</returns>
+        private bool LoadThemeFromRegistry()
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(REG_KEY_PATH))
+                {
+                    if (key != null)
+                    {
+                        using (var themeKey = key.OpenSubKey(REG_THEME_KEY))
+                        {
+                            if (themeKey != null)
+                            {
+                                var darkModeValue = themeKey.GetValue(REG_IS_DARK_MODE);
+                                if (darkModeValue != null && darkModeValue is int)
+                                {
+                                    var isDarkMode = (int)darkModeValue == 1;
+                                    Debug.WriteLine($"Tema ayarı Registry'den okundu: {(isDarkMode ? "Karanlık" : "Aydınlık")}");
+                                    return isDarkMode;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Debug.WriteLine("Registry'de tema ayarı bulunamadı, varsayılan aydınlık mod kullanılıyor");
+                return false; // Varsayılan: aydınlık mod
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Tema ayarı Registry'den okunamadı: {ex.Message}, varsayılan aydınlık mod kullanılıyor");
+                return false; // Hata durumunda: aydınlık mod
+            }
+        }
+        
+        /// <summary>
+        /// Registry'yi temizler (uninstall için)
+        /// </summary>
+        private void CleanupRegistry()
+        {
+            try
+            {
+                Registry.CurrentUser.DeleteSubKeyTree(REG_KEY_PATH, false);
+                Debug.WriteLine("Registry temizlendi");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Registry temizlenemedi: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Registry durumunu test eder (debug için)
+        /// </summary>
+        private void TestRegistryStatus()
+        {
+            try
+            {
+                var isDarkMode = LoadThemeFromRegistry();
+                Debug.WriteLine($"Registry test - Tema durumu: {(isDarkMode ? "Karanlık" : "Aydınlık")}");
+                
+                // Registry'de tema anahtarının varlığını kontrol et
+                using (var key = Registry.CurrentUser.OpenSubKey(REG_KEY_PATH))
+                {
+                    if (key != null)
+                    {
+                        using (var themeKey = key.OpenSubKey(REG_THEME_KEY))
+                        {
+                            if (themeKey != null)
+                            {
+                                var darkModeValue = themeKey.GetValue(REG_IS_DARK_MODE);
+                                var lastUpdated = themeKey.GetValue(REG_LAST_UPDATED);
+                                var version = themeKey.GetValue(REG_VERSION);
+                                
+                                Debug.WriteLine($"Registry test - Tema anahtarı mevcut:");
+                                Debug.WriteLine($"  IsDarkMode: {darkModeValue}");
+                                Debug.WriteLine($"  LastUpdated: {lastUpdated}");
+                                Debug.WriteLine($"  Version: {version}");
+                    }
+                    else
+                    {
+                                Debug.WriteLine("Registry test - Tema anahtarı bulunamadı");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Registry test - Ana anahtar bulunamadı");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Registry test hatası: {ex.Message}");
+            }
+        }
+        
+        #endregion
+        
+        /// <summary>
+        /// Registry'den tema ayarını yükler ve uygular
+        /// </summary>
+        private void LoadThemeFromRegistryAndApply()
+        {
+            try
+            {
+                // Registry'den tema ayarını oku
+                var isDarkMode = LoadThemeFromRegistry();
+                
+                // Tema toggle butonunu ayarla
+                btnThemeToggle.IsChecked = isDarkMode;
+                
+                // Temayı uygula
+                if (isDarkMode)
+                {
+                    ApplyDarkTheme();
+                }
+                else
+                {
+                    ApplyLightTheme();
+                }
+                
+                // Overlay'leri güncelle
+                UpdateOverlayTheme();
+                
+                Debug.WriteLine($"Registry'den tema yüklendi ve uygulandı: {(isDarkMode ? "Karanlık" : "Aydınlık")}");
+                
+                // Not: Görev çubuğu karanlık mod ayarı MainWindow_Loaded event'inde tekrar uygulanacak
+                // çünkü pencere handle'ı bu noktada henüz hazır olmayabilir
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Tema yükleme hatası: {ex.Message}, varsayılan aydınlık mod kullanılıyor");
+                
+                // Hata durumunda varsayılan aydınlık mod
+                btnThemeToggle.IsChecked = false;
+                ApplyLightTheme();
+                UpdateOverlayTheme();
+            }
+        }
+        
+        private async Task CheckCompatibilityAsync()
+        {
+            try
+            {
+                await Task.Run(() => CheckCompatibility());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CheckCompatibilityAsync error: {ex.Message}");
+            }
+        }
+        
+        private void UpdateCompatibilityText(bool isKasperskyAV, bool isKasperskyVPN, bool isCloudflareWARP)
+        {
+            try
+            {
+                if (compatibilityText != null)
+                {
+                    var messages = new List<string>();
+                    
+                    if (isKasperskyAV)
+                        messages.Add("Kaspersky AV tespit edildi!");
+                    
+                    if (isKasperskyVPN)
+                        messages.Add("Kaspersky VPN tespit edildi!");
+                    
+                    if (isCloudflareWARP)
+                        messages.Add("Cloudflare WARP tespit edildi!");
+                    
+                    if (messages.Count > 0)
+                    {
+                        compatibilityText.Text = string.Join("\n", messages);
+                        compatibilityText.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        compatibilityText.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UpdateCompatibilityText error: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Kaspersky AV tespit edildiğinde buton yazılarını günceller
+        /// </summary>
+        /// <param name="isKasperskyAV">Kaspersky AV çalışıyor mu?</param>
+        private void UpdateButtonTextsForKaspersky(bool isKasperskyAV)
+        {
+            try
+            {
+                if (isKasperskyAV)
+                {
+                    // Zapret Otomatik Kurulum butonu
+                    if (btnZapretAutoInstall != null)
+                    {
+                        btnZapretAutoInstall.Content = "⚠️ Zapret Otomatik Kurulum";
+                    }
+                    
+                    // Önayarlı Hizmet Kur butonu
+                    if (btnZapretCustomService != null)
+                    {
+                        btnZapretCustomService.Content = "⚠️ Önayarlı Hizmet Kur";
+                    }
+                    
+                    // Önayarlı Tek Seferlik butonu
+                    if (btnZapretCustomBatch != null)
+                    {
+                        btnZapretCustomBatch.Content = "⚠️ Önayarlı Tek Seferlik";
+                    }
+                    
+                    // GoodbyeDPI Hizmet Kur butonu
+                    if (btnGoodbyeDPIService != null)
+                    {
+                        btnGoodbyeDPIService.Content = "⚠️ Hizmet Kur";
+                    }
+                    
+                    // GoodbyeDPI Tek Seferlik butonu
+                    if (btnGoodbyeDPIBatch != null)
+                    {
+                        btnGoodbyeDPIBatch.Content = "⚠️ Tek Seferlik";
+                    }
+                }
+                else
+                {
+                    // Normal yazıları geri yükle
+                    if (btnZapretAutoInstall != null)
+                    {
+                        btnZapretAutoInstall.Content = "Zapret Otomatik Kurulum";
+                    }
+                    
+                    if (btnZapretCustomService != null)
+                    {
+                        btnZapretCustomService.Content = "Önayarlı Hizmet Kur";
+                    }
+                    
+                    if (btnZapretCustomBatch != null)
+                    {
+                        btnZapretCustomBatch.Content = "Önayarlı Tek Seferlik";
+                    }
+                    
+                    if (btnGoodbyeDPIService != null)
+                    {
+                        btnGoodbyeDPIService.Content = "Hizmet Kur";
+                    }
+                    
+                    if (btnGoodbyeDPIBatch != null)
+                    {
+                        btnGoodbyeDPIBatch.Content = "Tek Seferlik";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UpdateButtonTextsForKaspersky error: {ex.Message}");
+            }
+        }
+
+
 
         private Dictionary<string, bool> _serviceStatusCache = new Dictionary<string, bool>();
         private DateTime _lastServiceCheck = DateTime.MinValue;
@@ -743,7 +1083,7 @@ namespace SplitWireTurkey
             // Başlık
             var titleText = new TextBlock
             {
-                Text = "SplitWire-Turkey v1.5 © 2025 Çağrı Taşkın",
+                Text = $"SplitWire-Turkey v{GetApplicationVersion()} © 2025 Çağrı Taşkın",
                 FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 FontFamily = new System.Windows.Media.FontFamily("pack://application:,,,/Resources/#Poppins Bold"),
@@ -1817,7 +2157,6 @@ namespace SplitWireTurkey
                     }
                 }
                 
-                await UpdateWireSockStatusAsync();
                 File.AppendAllText(logPath, "WireSock durumu güncellendi.\n");
                 
                 // Kısa bir bekleme süresi ekle
@@ -2277,8 +2616,6 @@ try {{
                     }
                 }
                 
-                File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.2. WireSock durumu güncelleniyor...\n");
-                await UpdateWireSockStatusAsync();
                 File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4.2. WireSock durumu güncellendi.\n");
                 
                 File.AppendAllText(standardLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2.2.4. Kurulum sonrası temizlik işlemleri tamamlandı.\n");
@@ -3028,7 +3365,33 @@ try {{
                 Directory.CreateDirectory(logsDirectory);
             }
             
-            return Path.Combine(logsDirectory, "byedpi_setup.log");
+            var logPath = Path.Combine(logsDirectory, "byedpi_setup.log");
+            
+            // Log dosyasının başına sürüm bilgisini ekle
+            AddVersionHeaderToLog(logPath);
+            
+            return logPath;
+        }
+
+        private void AddVersionHeaderToLog(string logPath)
+        {
+            try
+            {
+                // Dosya yoksa veya boşsa sürüm bilgisini ekle
+                if (!File.Exists(logPath) || new FileInfo(logPath).Length == 0)
+                {
+                    var version = VersionHelper.GetAssemblyVersion();
+                    var header = $"=== SplitWire-Turkey v{version} ===\n";
+                    header += $"Log başlangıç zamanı: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n";
+                    header += "==========================================\n\n";
+                    
+                    File.WriteAllText(logPath, header);
+                }
+            }
+            catch
+            {
+                // Hata durumunda sessizce devam et
+            }
         }
 
         private string GetGoodbyeDPILogPath()
@@ -3070,7 +3433,12 @@ try {{
                 Directory.CreateDirectory(logsDirectory);
             }
             
-            return Path.Combine(logsDirectory, "zapret.log");
+            var logPath = Path.Combine(logsDirectory, "zapret.log");
+            
+            // Log dosyasının başına sürüm bilgisini ekle
+            AddVersionHeaderToLog(logPath);
+            
+            return logPath;
         }
 
         private string GetLocalAppDataZapretPath()
@@ -6176,8 +6544,18 @@ Get-DnsClientDohServerAddress
 
         private async void BtnZapretAutoInstall_Click(object sender, RoutedEventArgs e)
         {
+            var message = "Zapret Otomatik Kurulum başlatmak istediğinizden emin misiniz? Bu işlem tercih ettiğiniz tarama hızına göre 2-50 dakika sürebilir.";
+            
+            // Kaspersky AV tespit edildiyse uyarı ekle
+            var avpProcesses = Process.GetProcessesByName("avp");
+            var avpuiProcesses = Process.GetProcessesByName("avpui");
+            if (avpProcesses.Length > 0 || avpuiProcesses.Length > 0)
+            {
+                message += "\n\nKaspersky AV tespit edildi. Bu yöntem, Kaspersky AV sistemden tamamen kaldırılmadığı sürece çalışmayacaktır.";
+            }
+            
             var result = System.Windows.MessageBox.Show(
-                "Zapret Otomatik Kurulum başlatmak istediğinizden emin misiniz? Bu işlem tercih ettiğiniz tarama hızına göre 2-50 dakika sürebilir.",
+                message,
                 "Zapret Otomatik Kurulum",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -6200,7 +6578,7 @@ Get-DnsClientDohServerAddress
                         // Kritik WinDivert dosyaları eksikse kopyalama işlemini başlatma
                         if (AreCriticalWinDivertFilesMissing())
                         {
-                            System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret kurulumu yapılamıyor. Lütfen önce gerekli dosyaları ekleyin.", 
+                            System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret kurulumu yapılamıyor. Sorun Kaspersky AV ile ilgili olabilir. Detaylı bilgi için Github sayfasını ziyaret edin.", 
                                 "Kurulum Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
@@ -6807,8 +7185,18 @@ echo Hizmet kurulum işlemi tamamlandı.
 
         private async void BtnZapretCustomService_Click(object sender, RoutedEventArgs e)
         {
+            var message = "Zapret Önayarlı Hizmet kurulumunu başlatmak istediğinizden emin misiniz?";
+            
+            // Kaspersky AV tespit edildiyse uyarı ekle
+            var avpProcesses = Process.GetProcessesByName("avp");
+            var avpuiProcesses = Process.GetProcessesByName("avpui");
+            if (avpProcesses.Length > 0 || avpuiProcesses.Length > 0)
+            {
+                message += "\n\nKaspersky AV tespit edildi. Bu yöntem, Kaspersky AV sistemden tamamen kaldırılmadığı sürece çalışmayacaktır.";
+            }
+            
             var result = System.Windows.MessageBox.Show(
-                "Zapret Önayarlı Hizmet kurulumunu başlatmak istediğinizden emin misiniz?",
+                message,
                 "Zapret Önayarlı Hizmet Kurulumu",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -6832,7 +7220,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                     // Kritik WinDivert dosyaları eksikse kopyalama işlemini başlatma
                     if (AreCriticalWinDivertFilesMissing())
                     {
-                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret kurulumu yapılamıyor. Lütfen önce gerekli dosyaları ekleyin.", 
+                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret kurulumu yapılamıyor. Sorun Kaspersky AV ile ilgili olabilir. Detaylı bilgi için Github sayfasını ziyaret edin.", 
                             "Kurulum Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -7060,7 +7448,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 // Kritik WinDivert dosyaları eksikse kopyalama işlemini başlatma
                 if (AreCriticalWinDivertFilesMissing())
                 {
-                    System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret işlemi yapılamıyor. Lütfen önce gerekli dosyaları ekleyin.", 
+                    System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için Zapret işlemi yapılamıyor. Sorun Kaspersky AV ile ilgili olabilir. Detaylı bilgi için Github sayfasını ziyaret edin.", 
                         "İşlem Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -7170,6 +7558,9 @@ echo Hizmet kurulum işlemi tamamlandı.
                     await RemoveZapretServices(zapretLogPath);
 
                     File.AppendAllText(zapretLogPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Zapret kaldırma işlemi tamamlandı.\n");
+                    
+                    await ForceRefreshAllServicesAsync();
+                    btnRemoveZapret.Visibility = Visibility.Collapsed;
                     
                     System.Windows.MessageBox.Show("Zapret başarıyla kaldırıldı!", 
                         "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -7820,7 +8211,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
                 if (hwnd == IntPtr.Zero)
                 {
-                    Debug.WriteLine("Pencere handle alınamadı");
+                    Debug.WriteLine("Pencere handle alınamadı, görev çubuğu karanlık mod ayarı erteleniyor");
                     return;
                 }
 
@@ -7851,102 +8242,7 @@ echo Hizmet kurulum işlemi tamamlandı.
         }
 
         // Kaspersky ve WARP uyumluluk kontrolü
-        private async Task CheckCompatibilityAsync()
-        {
-            try
-            {
-                await Dispatcher.InvokeAsync(() => {
-                    loadingOverlay.Visibility = Visibility.Visible;
-                });
 
-                // Kaspersky antivirüs kontrolü - dosya ve process
-                await CheckKasperskyAntivirus();
-                
-                // Kaspersky VPN kontrolü - process
-                await CheckKasperskyVpn();
-                
-                // Cloudflare WARP kontrolü - process
-                await CheckCloudflareWarp();
-
-                // UI güncellemelerini main thread'de yap
-                await Dispatcher.InvokeAsync(() => {
-                    // Program başlangıcında overlay'leri gösterme, sadece durumları güncelle
-                    // Overlay'ler sadece Zapret/GoodbyeDPI sekmelerine geçildiğinde görünecek
-                    loadingOverlay.Visibility = Visibility.Collapsed;
-                });
-
-                Debug.WriteLine($"Uyumluluk kontrolü tamamlandı - Kaspersky: {_isKasperskyDetected}, KasperskyVPN: {_isKasperskyVpnDetected}, WARP: {_isCloudflareWarpDetected}");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Uyumluluk kontrolü sırasında hata: {ex.Message}");
-                await Dispatcher.InvokeAsync(() => {
-                    loadingOverlay.Visibility = Visibility.Collapsed;
-                });
-            }
-        }
-
-        // Kaspersky antivirüs kontrolü
-        private async Task CheckKasperskyAntivirus()
-        {
-            await Task.Run(() => {
-                try
-                {
-                    // Kritik WinDivert dosyalarını kontrol et
-                    var result = AreCriticalWinDivertFilesMissing();
-                    
-                    // Kaspersky tespit edildi mi: kritik WinDivert dosyaları eksikse
-                    _isKasperskyDetected = result;
-
-                    Debug.WriteLine($"Kaspersky kontrolü - Kritik dosyalar eksik: {result}, Tespit edildi: {_isKasperskyDetected}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Kaspersky antivirüs kontrolü sırasında hata: {ex.Message}");
-                    _isKasperskyDetected = false;
-                }
-            });
-        }
-
-        // Kaspersky VPN kontrolü
-        private async Task CheckKasperskyVpn()
-        {
-            await Task.Run(() => {
-                try
-                {
-                    var kasperskyVpnProcesses = new[] { "ksde.exe", "ksdeui.exe" };
-                    _isKasperskyVpnDetected = kasperskyVpnProcesses.Any(processName => 
-                        Process.GetProcessesByName(Path.GetFileNameWithoutExtension(processName)).Length > 0);
-
-                    Debug.WriteLine($"Kaspersky VPN kontrolü - Tespit edildi: {_isKasperskyVpnDetected}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Kaspersky VPN kontrolü sırasında hata: {ex.Message}");
-                    _isKasperskyVpnDetected = false;
-                }
-            });
-        }
-
-        // Cloudflare WARP kontrolü
-        private async Task CheckCloudflareWarp()
-        {
-            await Task.Run(() => {
-                try
-                {
-                    var warpProcesses = new[] { "warp-svc.exe", "warp-taskbar.exe", "warp-cli.exe" };
-                    _isCloudflareWarpDetected = warpProcesses.Any(processName => 
-                        Process.GetProcessesByName(Path.GetFileNameWithoutExtension(processName)).Length > 0);
-
-                    Debug.WriteLine($"Cloudflare WARP kontrolü - Tespit edildi: {_isCloudflareWarpDetected}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Cloudflare WARP kontrolü sırasında hata: {ex.Message}");
-                    _isCloudflareWarpDetected = false;
-                }
-            });
-        }
 
         // Overlay görünürlüğünü güncelle
         private void UpdateOverlayVisibility()
@@ -8220,8 +8516,18 @@ echo Hizmet kurulum işlemi tamamlandı.
 
         private async void BtnGoodbyeDPIService_Click(object sender, RoutedEventArgs e)
         {
+            var message = "GoodbyeDPI hizmet kurulumu başlatmak istediğinizden emin misiniz?";
+            
+            // Kaspersky AV tespit edildiyse uyarı ekle
+            var avpProcesses = Process.GetProcessesByName("avp");
+            var avpuiProcesses = Process.GetProcessesByName("avpui");
+            if (avpProcesses.Length > 0 || avpuiProcesses.Length > 0)
+            {
+                message += "\n\nKaspersky AV tespit edildi. Bu yöntem, Kaspersky AV sistemden tamamen kaldırılmadığı sürece çalışmayacaktır.";
+            }
+            
             var result = System.Windows.MessageBox.Show(
-                "GoodbyeDPI hizmet kurulumu başlatmak istediğinizden emin misiniz?",
+                message,
                 "GoodbyeDPI Hizmet Kurulumu",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -8264,7 +8570,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                     if (AreCriticalWinDivertFilesMissing())
                     {
                         File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: Kritik WinDivert dosyaları eksik olduğu için GoodbyeDPI kurulumu yapılamıyor.\n");
-                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için GoodbyeDPI kurulumu yapılamıyor. Lütfen önce gerekli dosyaları ekleyin.", 
+                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için GoodbyeDPI kurulumu yapılamıyor. Sorun Kaspersky AV ile ilgili olabilir. Detaylı bilgi için Github sayfasını ziyaret edin.", 
                             "Kurulum Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -8345,7 +8651,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                     // Kritik WinDivert dosyaları eksikse kopyalama işlemini başlatma
                     if (AreCriticalWinDivertFilesMissing())
                     {
-                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için GoodbyeDPI işlemi yapılamıyor. Lütfen önce gerekli dosyaları ekleyin.", 
+                        System.Windows.MessageBox.Show("Kritik WinDivert dosyaları eksik olduğu için GoodbyeDPI işlemi yapılamıyor. Sorun Kaspersky AV ile ilgili olabilir. Detaylı bilgi için Github sayfasını ziyaret edin.", 
                             "İşlem Hatası", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -9088,11 +9394,17 @@ echo Hizmet kurulum işlemi tamamlandı.
                 {
                     // Karanlık mod
                     ApplyDarkTheme();
+                    
+                    // Registry'ye kaydet
+                    SaveThemeToRegistry(true);
                 }
                 else
                 {
                     // Aydınlık mod
                     ApplyLightTheme();
+                    
+                    // Registry'ye kaydet
+                    SaveThemeToRegistry(false);
                 }
                 
                 // Overlay'leri güncelle
@@ -9112,6 +9424,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 var darkColor = (Color)ColorConverter.ConvertFromString("#1c1c1d");
 
                 // Görev çubuğunu karanlık moda al
+                // Not: Pencere handle'ı henüz hazır olmayabilir, bu yüzden MainWindow_Loaded'da tekrar denenecek
                 SetTaskbarDarkMode(true);
  
                 // Ana pencere arkaplan rengi - animasyonlu
@@ -9278,6 +9591,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 var animationDuration = TimeSpan.FromMilliseconds(500);
 
                 // Görev çubuğunu aydınlık moda al
+                // Not: Pencere handle'ı henüz hazır olmayabilir, bu yüzden MainWindow_Loaded'da tekrar denenecek
                 SetTaskbarDarkMode(false);
                 
                 // Ana pencere arkaplan rengi - animasyonlu

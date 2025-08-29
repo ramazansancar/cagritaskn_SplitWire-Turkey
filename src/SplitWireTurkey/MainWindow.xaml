@@ -584,10 +584,16 @@
                             </Button.Style>
                         </Button>
                         
-                        <TextBlock x:Name="txtWiresockStatus" 
-                                   Text="WireSock durumu kontrol ediliyor..." 
+                        <TextBlock x:Name="compatibilityText" 
+                                   Text="" 
                                    HorizontalAlignment="Center" 
-                                   Margin="0,5,0,0"/>
+                                   Margin="0,5,0,0"
+                                   FontFamily="{StaticResource PoppinsRegular}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   Foreground="Orange"
+                                   Visibility="Collapsed"/>
                     </StackPanel>
                     
                     <!-- Ana Sayfa Yardım Butonu -->
