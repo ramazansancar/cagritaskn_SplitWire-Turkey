@@ -111,6 +111,8 @@ namespace SplitWireTurkey.Services
                     "discord",
                     "roblox",
                     "Discord.exe",
+                    "DiscordPTB.exe",
+                    "SplitWire-Turkey.exe",
                     "Update.exe",
                     "RobloxPlayerBeta.exe",
                     "RobloxPlayerInstaller.exe"
