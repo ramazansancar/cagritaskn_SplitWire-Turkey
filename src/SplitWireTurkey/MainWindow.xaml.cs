@@ -112,6 +112,7 @@ namespace SplitWireTurkey
         private double _mainPageBaseHeight = 610;
         private double _mainPageAdvancedSettingsHeight = 875;
         private double _byeDPIHeight = 640;
+        private double _discordHeight = 660;
         private double _zapretBaseHeight = 670;
         private double _zapretManualParamsHeight = 765;
         private double _goodbyeDPIBaseHeight = 550;
@@ -175,6 +176,7 @@ namespace SplitWireTurkey
             LoadZapretPresets();
             LoadGoodbyeDPIPresets();
             CheckAllServices(); // Yeni eklenen servis kontrolü
+            CheckDiscordStatus(); // Discord durumunu kontrol et
             
             // Registry'den tema ayarını yükle ve uygula
             LoadThemeFromRegistryAndApply();
@@ -190,6 +192,17 @@ namespace SplitWireTurkey
                 currentDirRun.Text = $" {CurrentProgramDirectory} ";
             if (localAppDataRun != null)
                 localAppDataRun.Text = $" {LocalAppDataSplitWirePath} ";
+            
+            // Switch'lerin varsayılan durumlarını ayarla
+            if (chkGoodbyeDPIUseBlacklist != null && chkGoodbyeDPIUseBlacklist.IsChecked != true)
+            {
+                chkGoodbyeDPIUseBlacklist.IsChecked = true;
+            }
+            
+            if (chkByeDPIBrowserTunneling != null && chkByeDPIBrowserTunneling.IsChecked != true)
+            {
+                chkByeDPIBrowserTunneling.IsChecked = true;
+            }
             
             // Pencere yüklendikten sonra görev çubuğu karanlık mod ayarını tekrar uygula
             // Bu, pencere handle'ının hazır olmasını sağlar
@@ -1203,7 +1216,7 @@ namespace SplitWireTurkey
             // Hata raporları açıklaması
             var errorReportsText = new TextBlock
             {
-                Text = "SplitWire-Turkey kullanımı sırasında herhangi bir hata, sorun veya öneriniz varsa, GitHub sayfasının Issues bölümünden rapor oluşturabilirsiniz. Rapor oluştururken mümkünse programın kurulu olduğu konumdaki logs klasöründe bulunan .log dosyalarını da ekleyerek daha detaylı bilgi sağlayabilirsiniz.",
+                Text = "SplitWire-Turkey kullanımı ile ilgili yaşadığınız herhangi bir hata, sorun veya yapmak istediğiniz öneriniz varsa, GitHub sayfasının Issues bölümünden rapor oluşturabilirsiniz. Rapor oluştururken mümkünse programın kurulu olduğu konumdaki logs klasöründe bulunan .log dosyalarını da ekleyerek daha detaylı bilgi sağlayabilirsiniz.",
                 FontSize = 14,
                 FontFamily = new System.Windows.Media.FontFamily("pack://application:,,,/Resources/#Poppins Regular"),
                 TextWrapping = TextWrapping.Wrap,
@@ -2746,13 +2759,27 @@ try {{
                 // Merkezi boyut hesaplama ve güncelleme
                 AnimateWindowHeight(_byeDPIHeight, TimeSpan.FromMilliseconds(400));
                 
-                this.Width = 500;
+                this.Width = 600;
                 
                 // Cache'den hızlı kontrol yap
                 CheckByeDPIRemoveButtonVisibilityFromCache();
                 
                 // ByeDPI UI durumunu güncelle
                 UpdateByeDPIUIState();
+            }
+            else if (TabControl.SelectedIndex == 4) // Onarım sekmesi
+            {
+                // Onarım sekmesi için pencere boyutunu ayarla
+                // Önceki animasyonları durdur ve doğrudan boyut ayarla
+                this.BeginAnimation(HeightProperty, null);
+                
+                // Merkezi boyut hesaplama ve güncelleme
+                AnimateWindowHeight(_discordHeight, TimeSpan.FromMilliseconds(400));
+                
+                this.Width = 600;
+                
+                // Discord durumunu kontrol et
+                CheckDiscordStatus();
             }
             else if (TabControl.SelectedIndex == 2) // Zapret sekmesi
             {
@@ -2766,7 +2793,7 @@ try {{
                 // Merkezi boyut hesaplama ve güncelleme
                 UpdateZapretWindowSize();
                 
-                this.Width = 500;
+                this.Width = 600;
                 
                 // Cache'den hızlı kontrol yap
                 CheckZapretRemoveButtonVisibilityFromCache();
@@ -2783,12 +2810,12 @@ try {{
                 // Switch durumlarını kontrol et ve boyutu hesapla
                 UpdateGoodbyeDPIWindowSize();
                 
-                this.Width = 500;
+                this.Width = 600;
                 
                 // Cache'den hızlı kontrol yap
                 CheckGoodbyeDPIRemoveButtonVisibilityFromCache();
             }
-            else if (TabControl.SelectedIndex == 4) // Gelişmiş sekmesi
+            else if (TabControl.SelectedIndex == 5) // Gelişmiş sekmesi
             {
                 // Gelişmiş sekmesi için pencere boyutunu ayarla (yeni butonlar için artırıldı)
                 // Önceki animasyonları durdur ve doğrudan boyut ayarla
@@ -2797,7 +2824,7 @@ try {{
                 // Merkezi boyut hesaplama ve güncelleme
                 AnimateWindowHeight(_advancedHeight, TimeSpan.FromMilliseconds(400));
                 
-                    this.Width = 500;
+                    this.Width = 600;
                 
                 // Cache'den hızlı güncelleme yap
                 if (_serviceStatusCache.Count > 0)
@@ -2819,7 +2846,7 @@ try {{
                 // Merkezi boyut hesaplama ve güncelleme
                 UpdateMainPageWindowSize();
                 
-                this.Width = 500;
+                this.Width = 600;
             }
             
             // Overlay görünürlüğünü sekmeye göre güncelle
@@ -3030,6 +3057,131 @@ try {{
                 CheckAllServices();
                 
                 // UI'ı güncelle (restart yapılsa da yapılmasa da)
+                UpdateByeDPIUIState();
+            }
+        }
+
+        /// <summary>
+        /// ByeDPI kurulumunu sessiz modda yapar (yeniden başlatma uyarısı göstermez)
+        /// </summary>
+        private async Task PerformByeDPISetupSilentAsync()
+        {
+            ShowLoading(true);
+            
+            try
+            {
+                var logPath = GetLogPath();
+                File.WriteAllText(logPath, $"ByeDPI ST Kurulum (Sessiz) Başlangıç: {DateTime.Now}\n");
+
+                // 1. Kurulum öncesi temizlik
+                File.AppendAllText(logPath, "1. Kurulum öncesi temizlik yapılıyor...\n");
+                var cleanupSuccess = await PerformPreSetupCleanupAsync();
+                if (cleanupSuccess)
+                {
+                    File.AppendAllText(logPath, "Kurulum öncesi temizlik başarıyla tamamlandı.\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "UYARI: Kurulum öncesi temizlik sırasında hata oluştu.\n");
+                }
+
+                // 2. Prerequisites kurulumları
+                File.AppendAllText(logPath, "2. Prerequisites kurulumları başlatılıyor...\n");
+                var prereqSuccess = await InstallPrerequisitesAsync();
+                
+                if (!prereqSuccess)
+                {
+                    System.Windows.MessageBox.Show("Prerequisites kurulumları başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 3. DNS ayarları
+                File.AppendAllText(logPath, "3. DNS ayarları yapılıyor...\n");
+                var dnsSuccess = await SetModernDNSSettingsAsync();
+                
+                if (!dnsSuccess)
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarısız oldu. Kurulum devam ediyor...\n");
+                }
+                else
+                {
+                    File.AppendAllText(logPath, "DNS ayarları başarıyla yapıldı.\n");
+                }
+
+                // 4. Hizmetleri kaldır
+                File.AppendAllText(logPath, "4. Hizmetler kaldırılıyor...\n");
+                var serviceRemovalSuccess = await RemoveServicesAsync();
+                
+                if (!serviceRemovalSuccess)
+                {
+                    System.Windows.MessageBox.Show("Hizmet kaldırma işlemi başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 5. ProxiFyre kurulumu
+                File.AppendAllText(logPath, "5. ProxiFyre kurulumu yapılıyor...\n");
+                var proxifyreSuccess = await InstallProxiFyreAsync();
+                
+                if (!proxifyreSuccess)
+                {
+                    System.Windows.MessageBox.Show("ProxiFyre kurulumu başarısız oldu. Kurulum devam ediyor...", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 6. ProxiFyreService başlat
+                File.AppendAllText(logPath, "6. ProxiFyreService başlatılıyor...\n");
+                var serviceStartSuccess = await StartProxiFyreServiceAsync();
+                
+                if (!serviceStartSuccess)
+                {
+                    // System.Windows.MessageBox.Show("ProxiFyreService başlatılamadı. Manuel olarak başlatmayı deneyin.", 
+                       // "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 7. Windows Firewall kuralları ekleme
+                File.AppendAllText(logPath, "7. Windows Firewall kuralları ekleniyor...\n");
+                var firewallSuccess = await AddFirewallRulesAsync();
+                
+                if (!firewallSuccess)
+                {
+                    System.Windows.MessageBox.Show("Windows Firewall kuralları eklenirken hata oluştu. Manuel olarak izin vermeniz gerekebilir.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                // 8. ByeDPI hizmeti kurulumu
+                File.AppendAllText(logPath, "8. ByeDPI hizmeti kurulumu yapılıyor...\n");
+                var byeDPIInstallSuccess = await InstallByeDPIServiceAsync();
+                
+                if (!byeDPIInstallSuccess)
+                {
+                    System.Windows.MessageBox.Show("ByeDPI hizmeti kurulumu başarısız oldu. Manuel olarak başlatmayı deneyin.", 
+                        "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Başarılı kurulum sonrası kaldır butonunu güncelle
+                    CheckByeDPIRemoveButtonVisibility();
+                }
+
+                // 9. Kurulum tamamlandı mesajı (sessiz)
+                File.AppendAllText(logPath, "Kurulum tamamlandı (Sessiz mod).\n");
+                File.AppendAllText(logPath, $"ByeDPI ST Kurulum (Sessiz) Bitiş: {DateTime.Now}\n");
+
+                // Sessiz modda yeniden başlatma uyarısı gösterilmez
+                Debug.WriteLine("ByeDPI ST Kurulum sessiz modda tamamlandı.");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"ByeDPI ST Kurulum sırasında hata oluştu: {ex.Message}", 
+                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                
+                // Hizmet durumlarını güncelle
+                CheckAllServices();
+                
+                // UI'ı güncelle
                 UpdateByeDPIUIState();
             }
         }
@@ -3452,6 +3604,28 @@ try {{
             }
             
             return zapretPath;
+        }
+
+        /// <summary>
+        /// Discord işlemleri için repair.log dosyasının yolunu döndürür
+        /// </summary>
+        private string GetDiscordRepairLogPath()
+        {
+            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var exeDirectory = Path.GetDirectoryName(exePath);
+            var logsDirectory = Path.Combine(exeDirectory, "logs");
+            
+            if (!Directory.Exists(logsDirectory))
+            {
+                Directory.CreateDirectory(logsDirectory);
+            }
+            
+            var logPath = Path.Combine(logsDirectory, "repair.log");
+            
+            // Log dosyasının başına sürüm bilgisini ekle
+            AddVersionHeaderToLog(logPath);
+            
+            return logPath;
         }
 
         private bool CheckZapretFilesExist()
@@ -5814,6 +5988,32 @@ Get-DnsClientDohServerAddress
                     System.Windows.Media.Brushes.White
             };
 
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
+
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -6023,6 +6223,32 @@ Get-DnsClientDohServerAddress
                     System.Windows.Media.Brushes.White
             };
 
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
+
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -6183,6 +6409,32 @@ Get-DnsClientDohServerAddress
                     new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1c1c1d")) :
                     System.Windows.Media.Brushes.White
             };
+
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
 
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -6409,6 +6661,32 @@ Get-DnsClientDohServerAddress
                     new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1c1c1d")) :
                     System.Windows.Media.Brushes.White
             };
+
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
 
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -8761,6 +9039,32 @@ echo Hizmet kurulum işlemi tamamlandı.
                     System.Windows.Media.Brushes.White
             };
 
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
+
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -9480,6 +9784,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 var btnHelpByeDPI = this.FindName("btnHelpByeDPI") as System.Windows.Controls.Button;
                 var btnHelpZapret = this.FindName("btnHelpZapret") as System.Windows.Controls.Button;
                 var btnHelpGoodbyeDPI = this.FindName("btnHelpGoodbyeDPI") as System.Windows.Controls.Button;
+                var btnHelpDiscord = this.FindName("btnHelpDiscord") as System.Windows.Controls.Button;
                 var btnHelpAdvanced = this.FindName("btnHelpAdvanced") as System.Windows.Controls.Button;
                 
                 // Stil referansını farklı yollarla deneyelim
@@ -9514,6 +9819,11 @@ echo Hizmet kurulum işlemi tamamlandı.
                     {
                         btnHelpGoodbyeDPI.Style = darkStyle;
                         Debug.WriteLine("btnHelpGoodbyeDPI karanlık mod stili uygulandı");
+                    }
+                    if (btnHelpDiscord != null) 
+                    {
+                        btnHelpDiscord.Style = darkStyle;
+                        Debug.WriteLine("btnHelpDiscord karanlık mod stili uygulandı");
                     }
                     if (btnHelpAdvanced != null) 
                     {
@@ -9646,6 +9956,7 @@ echo Hizmet kurulum işlemi tamamlandı.
                 var btnHelpByeDPI = this.FindName("btnHelpByeDPI") as System.Windows.Controls.Button;
                 var btnHelpZapret = this.FindName("btnHelpZapret") as System.Windows.Controls.Button;
                 var btnHelpGoodbyeDPI = this.FindName("btnHelpGoodbyeDPI") as System.Windows.Controls.Button;
+                var btnHelpDiscord = this.FindName("btnHelpDiscord") as System.Windows.Controls.Button;
                 var btnHelpAdvanced = this.FindName("btnHelpAdvanced") as System.Windows.Controls.Button;
                 
                 // Stil referansını farklı yollarla deneyelim
@@ -9681,6 +9992,11 @@ echo Hizmet kurulum işlemi tamamlandı.
                         btnHelpGoodbyeDPI.Style = lightStyle;
                         Debug.WriteLine("btnHelpGoodbyeDPI aydınlık mod stili uygulandı");
                     }
+                    if (btnHelpDiscord != null) 
+                    {
+                        btnHelpDiscord.Style = lightStyle;
+                        Debug.WriteLine("btnHelpDiscord aydınlık mod stili uygulandı");
+                    }
                     if (btnHelpAdvanced != null) 
                     {
                         btnHelpAdvanced.Style = lightStyle;
@@ -9710,6 +10026,11 @@ echo Hizmet kurulum işlemi tamamlandı.
                     {
                         AnimateBackgroundColor(btnHelpGoodbyeDPI, defaultInfoColor, animationDuration);
                         AnimateForegroundColor(btnHelpGoodbyeDPI, defaultInfoTextColor, animationDuration);
+                    }
+                    if (btnHelpDiscord != null) 
+                    {
+                        AnimateBackgroundColor(btnHelpDiscord, defaultInfoColor, animationDuration);
+                        AnimateForegroundColor(btnHelpDiscord, defaultInfoTextColor, animationDuration);
                     }
                     if (btnHelpAdvanced != null) 
                     {
@@ -9992,8 +10313,54 @@ echo Hizmet kurulum işlemi tamamlandı.
                         "chkGoodbyeDPIManualParams",
                         "chkGoodbyeDPIUseBlacklist",
                         "chkGoodbyeDPIEditBlacklist",
-                        "chkByeDPIBrowserTunneling" // Added for dark mode support
+                        "chkByeDPIBrowserTunneling", // Added for dark mode support
+                        "chkDiscordUninstallStandard" // Added for Onarım sekmesi
                     };
+                    
+                    // Discord durum göstergelerini de güncelle
+                    // NOT: Daire renkleri tema değişikliklerinde korunmalı, sadece yeşil olanlar güncellenmeli
+                    var discordStatus = this.FindName("discordStatus") as System.Windows.Shapes.Ellipse;
+                    var discordPTBStatus = this.FindName("discordPTBStatus") as System.Windows.Shapes.Ellipse;
+                    
+                    if (discordStatus != null)
+                    {
+                        // Sadece yeşil olan daireleri tema rengine göre güncelle, kırmızı olanları koru
+                        if (discordStatus.Fill.ToString() == "#FF00FF00" || discordStatus.Fill.ToString() == "#FF4CAF50")
+                        {
+                            discordStatus.Fill = isDarkMode ? 
+                                new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50")) : // Koyu yeşil
+                                System.Windows.Media.Brushes.Green;
+                        }
+                    }
+                    
+                    if (discordPTBStatus != null)
+                    {
+                        // Sadece yeşil olan daireleri tema rengine göre güncelle, kırmızı olanları koru
+                        if (discordPTBStatus.Fill.ToString() == "#FF00FF00" || discordPTBStatus.Fill.ToString() == "#FF4CAF50")
+                        {
+                            discordPTBStatus.Fill = isDarkMode ? 
+                                new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50")) : // Koyu yeşil
+                                System.Windows.Media.Brushes.Green;
+                        }
+                    }
+                    
+                    // Discord Kaldır butonlarının stilini de güncelle
+                    var btnDiscordRemove = this.FindName("btnDiscordRemove") as System.Windows.Controls.Button;
+                    var btnDiscordPTBRemove = this.FindName("btnDiscordPTBRemove") as System.Windows.Controls.Button;
+                    
+                    if (btnDiscordRemove != null)
+                    {
+                        btnDiscordRemove.Style = isDarkMode ? 
+                            new System.Windows.Style(typeof(System.Windows.Controls.Button), btnDiscordRemove.Style) :
+                            btnDiscordRemove.Style;
+                    }
+                    
+                    if (btnDiscordPTBRemove != null)
+                    {
+                        btnDiscordPTBRemove.Style = isDarkMode ? 
+                            new System.Windows.Style(typeof(System.Windows.Controls.Button), btnDiscordPTBRemove.Style) :
+                            btnDiscordPTBRemove.Style;
+                    }
                     
                     foreach (var switchName in toggleSwitches)
                     {
@@ -10066,11 +10433,8 @@ echo Hizmet kurulum işlemi tamamlandı.
                         Debug.WriteLine("Label gizlendi");
                     }
                     
-                    // Switch'i kapalı yap
-                    if (chkByeDPIBrowserTunneling != null)
-                    {
-                        chkByeDPIBrowserTunneling.IsChecked = false;
-                    }
+                    // Switch'in durumunu değiştirme - sadece görünürlüğünü kontrol et
+                    // Switch'in durumu MainWindow_Loaded'da ayarlanıyor
                 }
             }
             catch (Exception ex)
@@ -10128,12 +10492,8 @@ echo Hizmet kurulum işlemi tamamlandı.
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Tarayıcı tünelleme ayarı yapılırken hata oluştu: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                if (chkByeDPIBrowserTunneling != null)
-                {
-                    chkByeDPIBrowserTunneling.IsChecked = false;
-                }
+                Debug.WriteLine($"Tarayıcı tünelleme aktif etme hatası: {ex.Message}");
+                // Hata durumunda switch'i eski durumuna döndürme - kullanıcı deneyimini bozmamak için
             }
         }
 
@@ -10150,12 +10510,8 @@ echo Hizmet kurulum işlemi tamamlandı.
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Tarayıcı tünelleme ayarı yapılırken hata oluştu: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                if (chkByeDPIBrowserTunneling != null)
-                {
-                    chkByeDPIBrowserTunneling.IsChecked = false;
-                }
+                Debug.WriteLine($"Tarayıcı tünelleme pasif etme hatası: {ex.Message}");
+                // Hata durumunda switch'i eski durumuna döndürme - kullanıcı deneyimini bozmamak için
             }
         }
 
@@ -10603,5 +10959,1463 @@ echo Hizmet kurulum işlemi tamamlandı.
             
             return Path.Combine(logsDirectory, "uninstall.log");
         }
+
+        #region Onarım sekmesi Metodları
+
+        /// <summary>
+        /// Discord durumunu kontrol eder ve UI'ı günceller
+        /// </summary>
+        private void CheckDiscordStatus()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord durum kontrolü başlatıldı.\n");
+                
+                // Başlangıçta tüm Kaldır butonlarını gizle
+                var btnDiscordRemove = this.FindName("btnDiscordRemove") as System.Windows.Controls.Button;
+                var btnDiscordPTBRemove = this.FindName("btnDiscordPTBRemove") as System.Windows.Controls.Button;
+                
+                if (btnDiscordRemove != null)
+                {
+                    btnDiscordRemove.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                
+                if (btnDiscordPTBRemove != null)
+                {
+                    btnDiscordPTBRemove.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                
+                var discordPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord", "Update.exe");
+                var discordDeadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord", ".dead");
+                var discordPTBPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordPTB", "Update.exe");
+                var discordPTBDeadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordPTB", ".dead");
+
+                // Discord durumu kontrolü
+                bool isDiscordInstalled = File.Exists(discordPath) && !File.Exists(discordDeadPath);
+                
+                if (isDiscordInstalled)
+                {
+                    lblDiscordStatus.Text = "Yüklü";
+                    btnDiscordAction.Content = "Başlat";
+                    
+                    // Kaldır butonunu göster
+                    var btnDiscordRemoveShow = this.FindName("btnDiscordRemove") as System.Windows.Controls.Button;
+                    if (btnDiscordRemoveShow != null)
+                    {
+                        btnDiscordRemoveShow.Visibility = System.Windows.Visibility.Visible;
+                    }
+                    
+                    // Tema durumuna göre renk ayarla
+                    bool isDarkMode = btnThemeToggle?.IsChecked == true;
+                    discordStatus.Fill = isDarkMode ? 
+                        new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50")) : // Koyu yeşil
+                        System.Windows.Media.Brushes.Green;
+                    
+                    // Önce tüm event'leri temizle
+                    btnDiscordAction.Click -= BtnDiscordAction_Click;
+                    btnDiscordAction.Click -= BtnDiscordStart_Click;
+                    
+                    // Sadece Başlat event'ini ekle
+                    btnDiscordAction.Click += BtnDiscordStart_Click;
+                    
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord durumu: Yüklü - Başlat butonu aktif\n");
+                }
+                else
+                {
+                    lblDiscordStatus.Text = "Yüklü değil";
+                    btnDiscordAction.Content = "Yükle";
+                    discordStatus.Fill = System.Windows.Media.Brushes.Red;
+                    
+                    // Kaldır butonunu gizle
+                    var btnDiscordRemoveHide = this.FindName("btnDiscordRemove") as System.Windows.Controls.Button;
+                    if (btnDiscordRemoveHide != null)
+                    {
+                        btnDiscordRemoveHide.Visibility = System.Windows.Visibility.Collapsed;
+                    }
+                    
+                    // Önce tüm event'leri temizle
+                    btnDiscordAction.Click -= BtnDiscordAction_Click;
+                    btnDiscordAction.Click -= BtnDiscordStart_Click;
+                    
+                    // Sadece Yükle event'ini ekle
+                    btnDiscordAction.Click += BtnDiscordAction_Click;
+                    
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord durumu: Yüklü değil - Yükle butonu aktif\n");
+                }
+
+                // Discord PTB durumu kontrolü
+                bool isDiscordPTBInstalled = File.Exists(discordPTBPath) && !File.Exists(discordPTBDeadPath);
+                
+                if (isDiscordPTBInstalled)
+                {
+                    lblDiscordPTBStatus.Text = "Yüklü";
+                    btnDiscordPTBAction.Content = "Başlat";
+                    
+                    // Kaldır butonunu göster
+                    var btnDiscordPTBRemoveShow = this.FindName("btnDiscordPTBRemove") as System.Windows.Controls.Button;
+                    if (btnDiscordPTBRemoveShow != null)
+                    {
+                        btnDiscordPTBRemoveShow.Visibility = System.Windows.Visibility.Visible;
+                    }
+                    
+                    // Tema durumuna göre renk ayarla
+                    bool isDarkMode = btnThemeToggle?.IsChecked == true;
+                    discordPTBStatus.Fill = isDarkMode ? 
+                        new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50")) : // Koyu yeşil
+                        System.Windows.Media.Brushes.Green;
+                    
+                    // Önce tüm event'leri temizle
+                    btnDiscordPTBAction.Click -= BtnDiscordPTBAction_Click;
+                    btnDiscordPTBAction.Click -= BtnDiscordPTBStart_Click;
+                    
+                    // Sadece Başlat event'ini ekle
+                    btnDiscordPTBAction.Click += BtnDiscordPTBStart_Click;
+                    
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB durumu: Yüklü - Başlat butonu aktif\n");
+                }
+                else
+                {
+                    lblDiscordPTBStatus.Text = "Yüklü değil";
+                    btnDiscordPTBAction.Content = "Yükle";
+                    discordPTBStatus.Fill = System.Windows.Media.Brushes.Red;
+                    
+                    // Kaldır butonunu gizle
+                    var btnDiscordPTBRemoveHide = this.FindName("btnDiscordPTBRemove") as System.Windows.Controls.Button;
+                    if (btnDiscordPTBRemoveHide != null)
+                    {
+                        btnDiscordPTBRemoveHide.Visibility = System.Windows.Visibility.Collapsed;
+                    }
+                    
+                    // Önce tüm event'leri temizle
+                    btnDiscordPTBAction.Click -= BtnDiscordPTBAction_Click;
+                    btnDiscordPTBAction.Click -= BtnDiscordPTBStart_Click;
+                    
+                    // Sadece Yükle event'ini ekle
+                    btnDiscordPTBAction.Click += BtnDiscordPTBAction_Click;
+                    
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB durumu: Yüklü değil - Yükle butonu aktif\n");
+                }
+
+                // Debug bilgileri
+                Debug.WriteLine($"Discord durum kontrolü:");
+                Debug.WriteLine($"  Discord Update.exe: {File.Exists(discordPath)}");
+                Debug.WriteLine($"  Discord .dead: {File.Exists(discordDeadPath)}");
+                Debug.WriteLine($"  Discord Yüklü: {isDiscordInstalled}");
+                Debug.WriteLine($"  Discord PTB Update.exe: {File.Exists(discordPTBPath)}");
+                Debug.WriteLine($"  Discord PTB .dead: {File.Exists(discordPTBDeadPath)}");
+                Debug.WriteLine($"  Discord PTB Yüklü: {isDiscordPTBInstalled}");
+                
+                // Event durumlarını da logla
+                Debug.WriteLine($"  Discord buton event'leri temizlendi ve yeniden eklendi");
+                Debug.WriteLine($"  Discord PTB buton event'leri temizlendi ve yeniden eklendi");
+                
+                // Log dosyasına da detaylı bilgi yaz
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord durum kontrolü detayları:\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord Update.exe: {File.Exists(discordPath)} ({discordPath})\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord .dead: {File.Exists(discordDeadPath)} ({discordDeadPath})\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord Yüklü: {isDiscordInstalled}\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord PTB Update.exe: {File.Exists(discordPTBPath)} ({discordPTBPath})\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord PTB .dead: {File.Exists(discordPTBDeadPath)} ({discordPTBDeadPath})\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord PTB Yüklü: {isDiscordPTBInstalled}\n");
+                
+                // Kaldır butonlarının durumunu da logla
+                var btnDiscordRemoveFinal = this.FindName("btnDiscordRemove") as System.Windows.Controls.Button;
+                var btnDiscordPTBRemoveFinal = this.FindName("btnDiscordPTBRemove") as System.Windows.Controls.Button;
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kaldır buton durumları:\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord Kaldır butonu: {(btnDiscordRemoveFinal?.Visibility == System.Windows.Visibility.Visible ? "Görünür" : "Gizli")}\n");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]   Discord PTB Kaldır butonu: {(btnDiscordPTBRemoveFinal?.Visibility == System.Windows.Visibility.Visible ? "Görünür" : "Gizli")}\n");
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord durum kontrolü tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord durum kontrolü hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord durum kontrolü hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Discord'u Onar butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordRepair_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Onar işlemi başlatıldı.\n");
+                
+                var result = System.Windows.MessageBox.Show(
+                    "Discord'u onarmak istediğinizden emin misiniz?\n\nBu işlem:\n1. Discord'u kapatacak\n2. Discord'u kaldıracak\n3. ByeDPI kurulumunu yapacak\n4. Discord'u yeniden kuracak",
+                    "Discord Onar", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı onay verdi, işlem başlatılıyor...\n");
+                    ShowLoading(true);
+
+                    // 1. Discord'u kapat
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatılıyor...\n");
+                    await CloseDiscordProcessesAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatıldı.\n");
+
+                    // 2. Discord'u kaldır
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kaldırılıyor...\n");
+                    await UninstallDiscordAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kaldırıldı.\n");
+
+                    // 3. ByeDPI Split Tunneling kurulumunu çalıştır ve tamamlanmasını bekle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. ByeDPI Split Tunneling kurulumu yapılıyor...\n");
+                    await PerformByeDPISetupSilentAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. ByeDPI Split Tunneling kurulumu tamamlandı.\n");
+
+                    // 4. Discord'u yeniden kur
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord yeniden kuruluyor...\n");
+                    await InstallDiscordAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord yeniden kuruldu.\n");
+
+                    // 5. Durumları güncelle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5. Discord durumları güncelleniyor...\n");
+                    CheckDiscordStatus();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5. Discord durumları güncellendi.\n");
+
+                    // 6. Başarı mesajı göster
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Onar işlemi başarıyla tamamlandı.\n");
+                    var restartResult = System.Windows.MessageBox.Show(
+                        "Değişikliklerin etkili olması için sisteminizi yeniden başlatmanız gerekiyor. " +
+                        "Bilgisayarınız yeniden başlatılırken modeminizi kapalı konuma getirip 15 saniye bekledikten sonra tekrar açmanız sorunu çözmenize yardımcı olabilir. " +
+                        "Şimdi yeniden başlatmak için Evet'e daha sonra yeniden başlatmak için Hayır'a tıklayın.",
+                        "Yeniden Başlat", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (restartResult == MessageBoxResult.Yes)
+                    {
+                        ExecuteCommand("shutdown", "/r /t 0");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Discord onarım hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB Yükle butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordPTBInstall_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Yükleme işlemi başlatıldı.\n");
+                
+                var result = System.Windows.MessageBox.Show(
+                    "Discord PTB'yi yüklemek istediğinizden emin misiniz?\n\nBu işlem:\n" +
+                    (chkDiscordUninstallStandard.IsChecked == true ? 
+                        "1. Discord'u kapatacak\n2. Discord'u kaldıracak\n3. ByeDPI kurulumunu yapacak\n4. Discord PTB'yi kuracak" :
+                        "1. ByeDPI kurulumunu yapacak\n2. Discord PTB'yi kuracak"),
+                    "Discord PTB Yükle", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı onay verdi, işlem başlatılıyor...\n");
+                    ShowLoading(true);
+
+                    // Standart Discord kaldırma toggle switch aktif mi kontrol et
+                    if (chkDiscordUninstallStandard.IsChecked == true)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Standart Discord kaldırma seçeneği aktif.\n");
+                        
+                        // 1. Discord'u kapat
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatılıyor...\n");
+                        await CloseDiscordProcessesAsync();
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatıldı.\n");
+
+                        // 2. Standart Discord'u kaldır
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Standart Discord kaldırılıyor...\n");
+                        await UninstallDiscordAsync();
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Standart Discord kaldırıldı.\n");
+
+                        // 3. Discord PTB'yi kaldır (eğer varsa)
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord PTB kaldırılıyor (eğer varsa)...\n");
+                        await UninstallDiscordPTBAsync();
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord PTB kaldırıldı.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Standart Discord kaldırma seçeneği pasif.\n");
+                    }
+
+                    // 4. ByeDPI Split Tunneling kurulumunu çalıştır ve tamamlanmasını bekle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. ByeDPI Split Tunneling kurulumu yapılıyor...\n");
+                    await PerformByeDPISetupSilentAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. ByeDPI Split Tunneling kurulumu tamamlandı.\n");
+
+                    // 5. Discord PTB'yi kur
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5. Discord PTB kuruluyor...\n");
+                    await InstallDiscordPTBAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5. Discord PTB kuruldu.\n");
+
+                    // 6. Durumları güncelle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 6. Discord durumları güncelleniyor...\n");
+                    CheckDiscordStatus();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 6. Discord durumları güncellendi.\n");
+
+                    // 7. Başarı mesajı göster
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Yükleme işlemi başarıyla tamamlandı.\n");
+                    System.Windows.MessageBox.Show("Discord PTB başarıyla yüklendi!", "Başarı", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı işlemi iptal etti.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord PTB yükleme sırasında hata oluştu: {ex.Message}\n");
+                System.Windows.MessageBox.Show($"Discord PTB yükleme hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord Kaldır butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordRemove_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                var result = System.Windows.MessageBox.Show(
+                    "Discord'u kaldırmak istediğinizden emin misiniz?\n\nBu işlem:\n1. Discord'u kapatacak\n2. Discord'u kaldıracak\n3. Discord önbelleğini silecek (Hesabınızdan çıkış yapılır)",
+                    "Discord Kaldır", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma işlemi başlatıldı.\n");
+                    ShowLoading(true);
+
+                    // 1. Discord'u kapat
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatılıyor...\n");
+                    await CloseDiscordProcessesAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord süreçleri kapatıldı.\n");
+
+                    // 2. Discord'u kaldır
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kaldırılıyor...\n");
+                    await UninstallDiscordAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kaldırıldı.\n");
+
+                    // 3. %AppData%/discord klasörünü sil
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. %AppData%/discord klasörü siliniyor...\n");
+                    var discordAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "discord");
+                    if (Directory.Exists(discordAppDataPath))
+                    {
+                        try
+                        {
+                            Directory.Delete(discordAppDataPath, true);
+                            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] %AppData%/discord klasörü başarıyla silindi.\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: %AppData%/discord klasörü silinemedi: {ex.Message}\n");
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] %AppData%/discord klasörü bulunamadı.\n");
+                    }
+
+                    // 4. Durumları güncelle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord durumları güncelleniyor...\n");
+                    CheckDiscordStatus();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord durumları güncellendi.\n");
+
+                    // 5. Başarı mesajı göster
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma işlemi başarıyla tamamlandı.\n");
+                    System.Windows.MessageBox.Show("Discord başarıyla kaldırıldı!", "Başarı", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı Discord kaldırma işlemini iptal etti.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Discord kaldırma hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord kaldırma hatası: {ex.Message}\n");
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord Yükle/Başlat butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordAction_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                // Eğer buton "Yükle" ise onay al
+                if (btnDiscordAction.Content.ToString() == "Yükle")
+                {
+                    var result = System.Windows.MessageBox.Show(
+                        "Discord'u yüklemek istediğinizden emin misiniz?",
+                        "Discord Yükle", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result != MessageBoxResult.Yes)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı Discord yükleme işlemini iptal etti.\n");
+                        return;
+                    }
+                }
+
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Yükleme işlemi başlatıldı.\n");
+                ShowLoading(true);
+
+                // 1. ByeDPI Split Tunneling kurulumunu çalıştır ve tamamlanmasını bekle
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. ByeDPI Split Tunneling kurulumu yapılıyor...\n");
+                await PerformByeDPISetupSilentAsync();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. ByeDPI Split Tunneling kurulumu tamamlandı.\n");
+
+                // 2. Discord'u kur
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kuruluyor...\n");
+                await InstallDiscordAsync();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord kuruldu.\n");
+
+                // 3. Durumları güncelle
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord durumları güncelleniyor...\n");
+                CheckDiscordStatus();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord durumları güncellendi.\n");
+
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Yükleme işlemi başarıyla tamamlandı.\n");
+                System.Windows.MessageBox.Show("Discord başarıyla yüklendi!", "Başarı", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord yükleme sırasında hata oluştu: {ex.Message}\n");
+                System.Windows.MessageBox.Show($"Discord yükleme hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord Başlat butonu tıklama olayı
+        /// </summary>
+        private void BtnDiscordStart_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var discordPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord", "Update.exe");
+                if (File.Exists(discordPath))
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = discordPath,
+                        Arguments = "--processStart Discord.exe",
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Discord başlatma hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB Yükle/Başlat butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordPTBAction_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                // Eğer buton "Yükle" ise onay al
+                if (btnDiscordPTBAction.Content.ToString() == "Yükle")
+                {
+                    var result = System.Windows.MessageBox.Show(
+                        "Discord PTB'yi yüklemek istediğinizden emin misiniz?",
+                        "Discord PTB Yükle", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result != MessageBoxResult.Yes)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı Discord PTB yükleme işlemini iptal etti.\n");
+                        return;
+                    }
+                }
+
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Yükleme işlemi başlatıldı.\n");
+                ShowLoading(true);
+
+                // 1. ByeDPI Split Tunneling kurulumunu çalıştır ve tamamlanmasını bekle
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. ByeDPI Split Tunneling kurulumu yapılıyor...\n");
+                await PerformByeDPISetupSilentAsync();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. ByeDPI Split Tunneling kurulumu tamamlandı.\n");
+
+                // 2. Discord PTB'yi kur
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord PTB kuruluyor...\n");
+                await InstallDiscordPTBAsync();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord PTB kuruldu.\n");
+
+                // 3. Durumları güncelle
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord durumları güncelleniyor...\n");
+                CheckDiscordStatus();
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. Discord durumları güncellendi.\n");
+
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Yükleme işlemi başarıyla tamamlandı.\n");
+                System.Windows.MessageBox.Show("Discord PTB başarıyla yüklendi!", "Başarı", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord PTB yükleme sırasında hata oluştu: {ex.Message}\n");
+                System.Windows.MessageBox.Show($"Discord PTB yükleme hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB Kaldır butonu tıklama olayı
+        /// </summary>
+        private async void BtnDiscordPTBRemove_Click(object sender, RoutedEventArgs e)
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                var result = System.Windows.MessageBox.Show(
+                    "Discord PTB'yi kaldırmak istediğinizden emin misiniz?\n\nBu işlem:\n1. Discord PTB'yi kapatacak\n2. Discord PTB'yi kaldıracak\n3. Discord PTB önbelleğini silecek (Hesabınızdan çıkış yapılır)",
+                    "Discord PTB Kaldır", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma işlemi başlatıldı.\n");
+                    ShowLoading(true);
+
+                    // 1. Discord PTB'yi kapat
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord PTB süreçleri kapatılıyor...\n");
+                    await CloseDiscordProcessesAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 1. Discord PTB süreçleri kapatıldı.\n");
+
+                    // 2. Discord PTB'yi kaldır
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord PTB kaldırılıyor...\n");
+                    await UninstallDiscordPTBAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2. Discord PTB kaldırıldı.\n");
+
+                    // 3. %AppData%/discordptb klasörünü sil
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3. %AppData%/discordptb klasörü siliniyor...\n");
+                    var discordPTBAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "discordptb");
+                    if (Directory.Exists(discordPTBAppDataPath))
+                    {
+                        try
+                        {
+                            Directory.Delete(discordPTBAppDataPath, true);
+                            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] %AppData%/discordptb klasörü başarıyla silindi.\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: %AppData%/discordptb klasörü silinemedi: {ex.Message}\n");
+                        }
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] %AppData%/discordptb klasörü bulunamadı.\n");
+                    }
+
+                    // 4. Durumları güncelle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord durumları güncelleniyor...\n");
+                    CheckDiscordStatus();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 4. Discord durumları güncellendi.\n");
+
+                    // 5. Başarı mesajı göster
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma işlemi başarıyla tamamlandı.\n");
+                    System.Windows.MessageBox.Show("Discord PTB başarıyla kaldırıldı!", "Başarı", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kullanıcı Discord PTB kaldırma işlemini iptal etti.\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Discord PTB kaldırma hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord PTB kaldırma hatası: {ex.Message}\n");
+            }
+            finally
+            {
+                ShowLoading(false);
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB Başlat butonu tıklama olayı
+        /// </summary>
+        private void BtnDiscordPTBStart_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var discordPTBPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordPTB", "Update.exe");
+                if (File.Exists(discordPTBPath))
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = discordPTBPath,
+                        Arguments = "--processStart DiscordPTB.exe",
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Discord PTB başlatma hatası: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Discord yardım butonu tıklama olayı
+        /// </summary>
+        private void BtnHelpDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            // Mevcut tema durumunu kontrol et
+            bool isDarkMode = btnThemeToggle.IsChecked == true;
+            
+            var infoWindow = new Window
+            {
+                Title = "Onarım Yardımı - SplitWire-Turkey",
+                Width = 500,
+                Height = 400,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+                Background = isDarkMode ? 
+                    new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1c1c1d")) :
+                    System.Windows.Media.Brushes.White
+            };
+
+            // Görev çubuğu rengini ayarla - pencere yüklendikten sonra
+            if (isDarkMode && _isTaskbarDarkModeSupported)
+            {
+                infoWindow.Loaded += (s, args) =>
+                {
+                    try
+                    {
+                        var hwnd = new System.Windows.Interop.WindowInteropHelper(infoWindow).Handle;
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            int value = 1;
+                            int result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                            if (result != 0)
+                            {
+                                result = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ref value, sizeof(int));
+                            }
+                            Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlandı: {result == 0}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Yardım penceresi görev çubuğu karanlık mod ayarlanırken hata: {ex.Message}");
+                    }
+                };
+            }
+
+            var mainGrid = new Grid();
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var scrollViewer = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin = new Thickness(20)
+            };
+
+            var contentStack = new StackPanel();
+            
+            var titleText = new TextBlock
+            {
+                Text = "Onarım Kullanımı",
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                FontFamily = new System.Windows.Media.FontFamily("pack://application:,,,/Resources/#Poppins Bold"),
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 20),
+                Foreground = isDarkMode ? System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Black
+            };
+            contentStack.Children.Add(titleText);
+
+            // RichTextBox kullanarak formatlı metin oluştur
+            var helpText = new System.Windows.Controls.RichTextBox
+            {
+                FontSize = 12,
+                FontFamily = new System.Windows.Media.FontFamily("pack://application:,,,/Resources/#Poppins Regular"),
+                VerticalAlignment = VerticalAlignment.Top,
+                Background = System.Windows.Media.Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                IsReadOnly = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Foreground = isDarkMode ? System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Black
+            };
+
+            // Metin içeriğini oluştur
+            var paragraph = new Paragraph();
+            
+            // Ana Not - En üstte
+            var mainNoteTitle = new Run("Not: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var mainNoteText = new Run("Bu sayfadaki butonları kullanarak Discord'un \"Checking for updates…\" ve \"Starting…\" ekranlarında takılı kalması sorunlarını çözmeyi deneyebilirsiniz. Önce Discord'u Onar butonunu kullanarak Discord'un sisteminizde yüklü olan standart versiyonunu onarmayı, bu başarısız olursa Discord PTB Yükle butonunu kullanarak alternatif \"Public Test Build\" versiyonunu indirerek sorununuzu çözmeyi deneyebilirsiniz. Discord PTB versiyonu, stabil genel kanaldan dağıtılan standart Discord versiyonundan güncelleme ve indirme yolları açısından farklı olan resmi bir Discord varyantıdır.");
+            paragraph.Inlines.Add(mainNoteTitle);
+            paragraph.Inlines.Add(mainNoteText);
+            paragraph.Inlines.Add(new LineBreak());
+            paragraph.Inlines.Add(new LineBreak());
+            
+            // Discord'u Onar
+            var repairTitle = new Run("Discord'u Onar: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var repairText = new Run("Discord'u tamamen kaldırır, Discord önbelleğini temizler (Hesabınızdan çıkış yapılır), ByeDPI kurulumunu yapar ve Discord'u, Discord resmi sitesinden yeniden indirerek yükler.");
+            paragraph.Inlines.Add(repairTitle);
+            paragraph.Inlines.Add(repairText);
+            paragraph.Inlines.Add(new LineBreak());
+            paragraph.Inlines.Add(new LineBreak());
+            
+            // Discord PTB Yükle
+            var ptbTitle = new Run("Discord PTB Yükle: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var ptbText = new Run("Discord PTB sürümünü yüklü ise kaldırıp Discord resmi sitesinden Discord PTB sürümünü indirip yükler.");
+            paragraph.Inlines.Add(ptbTitle);
+            paragraph.Inlines.Add(ptbText);
+            paragraph.Inlines.Add(new LineBreak());
+            paragraph.Inlines.Add(new LineBreak());
+
+            // Standart Discord kaldırma toggle
+            var toggleTitle = new Run("Discord PTB için temiz kurulum yap: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var toggleText = new Run("Discord PTB Yükle butonuna tıklandığında bu seçenek aktif ise Discord PTB'yi yüklerken standart Discord'u kaldırır.");
+            paragraph.Inlines.Add(toggleTitle);
+            paragraph.Inlines.Add(toggleText);
+            paragraph.Inlines.Add(new LineBreak());
+            paragraph.Inlines.Add(new LineBreak());
+
+            // Durum kontrolleri
+            var statusTitle = new Run("Durum Kontrolleri: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var statusText = new Run("Yüklü Discord sürümlerini gösterir ve yükleme/kaldırma ile çalıştırma işlemlerini yapar.");
+            paragraph.Inlines.Add(statusTitle);
+            paragraph.Inlines.Add(statusText);
+            paragraph.Inlines.Add(new LineBreak());
+            paragraph.Inlines.Add(new LineBreak());
+
+            // Not bölümü
+            var noteTitle = new Run("Not 2: ")
+            {
+                FontWeight = FontWeights.Bold
+            };
+            var noteText = new Run("Eğer onarım sonucunda da sorun yaşıyorsanız, modeminizi kapatıp 15 saniye bekledikten sonra tekrar açarak sorunun giderilip giderilmediğini test edebilirsiniz. Sorununuz devam ederse Github sayfasının Issues kısmından hata raporu oluşturabilirsiniz. Github sayfasının linki yukarıdaki Hakkında kısmında mevcut.");
+            paragraph.Inlines.Add(noteTitle);
+            paragraph.Inlines.Add(noteText);
+
+            helpText.Document.Blocks.Add(paragraph);
+            contentStack.Children.Add(helpText);
+
+            scrollViewer.Content = contentStack;
+            Grid.SetRow(scrollViewer, 1);
+            mainGrid.Children.Add(scrollViewer);
+
+            // Kapat butonu
+            var closeButton = new System.Windows.Controls.Button
+            {
+                Content = "Kapat",
+                Width = 100,
+                Height = 35,
+                Margin = new Thickness(0, 20, 0, 20),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Background = isDarkMode ? 
+                    new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#373738")) :
+                    System.Windows.Media.Brushes.LightGray,
+                Foreground = isDarkMode ? System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Black
+            };
+            closeButton.Click += (s, args) => infoWindow.Close();
+            Grid.SetRow(closeButton, 2);
+            mainGrid.Children.Add(closeButton);
+
+            infoWindow.Content = mainGrid;
+            infoWindow.ShowDialog();
+        }
+
+        /// <summary>
+        /// Discord süreçlerini kapatır
+        /// </summary>
+        private async Task CloseDiscordProcessesAsync()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord süreçleri kapatılıyor...\n");
+                
+                var discordProcesses = Process.GetProcessesByName("Discord");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {discordProcesses.Length} Discord süreci bulundu.\n");
+                
+                foreach (var process in discordProcesses)
+                {
+                    try
+                    {
+                        process.Kill();
+                        await Task.Delay(1000);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord süreci kapatıldı: PID {process.Id}\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord süreç kapatma hatası: {ex.Message}\n");
+                        Debug.WriteLine($"Discord süreç kapatma hatası: {ex.Message}");
+                    }
+                }
+
+                // Update.exe süreçlerini de kapat
+                var updateProcesses = Process.GetProcessesByName("Update");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {updateProcesses.Length} Update.exe süreci bulundu.\n");
+                
+                foreach (var process in updateProcesses)
+                {
+                    try
+                    {
+                        if (process.MainModule?.FileName?.Contains("Discord") == true)
+                        {
+                            process.Kill();
+                            await Task.Delay(1000);
+                            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Update.exe süreci kapatıldı: PID {process.Id}\n");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Update süreç kapatma hatası: {ex.Message}\n");
+                        Debug.WriteLine($"Discord Update süreç kapatma hatası: {ex.Message}");
+                    }
+                }
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord süreçleri kapatma işlemi tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord süreç kapatma genel hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord süreç kapatma hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Discord'u kaldırır
+        /// </summary>
+        private async Task UninstallDiscordAsync()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma işlemi başlatıldı.\n");
+                
+                var discordPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord", "Update.exe");
+                if (File.Exists(discordPath))
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Update.exe bulundu: {discordPath}\n");
+                    
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = discordPath,
+                        Arguments = "--uninstall -s",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    var process = Process.Start(psi);
+                    if (process != null)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma başlatıldı, PID: {process.Id}, tamamlanması bekleniyor...\n");
+                        await process.WaitForExitAsync();
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma tamamlandı. Exit code: {process.ExitCode}\n");
+                        
+                        // Kaldırma tamamlandıktan sonra ek bekleme
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5 saniye bekleniyor...\n");
+                        await Task.Delay(5000); // Daha uzun bekleme süresi
+                        
+                        // .dead dosyasının oluşmasını bekle
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3 saniye daha bekleniyor (.dead dosyası için)...\n");
+                        await Task.Delay(3000);
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma süreci başlatılamadı.\n");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord Update.exe bulunamadı: {discordPath}\n");
+                }
+
+                // AppData klasörünü sil
+                var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "discord");
+                if (Directory.Exists(appDataPath))
+                {
+                    try
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord AppData klasörü siliniyor: {appDataPath}\n");
+                        Directory.Delete(appDataPath, true);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord AppData klasörü başarıyla silindi.\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord AppData silme hatası: {ex.Message}\n");
+                        Debug.WriteLine($"Discord AppData silme hatası: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord AppData klasörü bulunamadı: {appDataPath}\n");
+                }
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kaldırma işlemi tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord kaldırma hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord kaldırma hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB'yi kaldırır
+        /// </summary>
+        private async Task UninstallDiscordPTBAsync()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma işlemi başlatıldı.\n");
+                
+                var discordPTBPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordPTB", "Update.exe");
+                if (File.Exists(discordPTBPath))
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Update.exe bulundu: {discordPTBPath}\n");
+                    
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = discordPTBPath,
+                        Arguments = "--uninstall -s",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    var process = Process.Start(psi);
+                    if (process != null)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma başlatıldı, PID: {process.Id}, tamamlanması bekleniyor...\n");
+                        await process.WaitForExitAsync();
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma tamamlandı. Exit code: {process.ExitCode}\n");
+                        
+                        // Kaldırma tamamlandıktan sonra ek bekleme
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 5 saniye bekleniyor...\n");
+                        await Task.Delay(5000); // Daha uzun bekleme süresi
+                        
+                        // .dead dosyasının oluşmasını bekle
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 3 saniye daha bekleniyor (.dead dosyası için)...\n");
+                        await Task.Delay(3000);
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma süreci başlatılamadı.\n");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB Update.exe bulunamadı: {discordPTBPath}\n");
+                }
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kaldırma işlemi tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord PTB kaldırma hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord PTB kaldırma hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Discord'u kurar
+        /// </summary>
+        private async Task InstallDiscordAsync()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum işlemi başlatıldı.\n");
+                
+                // Discord klasörlerini sil (%localappdata%/Discord ve %appdata%/discord)
+                var discordLocalAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord");
+                var discordAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "discord");
+                
+                // %localappdata%/Discord klasörünü sil
+                if (Directory.Exists(discordLocalAppDataPath))
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü siliniyor (LocalAppData): {discordLocalAppDataPath}\n");
+                    try
+                    {
+                        Directory.Delete(discordLocalAppDataPath, true);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü başarıyla silindi (LocalAppData).\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: Discord klasörü silinemedi (LocalAppData): {ex.Message}\n");
+                        Debug.WriteLine($"Discord klasörü silme hatası (LocalAppData): {ex.Message}");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü bulunamadı (LocalAppData), silme işlemi atlandı.\n");
+                }
+                
+                // %appdata%/discord klasörünü sil
+                if (Directory.Exists(discordAppDataPath))
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü siliniyor (AppData): {discordAppDataPath}\n");
+                    try
+                    {
+                        Directory.Delete(discordAppDataPath, true);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü başarıyla silindi (AppData).\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: Discord klasörü silinemedi (AppData): {ex.Message}\n");
+                        Debug.WriteLine($"Discord klasörü silme hatası (AppData): {ex.Message}");
+                    }
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörü bulunamadı (AppData), silme işlemi atlandı.\n");
+                }
+                
+                var resPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res");
+                var discordSetupPath = Path.Combine(resPath, "DiscordSetup.exe");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kurulum dosyası yolu: {discordSetupPath}\n");
+
+                // DiscordSetup.exe'yi 3 kez deneyerek indir
+                var downloadUrl = "https://discord.com/api/downloads/distributions/app/installers/latest?channel=stable&platform=win&arch=x64";
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord indirme başlatılıyor: {downloadUrl}\n");
+                var setupBytes = await DownloadFileWithRetryAsync(downloadUrl, "DiscordSetup.exe", 3);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord indirme tamamlandı, boyut: {setupBytes.Length} bytes\n");
+
+                // İndirilen dosyayı kaydet
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum dosyası kaydediliyor...\n");
+                await File.WriteAllBytesAsync(discordSetupPath, setupBytes);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum dosyası kaydedildi.\n");
+
+                // DiscordSetup.exe'yi çalıştır
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum başlatılıyor...\n");
+                var psi = new ProcessStartInfo
+                {
+                    FileName = discordSetupPath,
+                    Arguments = "",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                var process = Process.Start(psi);
+                if (process != null)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum başlatıldı, PID: {process.Id}, tamamlanması bekleniyor...\n");
+                    await process.WaitForExitAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum tamamlandı. Exit code: {process.ExitCode}\n");
+                    
+                    // Kurulum tamamlandıktan sonra ek bekleme
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 8 saniye bekleniyor (kurulum için)...\n");
+                    await Task.Delay(8000); // Kurulum için daha uzun bekleme süresi
+                    
+                    // DiscordPTB.exe, Discord.exe ve Update.exe işlemlerini durdur
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe, Discord.exe ve Update.exe işlemleri durduruluyor...\n");
+                    try
+                    {
+                        var discordPTBProcesses = Process.GetProcessesByName("DiscordPTB");
+                        var discordProcesses = Process.GetProcessesByName("Discord");
+                        var updateProcesses = Process.GetProcessesByName("Update");
+                        
+                        foreach (var proc in discordPTBProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        foreach (var proc in discordProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        foreach (var proc in updateProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Update.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Update.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe, Discord.exe ve Update.exe işlemleri durdurma işlemi tamamlandı.\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: İşlem durdurma hatası: {ex.Message}\n");
+                        Debug.WriteLine($"İşlem durdurma hatası: {ex.Message}");
+                    }
+                    
+                    // Kurulum dosyasının silinmesini bekle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2 saniye daha bekleniyor (dosya silme için)...\n");
+                    await Task.Delay(2000);
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum süreci başlatılamadı.\n");
+                }
+
+                // Kurulum dosyasını sil
+                try
+                {
+                    if (File.Exists(discordSetupPath))
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum dosyası siliniyor...\n");
+                        File.Delete(discordSetupPath);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum dosyası başarıyla silindi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum dosyası bulunamadı, silme işlemi atlandı.\n");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordSetup.exe silme hatası: {ex.Message}\n");
+                    Debug.WriteLine($"DiscordSetup.exe silme hatası: {ex.Message}");
+                }
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord kurulum işlemi tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord kurulum hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord kurulum hatası: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Discord PTB'yi kurar
+        /// </summary>
+        private async Task InstallDiscordPTBAsync()
+        {
+            var logPath = GetDiscordRepairLogPath();
+            
+            try
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum işlemi başlatıldı.\n");
+                
+                // Discord klasörlerini silme işlemi sadece switch aktifken yapılır
+                // Bu işlem BtnDiscordPTBInstall_Click'te zaten yapılıyor
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord klasörleri silme işlemi atlandı (zaten BtnDiscordPTBInstall_Click'te yapıldı).\n");
+                
+                var resPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res");
+                var discordPTBSetupPath = Path.Combine(resPath, "DiscordPTBSetup.exe");
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Kurulum dosyası yolu: {discordPTBSetupPath}\n");
+
+                // DiscordPTBSetup.exe'yi 3 kez deneyerek indir
+                var downloadUrl = "https://discord.com/api/download/ptb?platform=win";
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB indirme başlatılıyor: {downloadUrl}\n");
+                var setupBytes = await DownloadFileWithRetryAsync(downloadUrl, "DiscordPTBSetup.exe", 3);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB indirme tamamlandı, boyut: {setupBytes.Length} bytes\n");
+
+                // İndirilen dosyayı kaydet
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum dosyası kaydediliyor...\n");
+                await File.WriteAllBytesAsync(discordPTBSetupPath, setupBytes);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum dosyası kaydedildi.\n");
+
+                // DiscordPTBSetup.exe'yi çalıştır
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum başlatılıyor...\n");
+                var psi = new ProcessStartInfo
+                {
+                    FileName = discordPTBSetupPath,
+                    Arguments = "",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                var process = Process.Start(psi);
+                if (process != null)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum başlatıldı, PID: {process.Id}, tamamlanması bekleniyor...\n");
+                    await process.WaitForExitAsync();
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum tamamlandı. Exit code: {process.ExitCode}\n");
+                    
+                    // Kurulum tamamlandıktan sonra ek bekleme
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 8 saniye bekleniyor (kurulum için)...\n");
+                    await Task.Delay(8000); // Kurulum için daha uzun bekleme süresi
+                    
+                    // DiscordPTB.exe, Discord.exe ve Update.exe işlemlerini durdur
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe, Discord.exe ve Update.exe işlemleri durduruluyor...\n");
+                    try
+                    {
+                        var discordPTBProcesses = Process.GetProcessesByName("DiscordPTB");
+                        var discordProcesses = Process.GetProcessesByName("Discord");
+                        var updateProcesses = Process.GetProcessesByName("Update");
+                        
+                        foreach (var proc in discordPTBProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        foreach (var proc in discordProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        foreach (var proc in updateProcesses)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Update.exe işlemi durduruldu (PID: {proc.Id})\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Update.exe işlemi durdurulamadı (PID: {proc.Id}): {ex.Message}\n");
+                            }
+                        }
+                        
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTB.exe, Discord.exe ve Update.exe işlemleri durdurma işlemi tamamlandı.\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UYARI: İşlem durdurma hatası: {ex.Message}\n");
+                        Debug.WriteLine($"İşlem durdurma hatası: {ex.Message}");
+                    }
+                    
+                    // Kurulum dosyasının silinmesini bekle
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 2 saniye daha bekleniyor (dosya silme için)...\n");
+                    await Task.Delay(2000);
+                }
+                else
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum süreci başlatılamadı.\n");
+                }
+
+                // Kurulum dosyasını sil
+                try
+                {
+                    if (File.Exists(discordPTBSetupPath))
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum dosyası siliniyor...\n");
+                        File.Delete(discordPTBSetupPath);
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum dosyası başarıyla silindi.\n");
+                    }
+                    else
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum dosyası bulunamadı, silme işlemi atlandı.\n");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DiscordPTBSetup.exe silme hatası: {ex.Message}\n");
+                    Debug.WriteLine($"DiscordPTBSetup.exe silme hatası: {ex.Message}");
+                }
+                
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Discord PTB kurulum işlemi tamamlandı.\n");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HATA: Discord PTB kurulum hatası: {ex.Message}\n");
+                Debug.WriteLine($"Discord PTB kurulum hatası: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Dosyayı belirtilen sayıda tekrar deneyerek indirir
+        /// </summary>
+        /// <param name="downloadUrl">İndirilecek dosyanın URL'i</param>
+        /// <param name="fileName">Dosya adı (hata mesajları için)</param>
+        /// <param name="maxRetries">Maksimum tekrar deneme sayısı</param>
+        /// <returns>İndirilen dosyanın byte array'i</returns>
+        private async Task<byte[]> DownloadFileWithRetryAsync(string downloadUrl, string fileName, int maxRetries)
+        {
+            Exception lastException = null;
+            
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    Debug.WriteLine($"{fileName} indirme denemesi {attempt}/{maxRetries} başlatılıyor...");
+                    
+                    using (var httpClient = CreateHttpClientWithAdvancedSettings())
+                    {
+                        // Timeout ayarla (45 saniye - SSL handshake için daha uzun)
+                        httpClient.Timeout = TimeSpan.FromSeconds(45);
+                        
+                        var setupBytes = await httpClient.GetByteArrayAsync(downloadUrl);
+                        
+                        if (setupBytes != null && setupBytes.Length > 0)
+                        {
+                            Debug.WriteLine($"{fileName} başarıyla indirildi. Boyut: {setupBytes.Length} byte");
+                            return setupBytes;
+                        }
+                        else
+                        {
+                            throw new Exception("İndirilen dosya boş veya geçersiz");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lastException = ex;
+                    Debug.WriteLine($"{fileName} indirme denemesi {attempt}/{maxRetries} başarısız: {ex.Message}");
+                    
+                    if (attempt < maxRetries)
+                    {
+                        // Sonraki denemeden önce bekle (artan süre: 3, 6, 9 saniye)
+                        var waitTime = attempt * 3;
+                        Debug.WriteLine($"Sonraki deneme öncesi {waitTime} saniye bekleniyor...");
+                        await Task.Delay(waitTime * 1000);
+                    }
+                }
+            }
+            
+            // Tüm denemeler başarısız oldu
+            var errorMessage = $"{fileName} dosyası {maxRetries} kez denendikten sonra indirilemedi.\n\n" +
+                             $"Son hata: {lastException?.Message}\n\n" +
+                             $"Hata detayı: {lastException?.ToString()}\n\n" +
+                             $"İndirme URL'i: {downloadUrl}\n\n" +
+                             $"Çözüm önerileri:\n" +
+                             $"• İnternet bağlantınızı kontrol edin\n" +
+                             $"• Güvenlik yazılımınızın Discord'u engellemediğinden emin olun\n" +
+                             $"• Proxy veya VPN kullanıyorsanız kapatmayı deneyin\n" +
+                             $"• Windows Defender veya firewall ayarlarını kontrol edin";
+            
+            throw new Exception(errorMessage);
+        }
+
+        /// <summary>
+        /// Gelişmiş ayarlarla HttpClient oluşturur
+        /// </summary>
+        private System.Net.Http.HttpClient CreateHttpClientWithAdvancedSettings()
+        {
+            var handler = new System.Net.Http.HttpClientHandler();
+            
+            // SSL/TLS ayarları
+            handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
+            
+            // Sertifika doğrulama ayarları
+            handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
+            {
+                // Geliştirme ortamında sertifika hatalarını kabul et
+                if (sslPolicyErrors == System.Net.Security.SslPolicyErrors.None)
+                    return true;
+                
+                // Sadece belirli hataları kabul et
+                if (sslPolicyErrors == System.Net.Security.SslPolicyErrors.RemoteCertificateNameMismatch ||
+                    sslPolicyErrors == System.Net.Security.SslPolicyErrors.RemoteCertificateChainErrors)
+                {
+                    Debug.WriteLine($"SSL sertifika uyarısı kabul edildi: {sslPolicyErrors}");
+                    return true;
+                }
+                
+                return false;
+            };
+            
+            // Proxy ayarları
+            handler.UseProxy = false; // Proxy kullanma
+            handler.Proxy = null;
+            
+            // Bağlantı ayarları
+            handler.MaxConnectionsPerServer = 1;
+            handler.MaxAutomaticRedirections = 3;
+            
+            // Keep-alive ayarları
+            handler.UseDefaultCredentials = false;
+            
+            var httpClient = new System.Net.Http.HttpClient(handler);
+            
+            // User-Agent ekle
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            
+            // Accept header ekle
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/octet-stream, application/exe, */*");
+            
+            return httpClient;
+        }
+
+        #endregion
     }
 } 

@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="SplitWire-Turkey" 
-        Height="640" Width="500"
-        MinHeight="640" MinWidth="500"
+        Height="640" Width="600"
+        MinHeight="640" MinWidth="600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -570,7 +570,7 @@
                                 Click="BtnExit_Click">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
-                                    <Setter Property="Background" Value="#c25151"/>
+                                    <Setter Property="Background" Value="#8B0000"/>
                                     <Setter Property="BorderBrush" Value="#FF0000"/>
                                     <Setter Property="Foreground" Value="White"/>
                                     <Style.Triggers>
@@ -1025,6 +1025,212 @@
                 </Grid>
             </TabItem>
             
+            <!-- Onarım Tab -->
+            <TabItem Header="Onarım" FontFamily="{StaticResource PoppinsBold}">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    
+                    <!-- Discord Onar Butonu -->
+                    <Button x:Name="btnDiscordRepair" 
+                            Grid.Row="0"
+                            Content="Discord'u Onar" 
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Width="300"
+                            Height="50"
+                            FontSize="16"
+                            FontFamily="{StaticResource PoppinsBold}"
+                            Background="Transparent"
+                            Margin="0,0,0,15"
+                            Click="BtnDiscordRepair_Click"/>
+                    
+                    <!-- Discord PTB Yükle Butonu -->
+                    <Button x:Name="btnDiscordPTBInstall" 
+                            Grid.Row="1"
+                            Content="Discord PTB Yükle" 
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Width="300"
+                            Height="50"
+                            FontSize="16"
+                            FontFamily="{StaticResource PoppinsBold}"
+                            Background="Transparent"
+                            Margin="0,0,0,15"
+                            Click="BtnDiscordPTBInstall_Click"/>
+                    
+                    <!-- Standart Discord Kaldırma Toggle Switch -->
+                    <StackPanel Grid.Row="2" 
+                               Orientation="Horizontal" 
+                               HorizontalAlignment="Center" 
+                               Margin="0,5,0,20">
+                        <ToggleButton x:Name="chkDiscordUninstallStandard" 
+                                     Style="{StaticResource ModernToggleSwitchStyle}"
+                                     IsChecked="False"/>
+                        <TextBlock Text="Discord PTB için temiz kurulum yap" 
+                                   FontFamily="{StaticResource Montserrat}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="250"/>
+                    </StackPanel>
+                    
+                    <!-- Discord Durum Kontrolü -->
+                    <Grid Grid.Row="3" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Discord:" 
+                                   VerticalAlignment="Center" 
+                                   FontWeight="Bold"
+                                   FontFamily="{StaticResource PoppinsRegular}"
+                                   HorizontalAlignment="Left"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="150,0,0,0">
+                            <Ellipse x:Name="discordStatus" 
+                                     Width="12" 
+                                     Height="12" 
+                                     Fill="Gray" 
+                                     Margin="0,0,10,0"
+                                     />
+                            <TextBlock x:Name="lblDiscordStatus" 
+                                       Text="Yüklü Değil" 
+                                       VerticalAlignment="Center"
+                                       FontFamily="{StaticResource PoppinsRegular}"/>
+                        </StackPanel>
+                        
+                        <Button Grid.Column="2"
+                                x:Name="btnDiscordAction" 
+                                Content="Yükle" 
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Width="80"
+                                Height="30"
+                                FontSize="12"
+                                FontFamily="{StaticResource PoppinsRegular}"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,0"
+                                Click="BtnDiscordAction_Click"/>
+                        
+                        <Button Grid.Column="3"
+                                x:Name="btnDiscordRemove" 
+                                Content="Kaldır" 
+                                Width="80"
+                                Height="30"
+                                FontSize="12"
+                                FontFamily="{StaticResource PoppinsRegular}"
+                                HorizontalAlignment="Right"
+                                Visibility="Collapsed"
+                                Click="BtnDiscordRemove_Click"
+                                Margin="10,0,0,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                                    <Setter Property="Background" Value="#8B0000"/>
+                                    <Setter Property="BorderBrush" Value="#FF0000"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#b83737"/>
+                                            <Setter Property="BorderBrush" Value="#FF0000"/>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    
+                    <!-- Discord PTB Durum Kontrolü -->
+                    <Grid Grid.Row="4" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Discord PTB:" 
+                                   VerticalAlignment="Center" 
+                                   FontWeight="Bold"
+                                   FontFamily="{StaticResource PoppinsRegular}"
+                                   HorizontalAlignment="Left"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="125,0,0,0">
+                            <Ellipse x:Name="discordPTBStatus" 
+                                     Width="12" 
+                                     Height="12" 
+                                     Fill="Gray" 
+                                     Margin="0,0,10,0"
+                                     HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="lblDiscordPTBStatus" 
+                                       Text="Yüklü Değil" 
+                                       VerticalAlignment="Center"
+                                       FontFamily="{StaticResource PoppinsRegular}"/>
+                        </StackPanel>
+                        
+                        <Button Grid.Column="2"
+                                x:Name="btnDiscordPTBAction" 
+                                Content="Yükle" 
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Width="80"
+                                Height="30"
+                                FontSize="12"
+                                FontFamily="{StaticResource PoppinsRegular}"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,0"
+                                Click="BtnDiscordPTBAction_Click"/>
+                        
+                        <Button Grid.Column="3"
+                                x:Name="btnDiscordPTBRemove" 
+                                Content="Kaldır" 
+                                Width="80"
+                                Height="30"
+                                FontSize="12"
+                                FontFamily="{StaticResource PoppinsRegular}"
+                                HorizontalAlignment="Right"
+                                Margin="10,0,0,0"
+                                Visibility="Collapsed"
+                                Click="BtnDiscordPTBRemove_Click">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                                    <Setter Property="Background" Value="#8B0000"/>
+                                    <Setter Property="BorderBrush" Value="#FF0000"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#b83737"/>
+                                            <Setter Property="BorderBrush" Value="#FF0000"/>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    
+                    <!-- Discord Yardım Butonu -->
+                    <Button x:Name="btnHelpDiscord" 
+                            Grid.Row="6"
+                            Content="?" 
+                            Style="{StaticResource InfoButtonStyle}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,15,15"
+                            Click="BtnHelpDiscord_Click"/>
+                </Grid>
+            </TabItem>
+
             <!-- Advanced Tab -->
             <TabItem Header="Gelişmiş" FontFamily="{StaticResource PoppinsBold}">
                 <Grid Margin="16">
