@@ -1,41 +1,25 @@
 ---
 name: Hata Raporu
-about: Gelişmemize yardımcı olmak için bir hata raporu oluşturun
+about: Gelişmemize  ve sorununuzun çözülmesine yardımcı olmak için bir hata raporu
+  oluşturun
 title: "[HATA]"
 labels: ''
 assignees: ''
 
 ---
 
-Hatanın Tanımı
-Hatanın ne olduğuna dair açık ve net bir açıklama.
+Hatanın Tanımı:
 
-Yeniden Üretme Adımları
-Hatanın nasıl oluştuğunu yeniden üretmek için adımlar:
+Windows sürümünüz:
 
-Şuraya git: '...'
+Kullandığınız SplitWire-Turkey sürümü:
 
-Şuna tıkla: '...'
+İnternet servis sağlayıcınız:
 
-Aşağı kaydır: '...'
+Gelişmiş sekmesinin ekran görüntüsü:
 
-Hata ile karşılaş
+C:\Program Files\SplitWire-Turkey\logs klasöründe bulunan tüm .log dosyaları:
 
-Beklenen Davranış
-Ne olmasını beklediğinize dair açık ve net bir açıklama.
+GoodbyeDPI/Cloudflare WARP/Diğer VPN Kaspersky veya Diğer VPN Uygulamaları Sisteminizde Yüklü Mü ?:
 
-Ekran Görüntüleri
-Varsa, durumu açıklamak için ekran görüntüleri ekleyin.
-
-Masaüstü (lütfen aşağıdaki bilgileri tamamlayın):
-
-İşletim Sistemi:
-
-Set-up ile/ZIP Dosyası ile Kullanım:
-
-İnternet Servis Sağlayıcısı:
-
-GoodbyeDPI/Cloudflare WARP/Diğer VPN Uygulamaları Sisteminizde Yüklü Mü ?:
-
-Ek Bilgiler
-Sorunla ilgili eklemek istediğiniz başka bir bilgi varsa buraya yazabilirsiniz.
+Ek Bilgiler:
