@@ -8,7 +8,7 @@ assignees: ''
 
 ---
 
-Hatanın Tanımı:
+Hatanın tanımı:
 
 Windows sürümünüz:
 
@@ -16,10 +16,8 @@ Kullandığınız SplitWire-Turkey sürümü:
 
 İnternet servis sağlayıcınız:
 
-Gelişmiş sekmesinin ekran görüntüsü:
+Cloudflare WARP, Kaspersky veya Diğer VPN uygulamaları sisteminizde yüklü mü; yüklü ise hangileri:
 
-C:\Program Files\SplitWire-Turkey\logs klasöründe bulunan tüm .log dosyaları:
+Ek Bilgiler (İsteğe bağlı):
 
-GoodbyeDPI/Cloudflare WARP/Diğer VPN Kaspersky veya Diğer VPN Uygulamaları Sisteminizde Yüklü Mü ?:
-
-Ek Bilgiler:
+**Gelişmiş sekmesinin ekran görüntüsü ve C:\Program Files\SplitWire-Turkey\logs klasöründe bulunan tüm .log dosyalarını aşağıda bulunan `Paste, drop or click to add files` butonuna tıklayarak raporunuza ekleyin ve yukarıdaki bilgileri eksiksiz olarak doldurun. Aksi halde hata raporunuz yanıtlanmayacak ve KAPATILACAKTIR**
