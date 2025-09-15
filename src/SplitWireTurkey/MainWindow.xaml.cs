@@ -3508,10 +3508,8 @@ try {{
 
         private string GetLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -3548,10 +3546,8 @@ try {{
 
         private string GetGoodbyeDPILogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -3562,10 +3558,8 @@ try {{
 
         private string GetDNSLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -3576,10 +3570,8 @@ try {{
 
         private string GetZapretLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -3611,10 +3603,8 @@ try {{
         /// </summary>
         private string GetDiscordRepairLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -3862,10 +3852,8 @@ try {{
 
         private string GetStandardSetupLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
@@ -10948,10 +10936,8 @@ echo Hizmet kurulum işlemi tamamlandı.
         // Uninstall log dosyası yolu
         private string GetUninstallLogPath()
         {
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var exeDirectory = Path.GetDirectoryName(exePath);
-            var logsDirectory = Path.Combine(exeDirectory, "logs");
-            
+            var logsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SplitWire-Turkey", "Logs");
+
             if (!Directory.Exists(logsDirectory))
             {
                 Directory.CreateDirectory(logsDirectory);
