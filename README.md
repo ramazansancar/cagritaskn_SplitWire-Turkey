@@ -3,15 +3,17 @@
 </p>
 
 # <p align="center"><strong></b>SplitWire-Turkey</strong></p>
-
+<p align="center">
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
-
+</p>
+<p align="center"><strong></b>Multilingual README (TR/EN/RU)</strong></p>
+<p align="center">
 [![TR](https://img.shields.io/badge/README-TR-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md)
 [![EN](https://img.shields.io/badge/README-EN-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
 [![RU](https://img.shields.io/badge/README-RU-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
-
+</p>
 
 # SplitWire-Turkey
 
@@ -154,11 +156,11 @@
 
 ## Dil Seçenekleri / Language Options / Варианты языка
 
-- SplitWire-Turkey'i çalıştırdığınızda SplitWire-Turkey logosunun altında bulunan dil menüsü butonu ile dil seçeneklerini görüp programın dilini dğeiştirebilirsiniz. Şuan için Türkçe, English ve Русский dilleri mevcut. (Türkçe README dosyasını açmak için buraya tıklayın)[https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md]
+- SplitWire-Turkey'i çalıştırdığınızda SplitWire-Turkey logosunun altında bulunan dil menüsü butonu ile dil seçeneklerini görüp programın dilini dğeiştirebilirsiniz. Şuan için Türkçe, English ve Русский dilleri mevcut. [Türkçe README dosyasını açmak için buraya tıklayın](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md)
 
-- When you run SplitWire-Turkey, you can view language options and change the program's language using the language menu button located below the SplitWire-Turkey logo. Currently, Turkish, English and Русский languages are available. (Click here to open English README file.)[https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md]
+- When you run SplitWire-Turkey, you can view language options and change the program's language using the language menu button located below the SplitWire-Turkey logo. Currently, Turkish, English and Русский languages are available. [Click here to open English README file.](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
 
-- При запуске SplitWire-Turkey вы можете просматривать языковые опции и изменять язык программы с помощью кнопки языкового меню, расположенной под логотипом SplitWire-Turkey. В настоящее время доступны турецкий, английский и русский языки. (Нажмите здесь, чтобы открыть файл README на английском языке.)[https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md]
+- При запуске SplitWire-Turkey вы можете просматривать языковые опции и изменять язык программы с помощью кнопки языкового меню, расположенной под логотипом SplitWire-Turkey. В настоящее время доступны турецкий, английский и русский языки. [Нажмите здесь, чтобы открыть файл README на английском языке.](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
 
 ---
 
