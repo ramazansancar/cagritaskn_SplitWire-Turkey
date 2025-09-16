@@ -2,20 +2,17 @@
   <img width="auto" height="128" src="https://github.com/cagritaskn/SplitWire-Turkey/blob/main/src/SplitWireTurkey/Resources/splitwire-logo-128.png">
 </p>
 
-# <p align="center"><strong></b>SplitWire-Turkey</strong></p>
-<p align="center">
+# <p align="center"><strong>SplitWire-Turkey</strong></p>
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/)
-[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
+<div align="center">
 
-<p align="center"><strong></b>Multilingual README (TR/EN/RU)</strong></p>
+<strong>Multilingual README (TR/EN/RU)</strong>
 
-[![TR](https://img.shields.io/badge/README-TR-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md)
-[![EN](https://img.shields.io/badge/README-EN-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
-[![RU](https://img.shields.io/badge/README-RU-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
+[![TR](https://img.shields.io/badge/README-TR-blue.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md)
+[![EN](https://img.shields.io/badge/README-EN-blue.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
+[![RU](https://img.shields.io/badge/README-RU-blue.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
 
-</p>
+</div>
 
 # SplitWire-Turkey
 
@@ -190,7 +187,7 @@
 
 - Discord "Mesajlar yüklenemedi" hatası: Discord'un kendisi şüpheli IP değişiklikleri tespit ettiğinde ya da Cloudflare WARP kötüye kullanım tespit ettiğinde bu sorun yaşanıyor. Bu sorunu yaşarsanız, modeminizi kapatıp 15-30 saniye arasında bekledikten sonra tekrar başlatın. Daha sonra bilgisayarınızı yeniden başlatıp sorunun giderilip giderilmediğini test edin. Bu şekilde de çözüme ulaşamazsanız C:\Users\\-Kullanıcı Adı-\AppData\Roaming\discord klasörünü silerek Discord önbelleğini sıfırlamayı deneyebilirsiniz. (Bu yöntem Discord hesabınızdan çıkış yapacaktır, tekrar giriş yapmanız istenir) Eğer bu şekilde de çözüme ulaşamazsanız diğer yöntemleri deneyin.
 
-- Hata raporu oluşturma: (SplitWire-Turkey Issues sayfası)[https://github.com/cagritaskn/SplitWire-Turkey/issues]'na giderek sağ üstte bulunan **New Issue** butonuna tıklayıp, AppData\Local\SplitWire-Turkey\Logs klasöründeki .log dosyalarını da raporunuza ekleyerek bildirimde bulunabilirsiniz. Logs klasörünü SplitWire-Turkey programının Hakkında sayfasının en altında bulunan Logs Klasörünü Aç butonu ile açabilirsiniz.
+- Hata raporu oluşturma: [SplitWire-Turkey Issues sayfası](https://github.com/cagritaskn/SplitWire-Turkey/issues)'na giderek sağ üstte bulunan **New Issue** butonuna tıklayıp, AppData\Local\SplitWire-Turkey\Logs klasöründeki .log dosyalarını da raporunuza ekleyerek bildirimde bulunabilirsiniz. Logs klasörünü SplitWire-Turkey programının Hakkında sayfasının en altında bulunan Logs Klasörünü Aç butonu ile açabilirsiniz.
 
 ---
 
