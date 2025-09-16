@@ -4,6 +4,7 @@
 
 # <p align="center"><strong></b>SplitWire-Turkey</strong></p>
 <center>
+
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
@@ -13,6 +14,7 @@
 [![TR](https://img.shields.io/badge/README-TR-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/README.md)
 [![EN](https://img.shields.io/badge/README-EN-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
 [![RU](https://img.shields.io/badge/README-RU-red.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
+
 </center>
 
 # SplitWire-Turkey
