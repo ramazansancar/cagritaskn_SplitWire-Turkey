@@ -78,8 +78,8 @@ namespace SplitWireTurkey.Services
                 var wiresockExe = FindWireSockPath();
                 if (string.IsNullOrEmpty(wiresockExe) || !File.Exists(wiresockExe))
                 {
-                    System.Windows.MessageBox.Show("WireSock kurulumu bulunamadı. Birazdan indirme işlemi için onay alınacak.", 
-                        "WireSock Bulunamadı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show(LanguageManager.GetText("messages", "wiresock_not_found"), 
+                        LanguageManager.GetText("messages", "wiresock_not_found_title"), MessageBoxButton.OK, MessageBoxImage.Information);
                     return false;
                 }
 
@@ -103,8 +103,8 @@ namespace SplitWireTurkey.Services
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show("WireSock hizmeti kuruldu ancak başlatılamadı. Hizmet zaten çalışıyor olabilir. Manuel olarak başlatmayı deneyin.", 
-                            "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show(LanguageManager.GetText("messages", "wiresock_service_installed_not_started"), 
+                            LanguageManager.GetText("messages", "wiresock_service_warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
                         return true; // Still return true since service was installed
                     }
                 }
@@ -114,22 +114,22 @@ namespace SplitWireTurkey.Services
                     var serviceQueryResult = await ExecuteCommandAsync("sc", "query wiresock-client-service");
                     if (serviceQueryResult == 0)
                     {
-                        System.Windows.MessageBox.Show($"WireSock hizmeti kuruldu (Return code: {result}). Hizmet zaten mevcut olabilir.", 
-                            "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wiresock_service_installed_warning"), result), 
+                            LanguageManager.GetText("messages", "wiresock_service_warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
                         return true;
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show($"Kurulum başarısız. Return code: {result}", 
-                            "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wiresock_install_failed"), result), 
+                            LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Hizmet kurulumu sırasında hata: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wiresock_service_error"), ex.Message), 
+                    LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -152,15 +152,15 @@ namespace SplitWireTurkey.Services
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show($"Hizmet kaldırılamadı. Return code: {result}", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wiresock_remove_failed"), result), 
+                        LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Hizmet kaldırılamadı: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wiresock_remove_error"), ex.Message), 
+                    LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }

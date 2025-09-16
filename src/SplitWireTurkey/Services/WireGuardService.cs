@@ -28,7 +28,7 @@ namespace SplitWireTurkey.Services
                 var wgcfPath = await DownloadWgcfAsync();
                 if (string.IsNullOrEmpty(wgcfPath))
                 {
-                    System.Windows.MessageBox.Show("wgcf.exe indirilemedi.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show(LanguageManager.GetText("messages", "wgcf_download_failed"), LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
@@ -83,15 +83,15 @@ namespace SplitWireTurkey.Services
                 }
                 else
                 {
-                    MessageBox.Show("Profil dosyası bulunamadı.", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(LanguageManager.GetText("messages", "profile_not_found"), 
+                        LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Profil oluşturulurken hata: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LanguageManager.GetText("messages", "profile_creation_error"), ex.Message), 
+                    LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -165,8 +165,8 @@ namespace SplitWireTurkey.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Konfigürasyon düzenlenirken hata: {ex.Message}", 
-                    "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(LanguageManager.GetText("messages", "config_edit_error"), ex.Message), 
+                    LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -273,8 +273,8 @@ namespace SplitWireTurkey.Services
                         }
                         else
                         {
-                            System.Windows.MessageBox.Show("Windows AMD64 sürümü bulunamadı ve mevcut wgcf.exe dosyası yok.", 
-                                "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                            System.Windows.MessageBox.Show(LanguageManager.GetText("messages", "wgcf_version_not_found"), 
+                                LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                             return null;
                         }
                     }
@@ -305,8 +305,8 @@ namespace SplitWireTurkey.Services
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show($"wgcf.exe indirilirken hata oluştu ve mevcut dosya bulunamadı: {ex.Message}", 
-                        "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show(string.Format(LanguageManager.GetText("messages", "wgcf_download_error"), ex.Message), 
+                        LanguageManager.GetText("messages", "unexpected_error_title"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
             }
