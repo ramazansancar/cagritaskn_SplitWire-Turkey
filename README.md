@@ -17,13 +17,13 @@
 
 # İndirme ve Kurulum 
 
-## Setup Dosyası ile Kurulum (Tavsiye Edilir) [![Download Setup](https://img.shields.io/badge/Download-Setup-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.3/SplitWire-Turkey-Setup-Windows-1.5.3.exe)
-- **[SplitWire-Turkey Setup](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.3/SplitWire-Turkey-Setup-Windows-1.5.3.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
+## Setup Dosyası ile Kurulum (Tavsiye Edilir) [![Download Setup](https://img.shields.io/badge/Download-Setup-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-Setup-Windows-1.5.4.exe)
+- **[SplitWire-Turkey Setup](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-Setup-Windows-1.5.4.exe)** kurulum paketini indirip SplitWire-Turkey kurulumunu gerçekleştirin. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - **SplitWire-Turkey** uygulamasını açın. 
 - Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
 
-## ZIP Dosyası ile Kullanım (Tavsiye Edilmez) [![Download ZIP](https://img.shields.io/badge/Download-ZIP-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.3/SplitWire-Turkey-ZIP-Windows-1.5.3.zip)
-- **[SplitWire-Turkey ZIP](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.3/SplitWire-Turkey-ZIP-Windows-1.5.3.zip)** dosyasını indirerek bir klasöre ayıklayın. 
+## ZIP Dosyası ile Kullanım (Tavsiye Edilmez) [![Download ZIP](https://img.shields.io/badge/Download-ZIP-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-ZIP-Windows-1.5.4.zip)
+- **[SplitWire-Turkey ZIP](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-ZIP-Windows-1.5.4.zip)** dosyasını indirerek bir klasöre ayıklayın. 
 - ZIP dosyasını ayıkladığınız klasörde bulunan **SplitWire-Turkey.exe** uygulamasını açın. (SmartScreen "Windows kişisel bilgisayarınızı korudu" uyarısı alırsanız "Ek bilgi" yazısına tıkladıktan sonra "Yine de çalıştır" butonuna tıklayın, virüs taraması ve bu uyarı hakkında bilgi aşağıda verilmiştir)
 - Uygulamanın kullanımı için **Kullanım Rehberleri** başlığını takip edin.
 
@@ -31,15 +31,15 @@
 
 # Kullanım Rehberleri
 
-## Ana Sayfa Kullanımı
+## WireSock Kullanımı
 
 **Not:** Bu bölümdeki kurulumlar, yalnızca Discord uygulaması için (Eğer tarayıcı tünellemesini aktifleştirdiyseniz tarayıcılar da dahil) çalışır. Bu kurulumları gerçekleştirdikten sonra sisteminizi her yeniden başlatışınızda ilgili yöntem otomatik olarak çalışmaya başlar.
 
-- **Standart Kurulum:** Wgcf ve WireSock 2.4.16.1 araçlarını kullanarak yalnızca Discord için tünelleme gerçekleştirir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
+- **WS Standart Kurulum:** Wgcf ve WireSock 2.4.23.1 araçlarını kullanarak yalnızca Discord için tünelleme gerçekleştirir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
 
-- **Alternatif Kurulum:** Wgcf ve WireSock 1.4.7.1 araçlarını kullanarak YALNIZCA Discord için tünelleme gerçekleştirilir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
+- **WS Alternatif Kurulum:** Wgcf ve WireSock 1.4.7.1 araçlarını kullanarak YALNIZCA Discord için tünelleme gerçekleştirilir. (Tarayıcılar için de tünelleme yap seçeneği açık ise internet tarayıcılarında da tünelleme yapılır)
 
-- **Tarayıcılar için de tünelleme yap:** Discord uygulaması yanında; Chrome, Firefox, Opera, OperaGX, Brave, Vivaldi ve Edge gibi popüler internet tarayıcıları için de tünelleme yapılır.
+- **Tarayıcılar için de tünelleme yap:** Discord uygulaması yanında; Chrome, Firefox, Opera, OperaGX, Brave, Vivaldi, Zen, Chromium ve Edge gibi popüler internet tarayıcıları için de tünelleme yapılır.
 
 - **Klasör listesini özelleştir:** Discord haricinde bir uygulama için tünelleme yapmak isterseniz bu bölümü kullanabilirsiniz.
   - **Klasör Ekle:** Tünelleyeceğiniz uygulamanın bulunduğu klasörü seçerek listeye ekler.
@@ -148,13 +148,23 @@
 
 ---
 
+## Dil Seçenekleri / Language Options / Варианты языка
+
+- SplitWire-Turkey'i çalıştırdığınızda SplitWire-Turkey logosunun altında bulunan dil menüsü butonu ile dil seçeneklerini görüp programın dilini dğeiştirebilirsiniz. Şuan için Türkçe, English ve Русский dilleri mevcut. (Türkçe README dosyasını açmak için buraya tıklayın)[readme url]
+
+- When you run SplitWire-Turkey, you can view language options and change the program's language using the language menu button located below the SplitWire-Turkey logo. Currently, Turkish, English and Русский languages are available. (Click here to open English README file.)[readme.en url]
+
+- При запуске SplitWire-Turkey вы можете просматривать языковые опции и изменять язык программы с помощью кнопки языкового меню, расположенной под логотипом SplitWire-Turkey. В настоящее время доступны турецкий, английский и русский языки. (Нажмите здесь, чтобы открыть файл README на английском языке.)[readme_ru url]
+
+---
+
 ## Önemli Notlar
 
 > [!CAUTION]
 > Windows Defender dışında bir antivirüs yazılımı kullanıyorsanız "Program Files\SplitWire-Turkey\res\byedpi\ciadpi.exe" ve "Program Files\SplitWire-Turkey\res\proxifyre\ProxiFyre.exe" isimli yürütülebilir dosyaları için ilgili antivirüs yazılımı güvenlik duvarında izin verecek kuralları el ile eklemeniz gerekebilir. Windows Defender için güvenlik duvarı kuralları otomatik olarak eklenir, ekstra bir işlem yapmanıza gerek yoktur. **Kullandığınız antivirüs yazılımının kendisine ait ağ güvenlik duvarı özelliği yoksa ya da Windows Defender dışında bir antivirüs yazılımı kullanmıyorsanız, bu uyarıyı görmezden gelebilirsiniz.**
 
 > [!NOTE]
-> WinDivert dosyalarının kullanımı Kaspersky isimli antivirüs yazılımı tarafından engellendiği için, sisteminizde Kaspersky yüklü iken GoodbyeDPI ve Zapret sekmelerini kullanamazsınız. Kaspersky'i sisteminizden tamamen kaldırdıktan sonra **[SplitWire-Turkey Setup](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.3/SplitWire-Turkey-Setup-Windows-1.5.3.exe)** dosyasını indirip tekrar kurulum yaparsanız bu sekmeler aktif hale gelecektir. C:\Program Files\SplitWire-Turkey ve C:\Users\\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörlerini Kaspersky istisnalarına ekleyip, SplitWire-Turkey'i tekrar indirip kurulum yaparak bu sorunu çözmeyi de deneyebilirsiniz.
+> WinDivert dosyalarının kullanımı Kaspersky isimli antivirüs yazılımı tarafından engellendiği için, sisteminizde Kaspersky yüklü iken GoodbyeDPI ve Zapret sekmelerini kullanamazsınız. Kaspersky'i sisteminizden tamamen kaldırdıktan sonra **[SplitWire-Turkey Setup](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-Setup-Windows-1.5.4.exe)** dosyasını indirip tekrar kurulum yaparsanız bu sekmeler aktif hale gelecektir. C:\Program Files\SplitWire-Turkey ve C:\Users\\-Kullanıcı Adı-\AppData\Local\SplitWire-Turkey klasörlerini Kaspersky istisnalarına ekleyip, SplitWire-Turkey'i tekrar indirip kurulum yaparak bu sorunu çözmeyi de deneyebilirsiniz.
 
 > [!NOTE]
 > Herhangi bir sebeple SplitWire-Turkey v1.5 ve sonrasındaki sürümlerde bulunan WinDivert dosyaları ile ilgili sorun yaşarsanız [SplitWire-Turkey Release 1.0.0](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0) adresinden eski sürümü indirip kullanabilirsiniz.
@@ -171,6 +181,8 @@
 - "Starting..." ekranında kalma: SplitWire-Turkey'i çalıştırıp Onarım sekmesini açın ve Discord'u Onar butonuna tıklayın. Bilgisayarınızı yeniden başlattıktan sonra sorunun giderilip giderilmediğini kontrol edin. Eğer yine sonuç alamazsanız SplitWire-Turkey'i çalıştırıp Onarım sekmesini açın ve Discord PTB Yükle butonuna tıklayıp kurulum tamamlandıktan sonra Başlat > Discord PTB yolu ile Discord PTB'yi çalıştırıp sorunun giderilip giderilmediğini kontrol edin. Sorununuz yine çözülmediyse C:\Users\\-Kullanıcı Adı-\AppData\Local\Discord\ konumundaki Update.exe'ye sağ tıklayıp Özellikler'i seçip, açılan pencerede Uyumluluk sekmesine gelip, "Bu programın çalıştırılacağı uyumluluk modu:" kutucuğunu tikleyip, Windows 8'i seçtikten sonra Uygula ve Tamam butonlarına basıp bilgisayarınızı yeniden başlatın ve sorunun giderilip giderilmediğini kontrol edin. Eğer yine sorununuz çözülmediyse bir önceki adımın aynısını uygulayıp bu sefer "Bu programın çalıştırılacağı uyumluluk modu:" kutucuğunu tikleyip, Windows 7'yi seçtikten sonra Uygula ve Tamam butonlarına basıp bilgisayarınızı yeniden başlatın ve sorunun giderilip giderilmediğini kontrol edin.
 
 - Discord "Mesajlar yüklenemedi" hatası: Discord'un kendisi şüpheli IP değişiklikleri tespit ettiğinde ya da Cloudflare WARP kötüye kullanım tespit ettiğinde bu sorun yaşanıyor. Bu sorunu yaşarsanız, modeminizi kapatıp 15-30 saniye arasında bekledikten sonra tekrar başlatın. Daha sonra bilgisayarınızı yeniden başlatıp sorunun giderilip giderilmediğini test edin. Bu şekilde de çözüme ulaşamazsanız C:\Users\\-Kullanıcı Adı-\AppData\Roaming\discord klasörünü silerek Discord önbelleğini sıfırlamayı deneyebilirsiniz. (Bu yöntem Discord hesabınızdan çıkış yapacaktır, tekrar giriş yapmanız istenir) Eğer bu şekilde de çözüme ulaşamazsanız diğer yöntemleri deneyin.
+
+- Hata raporu oluşturma: (SplitWire-Turkey Issues sayfası)[https://github.com/cagritaskn/SplitWire-Turkey/issues]'na giderek sağ üstte bulunan **New Issue** butonuna tıklayıp, AppData\Local\SplitWire-Turkey\Logs klasöründeki .log dosyalarını da raporunuza ekleyerek bildirimde bulunabilirsiniz. Logs klasörünü SplitWire-Turkey programının Hakkında sayfasının en altında bulunan Logs Klasörünü Aç butonu ile açabilirsiniz.
 
 ---
 
@@ -189,10 +201,10 @@ Dilerseniz tüm klasörü, kurulum dosyasını, .zip dosyasını ya da kaynak ko
 > **SmartScreen "Windows kişisel bilgisayarınızı korudu"** uyarısı, imzalanmamış yazılımların tamamında çalıştırmadan önce görünür. Bunun sebebi, yazılımların uluslararası kod imzalama sertifikasına tabi olma zorunluluğudur. Ancak bu imzalama işlemi döviz kuru üzerinden düzenli ödeme gerektirdiğinden ve ben bağımsız, gelir elde etmeyen bir geliştirici olduğumdan dolayı yazılımı imzalama girişiminde bulunamıyorum.
 
 > [!NOTE]
-> **[SplitWire-Turkey Setup dosyası VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/4317a89b57cc12010da0666cff407f299ec511766608bf50b3c7751ccffb3ec6?nocache=1)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi) Kaspersky ile ilgili durum ve tereddütleriniz için aşağıda verilen notları okumanızı tavsiye ederim.
+> **[SplitWire-Turkey Setup dosyası VirusTotal sonuçlarında](https://www.virustotal.com/gui/file-analysis/NmQxYTlhOTMyZDhhY2JlOGU0ZDRkOTkxNjIyMDEzMmI6MTc1ODA2MDE2NQ==)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi) Kaspersky ile ilgili durum ve tereddütleriniz için aşağıda verilen notları okumanızı tavsiye ederim.
 
 > [!NOTE]
-> **[SplitWire-Turkey ZIP dosyası VirusTotal sonuçlarında](https://www.virustotal.com/gui/file/7f59011ccc91ed21245961ac4e3addac65035d7b3b3e8329f18cb4ac2b9ed375?nocache=1)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi) Kaspersky ile ilgili durum ve tereddütleriniz için aşağıda verilen notları okumanızı tavsiye ederim.
+> **[SplitWire-Turkey ZIP dosyası VirusTotal sonuçlarında](https://www.virustotal.com/gui/file-analysis/MWU4ZGJlNThmOTVlZDkwOGM3NWYwZDk3MTliZTc1OTI6MTc1ODA2MDMwNA==)** Dosyalarda küçük bir kullanıcı kesimi tarafından kullanılan antivirüs yazılımları tarafından hatalı algılanmış (false positive) virüs ya da zararlı yazılım bildirimleri algılanabilir ancak bunlar az kullanılan ve tespit yöntemleri güvenilir olmayan yazılımlardır. Algılanma sebebi, SplitWire-Turkey'in tek program içerisinden birden çok uygulama kurması ve sistem üzerinde birçok değişiklik yapmasıdır. (DNS değişikliği hizmet ve program paketi kurma, kaldırma gibi) Kaspersky ile ilgili durum ve tereddütleriniz için aşağıda verilen notları okumanızı tavsiye ederim.
 
 > [!NOTE]
 > **WinDivert** dosyaları Kaspersky ve birkaç antivirüs yazılımı tarafından RiskTool olarak algılanıyor. **not-a-virus:HEUR:RiskTool.Multi.WinDivert.gen** uyarı adından da anlaşılabileceği üzere bu dosyaların; **bir virüs değil**, yanlış kaynaklardan indirilen dosyalar ile kullanıldığında zararlı olabilecek bir araç olduğunu söylüyor. SplitWire-Turkey ve içerisindeki tüm eklentiler açık kaynaklı olduğundan WinDivert kütüphanesinin nasıl kullanıldığını takip edip, anlayabilirsiniz. Tespit açıklamalarına bakarsanız NotAVirus kelimesini görebilirisiniz. Bu tespit türü, GoodbyeDPI ve Zapret'in kullandığı açık kaynak WinDivert kütüphanesinin Windows üzerindeki ağ paketlerini manipüle etmesi sebebiyle bir risk aracı olarak tanımlanmasıdır. Bu kütüphane açık kaynaklı olup [WinDivert Github](https://github.com/basil00/WinDivert) adresinden erişilebilir. Maalesef hem Rus hem Türk yazılım geliştiricilerinin tüm çabalarına rağmen Rus hükümeti yanlısı Kaspersky ve onunla birlikte birkaç antivirüs yazılım şirketi raporları ve itirazları kabul etmediğinden ilgili antivirüs yazılımları sisteminizde yüklü ise WinDivert kullanan yöntemleri çalıştıramazsınız. Kaspersky ve diğer false positive veren antivirüs yazılımlarını sisteminizden kaldırarak tekrar kurulum yapıp WinDivert kullanan yöntemleri çalıştırabilir ya da [SplitWire-Turkey Release 1.0.0](https://github.com/cagritaskn/SplitWire-Turkey/releases/tag/1.0.0) adresinden eski WinDivert içermeyen sürümü indirip kullanabilirsiniz.
@@ -219,6 +231,7 @@ Kaspersky isimli antivirüs yazılımı ise bu konuda haklı ya da haksız olara
 - **[GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI)** by **[ValdikSS](https://github.com/ValdikSS)**
 - **[zapret](https://github.com/bol-van/zapret)** by **[bol-van](https://github.com/bol-van)**
 - **[WinDivert](https://github.com/basil00/WinDivert)** by **[basil00](https://github.com/basil00)**
+- **Projeye katkısı olan diğer kişilere ve Patreon ile Github sponsorlarına da çok teşekkür ederim**
 
 ---
 
