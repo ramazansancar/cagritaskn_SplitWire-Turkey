@@ -130,7 +130,12 @@ namespace SplitWireTurkey.Services
                         "operagx.exe",
                         "brave.exe",
                         "vivaldi.exe",
-                        "msedge.exe"
+                        "msedge.exe",
+                        "zen.exe",
+                        "chromium.exe",
+                        "iexplore.exe",
+                        "Maxthon.exe",
+                        "librewolf.exe"
                     };
                     appPaths.AddRange(browserApps);
                 }
