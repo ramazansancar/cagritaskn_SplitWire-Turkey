@@ -13,8 +13,8 @@
     <AssemblyCompany>Çağrı Taşkın</AssemblyCompany>
     <AssemblyProduct>SplitWire-Turkey</AssemblyProduct>
     <AssemblyCopyright>© 2025 Çağrı Taşkın</AssemblyCopyright>
-    <AssemblyVersion>1.5.3</AssemblyVersion>
-    <FileVersion>1.5.3</FileVersion>
+    <AssemblyVersion>1.5.4</AssemblyVersion>
+    <FileVersion>1.5.4</FileVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Disable trimming for WPF -->
     <PublishTrimmed>false</PublishTrimmed>
@@ -42,6 +42,11 @@
     <Resource Include="Resources\Poppins-Regular.ttf" Condition="Exists('Resources\Poppins-Regular.ttf')" />
     <Resource Include="Resources\Poppins-Bold.ttf" Condition="Exists('Resources\Poppins-Bold.ttf')" />
     <Resource Include="Resources\Montserrat-VariableFont_wght.ttf" Condition="Exists('Resources\Montserrat-VariableFont_wght.ttf')" />
+    <Resource Include="Resources\Flags\tr_flag.png" Condition="Exists('Resources\Flags\tr_flag.png')" />
+    <Resource Include="Resources\Flags\gb_flag.png" Condition="Exists('Resources\Flags\gb_flag.png')" />
+    <Resource Include="Resources\Flags\ru_flag.png" Condition="Exists('Resources\Flags\ru_flag.png')" />
+    <Resource Include="Resources\language.png" Condition="Exists('Resources\language.png')" />
+    <Resource Include="Resources\language_darkmode.png" Condition="Exists('Resources\language_darkmode.png')" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,6 +57,20 @@
   </ItemGroup>
 
 </Project> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

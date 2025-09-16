@@ -6,7 +6,7 @@
         Height="640" Width="600"
         MinHeight="640" MinWidth="600"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -404,13 +404,24 @@
                        HorizontalAlignment="Center"
                        Margin="0,2,0,2"/>
                 
-                <!-- Hakkında Butonu -->
-                <Button x:Name="btnInfo" 
-                        Content="ℹ" 
-                        Style="{StaticResource InfoButtonStyle}"
-                        HorizontalAlignment="Center"
-                        Margin="0,10,0,0"
-                        Click="BtnInfo_Click"/>
+                <!-- Hakkında ve Dil Seçici Butonları -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <Button x:Name="btnInfo" 
+                            Content="ℹ" 
+                            Style="{StaticResource InfoButtonStyle}"
+                            Margin="0,0,5,0"
+                            Click="BtnInfo_Click"/>
+                    
+                    <Button x:Name="btnLanguageSelector" 
+                            Style="{StaticResource InfoButtonStyle}"
+                            Margin="5,0,0,0"
+                            Click="BtnLanguageSelector_Click">
+                        <Image x:Name="imgLanguageIcon" 
+                               Source="pack://application:,,,/Resources/language.png" 
+                               Width="16" Height="16" 
+                               Stretch="Uniform"/>
+                    </Button>
+                </StackPanel>
                 
 
             </StackPanel>
@@ -426,15 +437,81 @@
                      Panel.ZIndex="999"
                      Click="BtnThemeToggle_Click"/>
 
+        <!-- Language Flag Menu - Absolute Positioned Overlay -->
+        <StackPanel x:Name="languageMenu" 
+                    Grid.Row="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="340,148,0,0"
+                    Panel.ZIndex="998"
+                    Visibility="Collapsed"
+                    Orientation="Horizontal">
+            
+            <!-- Turkish Flag -->
+            <Button x:Name="btnLanguageTR" 
+                    Style="{StaticResource InfoButtonStyle}"
+                    Margin="2,0"
+                    Click="BtnLanguageTR_Click"
+                    Tag="TR"
+                    ToolTipService.InitialShowDelay="0"
+                    ToolTipService.ShowDuration="5000">
+                <Image Source="pack://application:,,,/Resources/Flags/tr_flag.png" 
+                       Width="24" Height="24" 
+                       Stretch="Uniform"/>
+                <Button.ToolTip>
+                    <ToolTip Content="Türkçe" 
+                             FontFamily="Poppins Regular"
+                             FontSize="12"/>
+                </Button.ToolTip>
+            </Button>
+            
+            <!-- English Flag -->
+            <Button x:Name="btnLanguageEN" 
+                    Style="{StaticResource InfoButtonStyle}"
+                    Margin="2,0"
+                    Click="BtnLanguageEN_Click"
+                    Tag="EN"
+                    ToolTipService.InitialShowDelay="0"
+                    ToolTipService.ShowDuration="5000">
+                <Image Source="pack://application:,,,/Resources/Flags/gb_flag.png" 
+                       Width="24" Height="24" 
+                       Stretch="Uniform"/>
+                <Button.ToolTip>
+                    <ToolTip Content="English" 
+                             FontFamily="Poppins Regular"
+                             FontSize="12"/>
+                </Button.ToolTip>
+            </Button>
+            
+            <!-- Russian Flag -->
+            <Button x:Name="btnLanguageRU" 
+                    Style="{StaticResource InfoButtonStyle}"
+                    Margin="2,0"
+                    Click="BtnLanguageRU_Click"
+                    Tag="RU"
+                    ToolTipService.InitialShowDelay="0"
+                    ToolTipService.ShowDuration="5000">
+                <Image Source="pack://application:,,,/Resources/Flags/ru_flag.png" 
+                       Width="24" Height="24" 
+                       Stretch="Uniform"/>
+                <Button.ToolTip>
+                    <ToolTip Content="Русский" 
+                             FontFamily="Poppins Regular"
+                             FontSize="12"/>
+                </Button.ToolTip>
+            </Button>
+        </StackPanel>
+
         <!-- Main Content -->
-        <TabControl x:Name="TabControl" Grid.Row="1" Margin="0,0,0,16" Style="{StaticResource MaterialDesignTabControl}" SelectionChanged="TabControl_SelectionChanged" HorizontalAlignment="Stretch">
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,16">
+            <TabControl x:Name="TabControl" Style="{StaticResource MaterialDesignTabControl}" SelectionChanged="TabControl_SelectionChanged" HorizontalAlignment="Stretch">
             <TabControl.Resources>
                 <Style TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
                     <Setter Property="FontSize" Value="12"/>
-                    <Setter Property="Padding" Value="4,3"/>
+                    <Setter Property="Padding" Value="2,3"/>
                     <Setter Property="Margin" Value="0,0"/>
-                    <Setter Property="MinWidth" Value="0"/>
-                    <Setter Property="MaxWidth" Value="Infinity"/>
+                    <Setter Property="MinWidth" Value="60"/>
+                    <Setter Property="MaxWidth" Value="150"/>
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
                 <Style TargetType="TabPanel">
@@ -481,7 +558,7 @@
                             <ToggleButton x:Name="chkBrowserTunneling" 
                                          Style="{StaticResource ModernToggleSwitchStyle}"
                                          IsChecked="False"/>
-                            <TextBlock Text="Tarayıcılar için de tünelleme yap" 
+                            <TextBlock x:Name="txtBrowserTunnelingMain" Text="Tarayıcılar için de tünelleme yap" 
                                        FontFamily="{StaticResource Montserrat}"
                                        VerticalAlignment="Center"
                                        Margin="10,0,0,0"/>
@@ -495,7 +572,7 @@
                                          Style="{StaticResource ModernToggleSwitchStyle}"
                                          Checked="ChkAdvancedSettings_Checked"
                                          Unchecked="ChkAdvancedSettings_Unchecked"/>
-                            <TextBlock Text="Klasör listesini özelleştir" 
+                            <TextBlock x:Name="txtFolderCustomization" Text="Klasör listesini özelleştir" 
                                        FontFamily="{StaticResource Montserrat}"
                                        VerticalAlignment="Center"
                                        Margin="10,0,0,0"/>
@@ -507,7 +584,7 @@
                                    Visibility="Collapsed">
                     
                     <!-- Folder Management -->
-                        <TextBlock Text="Klasör Yönetimi" 
+                        <TextBlock x:Name="txtFolderManagement" Text="Klasör Yönetimi" 
                                    Style="{StaticResource MaterialDesignHeadline6TextBlock}" 
                                    Margin="0,0,0,10"/>
                         
@@ -640,7 +717,7 @@
                                          IsChecked="False"
                                          Checked="ChkByeDPIBrowserTunneling_Checked"
                                          Unchecked="ChkByeDPIBrowserTunneling_Unchecked"/>
-                            <TextBlock Text="Tarayıcılar için de tünelleme yap" 
+                            <TextBlock x:Name="txtBrowserTunnelingByeDPI" Text="Tarayıcılar için de tünelleme yap" 
                                        FontFamily="{StaticResource PoppinsRegular}"
                                        FontSize="12"
                                        VerticalAlignment="Center"
@@ -732,7 +809,7 @@
                                 Click="BtnZapretAutoInstall_Click"/>
                         
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Center">
-                            <TextBlock Text="Tarama:" 
+                            <TextBlock x:Name="txtScan" Text="Tarama:" 
                                        VerticalAlignment="Center" 
                                        FontWeight="Bold"
                                        FontFamily="{StaticResource PoppinsRegular}"
@@ -758,7 +835,7 @@
                     
                     <!-- Gelişmiş Section -->
                     <TextBlock Grid.Row="2" 
-                               Text="Hazır Ayarlar" 
+                               x:Name="txtPresets" Text="Hazır Ayarlar" 
                                FontWeight="Bold" 
                                FontSize="18"
                                FontFamily="{StaticResource PoppinsBold}"
@@ -767,7 +844,7 @@
                     
                     <!-- Hazır Ayar ve Düzenle Switch Yan Yana -->
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Left">
-                        <TextBlock Text="Hazır Ayar:" 
+                        <TextBlock x:Name="txtPresetZapret" Text="Hazır Ayar:" 
                                    VerticalAlignment="Center" 
                                    FontWeight="Bold"
                                    FontFamily="{StaticResource PoppinsRegular}"
@@ -784,7 +861,7 @@
                                      Checked="ChkManualParams_Checked"
                                      Unchecked="ChkManualParams_Unchecked"
                                      Margin="20,0,0,0"/>
-                        <TextBlock Text="Hazır ayarı düzenle" 
+                        <TextBlock x:Name="txtEditPresetZapret" Text="Hazır ayarı düzenle" 
                                    FontFamily="{StaticResource Montserrat}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
@@ -875,7 +952,7 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Hazır Ayarlar Başlığı -->
-                    <TextBlock Grid.Row="0" 
+                    <TextBlock x:Name="txtPresetsGoodbyeDPI" Grid.Row="0" 
                                Text="Hazır Ayarlar"
                                FontFamily="{StaticResource PoppinsBold}"
                                FontSize="18"
@@ -885,7 +962,7 @@
                     
                     <!-- Hazır Ayar ve Düzenle Switch Yan Yana -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Center">
-                        <TextBlock Text="Hazır Ayar:" 
+                        <TextBlock x:Name="txtPresetGoodbyeDPI" Text="Hazır Ayar:" 
                                    VerticalAlignment="Center" 
                                    FontWeight="Bold"
                                    FontFamily="{StaticResource PoppinsRegular}"
@@ -902,7 +979,7 @@
                                      Checked="ChkGoodbyeDPIManualParams_Checked"
                                      Unchecked="ChkGoodbyeDPIManualParams_Unchecked"
                                      Margin="20,0,0,0"/>
-                        <TextBlock Text="Hazır ayarı düzenle" 
+                        <TextBlock x:Name="txtEditPresetGoodbyeDPI" Text="Hazır ayarı düzenle" 
                                    FontFamily="{StaticResource Montserrat}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
@@ -924,7 +1001,7 @@
                                      Style="{StaticResource ModernToggleSwitchStyle}"
                                      Checked="ChkGoodbyeDPIUseBlacklist_Checked"
                                      Unchecked="ChkGoodbyeDPIUseBlacklist_Unchecked"/>
-                        <TextBlock Text="Blacklist kullan" 
+                        <TextBlock x:Name="txtUseBlacklist" Text="Blacklist kullan" 
                                    FontFamily="{StaticResource Montserrat}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
@@ -941,7 +1018,7 @@
                                      Style="{StaticResource ModernToggleSwitchStyle}"
                                      Checked="ChkGoodbyeDPIEditBlacklist_Checked"
                                      Unchecked="ChkGoodbyeDPIEditBlacklist_Unchecked"/>
-                        <TextBlock Text="Blacklisti düzenle" 
+                        <TextBlock x:Name="txtEditBlacklist" Text="Blacklisti düzenle" 
                                    FontFamily="{StaticResource Montserrat}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
@@ -1073,7 +1150,7 @@
                         <ToggleButton x:Name="chkDiscordUninstallStandard" 
                                      Style="{StaticResource ModernToggleSwitchStyle}"
                                      IsChecked="False"/>
-                        <TextBlock Text="Discord PTB için temiz kurulum yap" 
+                        <TextBlock x:Name="txtCleanInstallPTB" Text="Discord PTB için temiz kurulum yap" 
                                    FontFamily="{StaticResource Montserrat}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"
@@ -1251,7 +1328,7 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Hizmetler Başlığı -->
-                    <TextBlock Grid.Row="0" 
+                    <TextBlock x:Name="txtServices" Grid.Row="0" 
                                Text="Hizmetler"
                                FontFamily="{StaticResource PoppinsBold}"
                                FontSize="18"
@@ -1665,7 +1742,8 @@
                             Click="BtnHelpAdvanced_Click"/>
                 </Grid>
             </TabItem>
-        </TabControl>
+            </TabControl>
+        </ScrollViewer>
 
         <!-- Loading Overlay -->
         <Grid x:Name="loadingOverlay" 
@@ -1684,7 +1762,6 @@
                                  Height="100" 
                                  Style="{StaticResource MaterialDesignCircularProgressBar}"/>
                     <TextBlock x:Name="loadingText"
-                               Text="İşlem devam ediyor..." 
                                HorizontalAlignment="Center" 
                                Margin="0,10,0,0"
                                Foreground="Black"/>
