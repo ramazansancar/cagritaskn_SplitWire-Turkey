@@ -2,15 +2,48 @@
 ; Inno Setup 6
 
 #define MyAppName "SplitWire-Turkey"
-#define MyAppVersion "1.5.0"
+#define MyAppVersion "1.5.4"
 #define MyAppPublisher "SplitWire-Turkey"
 #define MyAppURL "https://github.com/cagritaskn/SplitWire-Turkey"
 #define MyAppExeName "SplitWire-Turkey.exe"
 
-; Türkçe dil dosyası
+; Çoklu dil desteği
 [Languages]
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+
+[CustomMessages]
+; Türkçe mesajlar (varsayılan)
+turkish.WelcomeLabel2=Bu sihirbaz [name/ver] uygulamasını bilgisayarınıza kuracaktır.%n%n[name], Discord için DPI aşımı ve tünelleme çözümleri sunan bir araçtır.%n%nKuruluma devam etmek için İleri'ye tıklayın.
+turkish.ClickInstall=Kuruluma başlamak için Kurulum'a tıklayın.
+turkish.ClickNext=Devam etmek için İleri'ye tıklayın.
+turkish.AdditionalIcons=Ek simgeler:
+turkish.CreateDesktopShortcut=Masaüstünde kısayol oluştur
+turkish.CreateQuickLaunchShortcut=Hızlı başlat çubuğunda kısayol oluştur
+turkish.LaunchAfterInstall=Kurulum tamamlandıktan sonra SplitWire-Turkey'i çalıştır
+turkish.InstallingDotNet=.NET 6.0 Runtime kuruluyor...
+
+; İngilizce mesajlar
+english.WelcomeLabel2=This wizard will install [name/ver] on your computer.%n%n[name] is a tool that provides DPI bypass and tunneling solutions for Discord.%n%nClick Next to continue with the installation.
+english.ClickInstall=Click Install to begin the installation.
+english.ClickNext=Click Next to continue.
+english.AdditionalIcons=Additional icons:
+english.CreateDesktopShortcut=Create a desktop shortcut
+english.CreateQuickLaunchShortcut=Create a quick launch shortcut
+english.LaunchAfterInstall=Launch SplitWire-Turkey after installation
+english.InstallingDotNet=Installing .NET 6.0 Runtime...
+
+; Rusça mesajlar
+russian.WelcomeLabel2=Этот мастер установит [name/ver] на ваш компьютер.%n%n[name] - это инструмент, который предоставляет решения для обхода DPI и туннелирования для Discord.%n%nНажмите Далее, чтобы продолжить установку.
+russian.ClickInstall=Нажмите Установить, чтобы начать установку.
+russian.ClickNext=Нажмите Далее, чтобы продолжить.
+russian.AdditionalIcons=Дополнительные значки:
+russian.CreateDesktopShortcut=Создать ярлык на рабочем столе
+russian.CreateQuickLaunchShortcut=Создать ярлык в панели быстрого запуска
+russian.LaunchAfterInstall=Запустить SplitWire-Turkey после установки
+russian.InstallingDotNet=Установка .NET 6.0 Runtime...
+
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -26,12 +59,13 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-UsePreviousAppDir=no
+UsePreviousAppDir=yes
+DirExistsWarning=no
 LicenseFile=
 InfoBeforeFile=
 InfoAfterFile=
-OutputDir=Output
-OutputBaseFilename=SplitWire-Turkey-Setup
+OutputDir=C:\Users\cagri\OneDrive\Desktop
+OutputBaseFilename=SplitWire-Turkey-Setup-Windows-{#MyAppVersion}
 SetupIconFile=res\splitwire.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
@@ -40,13 +74,13 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible x86
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequiredOverridesAllowed=commandline
-; Türkçe varsayılan dil
+; Dil ayarları
 LanguageDetectionMethod=locale
-ShowLanguageDialog=no
+ShowLanguageDialog=yes
 
 [Tasks]
-Name: "desktopicon"; Description: "Masaüstünde kısayol oluştur"; GroupDescription: "Ek simgeler:"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "Hızlı başlat çubuğunda kısayol oluştur"; GroupDescription: "Ek simgeler:"; Flags: unchecked; Check: not IsAdminInstallMode
+Name: "desktopicon"; Description: "{cm:CreateDesktopShortcut}"; GroupDescription: "{cm:AdditionalIcons}"
+Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchShortcut}"; GroupDescription: "{cm:AdditionalIcons}"; Check: not IsAdminInstallMode
 
 [Files]
 Source: "SplitWire-Turkey.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -71,15 +105,20 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 [Registry]
 Root: HKCU; Subkey: "SOFTWARE\SplitWire-Turkey"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "SOFTWARE\SplitWire-Turkey"; ValueType: string; ValueName: "Version"; ValueData: "{#MyAppVersion}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "SOFTWARE\SplitWire-Turkey"; ValueType: string; ValueName: "Language"; ValueData: "{code:GetLanguageCode}"; Flags: uninsdeletekey
 
 [Run]
 ; Install .NET 6.0 Runtime if not present
-Filename: "{tmp}\windowsdesktop-runtime-6.0.35-win-x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: ".NET 6.0 Runtime kuruluyor..."; Flags: runhidden; Check: Is64BitInstallMode and not IsDotNetDetected
-Filename: "{tmp}\windowsdesktop-runtime-6.0.35-win-x86.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: ".NET 6.0 Runtime kuruluyor..."; Flags: runhidden; Check: not Is64BitInstallMode and not IsDotNetDetected
+Filename: "{tmp}\windowsdesktop-runtime-6.0.35-win-x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "{cm:InstallingDotNet}"; Flags: runhidden; Check: Is64BitInstallMode and not IsDotNetDetected
+Filename: "{tmp}\windowsdesktop-runtime-6.0.35-win-x86.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "{cm:InstallingDotNet}"; Flags: runhidden; Check: not Is64BitInstallMode and not IsDotNetDetected
 ; Launch application after installation (with admin privileges)
-Filename: "{app}\{#MyAppExeName}"; Description: "Kurulum tamamlandıktan sonra SplitWire-Turkey'i çalıştır"; Flags: nowait postinstall skipifsilent runascurrentuser
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchAfterInstall}"; Flags: nowait postinstall skipifsilent runascurrentuser
 
 [Code]
+// Global değişkenler
+var
+  UninstallLanguage: String;
+
 // Forward declarations
 function IsServiceInstalled(ServiceName: String): Boolean; forward;
 function StopAndRemoveService(ServiceName: String): Boolean; forward;
@@ -156,11 +195,76 @@ begin
   end;
 end;
 
+function InitializeUninstall(): Boolean;
+var
+  LanguageCode: String;
+begin
+  Result := True;
+  
+  // Varsayılan dil
+  UninstallLanguage := 'TR';
+  
+  // Registry'den dil kodunu oku
+  if RegQueryStringValue(HKCU, 'SOFTWARE\SplitWire-Turkey', 'Language', LanguageCode) then
+  begin
+    UninstallLanguage := LanguageCode;
+  end;
+end;
+
+function GetLanguageCode(Param: String): String;
+begin
+  // Seçilen dile göre dil kodunu döndür
+  case ActiveLanguage of
+    'turkish': Result := 'TR';
+    'english': Result := 'EN';
+    'russian': Result := 'RU';
+  else
+    Result := 'TR'; // Varsayılan olarak Türkçe
+  end;
+end;
+
+function GetUninstallLanguage(): String;
+begin
+  // Uninstaller için dil kodunu döndür
+  Result := UninstallLanguage;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
+var
+  LocalAppDataPath: String;
+  SplitWireTurkeyPath: String;
 begin
   if CurStep = ssInstall then
   begin
-    // Additional installation steps if needed
+    // Clean up localappdata\SplitWire-Turkey folder before installation
+    Log('=== Kurulum öncesi temizlik işlemi başlatılıyor ===');
+    
+    LocalAppDataPath := ExpandConstant('{localappdata}');
+    SplitWireTurkeyPath := LocalAppDataPath + '\SplitWire-Turkey';
+    
+    if DirExists(SplitWireTurkeyPath) then
+    begin
+      Log('localappdata\SplitWire-Turkey klasörü bulundu, siliniyor...');
+      try
+        if DelTree(SplitWireTurkeyPath, True, True, True) then
+        begin
+          Log('localappdata\SplitWire-Turkey klasörü başarıyla silindi');
+        end
+        else
+        begin
+          Log('Uyarı: localappdata\SplitWire-Turkey klasörü tamamen silinemedi (bazı dosyalar kullanımda olabilir)');
+                        // Continue with installation even if cleanup is incomplete
+        end;
+      except
+        Log('HATA: localappdata\SplitWire-Turkey klasörü silinirken exception oluştu, kurulum devam ediyor');
+      end;
+    end
+    else
+    begin
+      Log('localappdata\SplitWire-Turkey klasörü bulunamadı, temizlik gerekmiyor');
+    end;
+    
+    Log('=== Kurulum öncesi temizlik işlemi tamamlandı ===');
   end;
 end;
 
@@ -209,6 +313,7 @@ var
   WireSockUninstallPath: String;
   WireSockMSIPath: String;
   UninstallLogPath: String;
+  AppPath: String;
 begin
   if CurUninstallStep = usUninstall then
   begin
@@ -217,6 +322,9 @@ begin
     
     // İlerleme çubuğu güncelleme - Kaldırıcıda GUI elementleri yok
     // WizardForm.ProgressGauge.Position := 0;
+    
+    // Dil bilgisini log'a yaz
+    Log('Uninstaller dili: ' + UninstallLanguage);
     
     // 1. Aşama: Hizmetleri kaldır (İlerleme: %20)
     Log('=== 1. AŞAMA: Hizmetler kaldırılıyor ===');
@@ -409,30 +517,30 @@ begin
 
     Log('3. Aşama tamamlandı - İlerleme: %60');
     
-    // 4. Aşama: WireSock 2.4.16.1'i sessiz kaldır (İlerleme: %80)
-    Log('=== 4. AŞAMA: WireSock 2.4.16.1 kaldırılıyor ===');
+    // 4. Aşama: WireSock 2.4.23.1'i sessiz kaldır (İlerleme: %80)
+    Log('=== 4. AŞAMA: WireSock 2.4.23.1 kaldırılıyor ===');
     
-    WireSockUninstallPath := ExpandConstant('{app}') + '\res\wiresock-secure-connect-x64-2.4.16.1.exe';
+    WireSockUninstallPath := ExpandConstant('{app}') + '\res\wiresock-secure-connect-x64-2.4.23.1.exe';
     
     if FileExists(WireSockUninstallPath) then
     begin
-      Log('WireSock 2.4.16.1 kaldırılıyor...');
+      Log('WireSock 2.4.23.1 kaldırılıyor...');
       try
         if Exec(WireSockUninstallPath, '/uninstall /S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
         begin
-          Log('WireSock 2.4.16.1 başarıyla kaldırıldı');
+          Log('WireSock 2.4.23.1 başarıyla kaldırıldı');
         end
         else
         begin
-          Log('Uyarı: WireSock 2.4.16.1 kaldırılamadı');
+          Log('Uyarı: WireSock 2.4.23.1 kaldırılamadı');
         end;
       except
-        Log('HATA: WireSock 2.4.16.1 kaldırma işlemi sırasında exception oluştu');
+        Log('HATA: WireSock 2.4.23.1 kaldırma işlemi sırasında exception oluştu');
       end;
     end
     else
     begin
-      Log('WireSock 2.4.16.1 kaldırma dosyası bulunamadı');
+      Log('WireSock 2.4.23.1 kaldırma dosyası bulunamadı');
     end;
 
     Log('4. Aşama tamamlandı - İlerleme: %80');
@@ -464,8 +572,37 @@ begin
     end;
 
     Log('5. Aşama tamamlandı - İlerleme: %100');
+    
+    // 6. Aşama: Program Files klasörünü tamamen sil
+    Log('=== 6. AŞAMA: Program Files klasörü siliniyor ===');
+    
+    AppPath := ExpandConstant('{app}');
+    
+    if DirExists(AppPath) then
+    begin
+      Log('Program Files\SplitWire-Turkey klasörü siliniyor...');
+      try
+        if DelTree(AppPath, True, True, True) then
+        begin
+          Log('Program Files\SplitWire-Turkey klasörü başarıyla silindi');
+        end
+        else
+        begin
+          Log('Uyarı: Program Files\SplitWire-Turkey klasörü tamamen silinemedi (bazı dosyalar kullanımda olabilir)');
+        end;
+      except
+        Log('HATA: Program Files\SplitWire-Turkey klasörü silinirken exception oluştu');
+      end;
+    end
+    else
+    begin
+      Log('Program Files\SplitWire-Turkey klasörü bulunamadı');
+    end;
+    
+    Log('6. Aşama tamamlandı - İlerleme: %100');
     Log('Tüm kaldırma aşamaları tamamlandı. SplitWire-Turkey kaldırılıyor...');
   end;
 end;
 
  
+
