@@ -20,6 +20,14 @@
 
 ---
 
+## Video User Guide
+
+You can follow the installation and usage instructions from the video guide prepared by Recep Baltaş below:
+
+<a href="https://www.youtube.com/watch?v=LtwsTy568rw"> <img src="https://img.youtube.com/vi/LtwsTy568rw/maxresdefault.jpg" width="310"> </a> <br> <a href="https://www.youtube.com/watch?v=LtwsTy568rw"> <strong>SplitWire-Turkey Video User Guide</strong> </a>
+
+---
+
 # Download and Installation
 
 ## Installation with Setup File (Recommended) [![Download Setup](https://img.shields.io/badge/Download-Setup-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-Setup-Windows-1.5.4.exe)
@@ -354,3 +362,4 @@ Using this program is completely free. I do not earn any income from its use. Ho
 - Compliance with legal regulations is the user's responsibility
 > [!IMPORTANT]
 > All legal responsibility arising from the use of this program belongs to the person using it. The application is written and edited only for educational and research purposes; using or not using this application under these conditions is the user's own choice. This project on the Github platform where open source codes are shared is written and edited for information sharing and coding education purposes.
+
