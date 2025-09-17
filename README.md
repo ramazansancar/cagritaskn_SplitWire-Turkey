@@ -20,6 +20,20 @@
 
 ---
 
+## Videolu Kullanım Rehberi
+**Recep Baltaş'ın hazırladığı aşağıdaki videolu rehberden kurulum ve kullanım talimatlarını takip edebilirsiniz:**
+
+<!-- BEGIN YOUTUBE-CARDS -->
+<a href="https://www.youtube.com/watch?v=LtwsTy568rw">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://ytcards.demolab.com/?id=LtwsTy568rw&title=SplitWire-Turkey+Videolu+Rehber&lang=tr&timestamp=1757898060&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=2&width=250&border_radius=5&duration=484">
+    <img src="https://ytcards.demolab.com/?id=LtwsTy568rw&title=SplitWire-Turkey+Videolu+Rehber&lang=tr&timestamp=1757898060&background_color=%23ffffff&title_color=%2324292f&stats_color=%2357606a&max_title_lines=2&width=250&border_radius=5&duration=484" alt="SplitWire-Turkey Videolu Kullanım Rehberi" title="SplitWire-Turkey Videolu Kullanım Rehberi">
+  </picture>
+</a>
+<!-- END YOUTUBE-CARDS -->
+
+---
+
 # İndirme ve Kurulum 
 
 ## Setup Dosyası ile Kurulum (Tavsiye Edilir) [![Download Setup](https://img.shields.io/badge/Download-Setup-blue?logo=windows)](https://github.com/cagritaskn/SplitWire-Turkey/releases/download/1.5.4/SplitWire-Turkey-Setup-Windows-1.5.4.exe)
