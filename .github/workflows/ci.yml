@@ -27,7 +27,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
 jobs:
   build-and-test:
@@ -187,13 +187,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Install code analysis tools
-        run: |
-          dotnet tool install --global dotnet-format --version 5.1.250801
-          dotnet tool install --global security-scan --version 5.6.7
-        shell: pwsh
-        continue-on-error: true
-
       - name: Restore dependencies for analysis
         run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
 
@@ -201,8 +194,8 @@ jobs:
         run: dotnet format src/SplitWireTurkey/SplitWireTurkey.csproj --verify-no-changes --verbosity diagnostic
         continue-on-error: true
 
-      - name: Run security scan
-        run: security-scan src/SplitWireTurkey/SplitWireTurkey.csproj --excl-proj=**/*Tests.csproj
+      - name: Run code analysis
+        run: dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --verbosity normal /p:TreatWarningsAsErrors=false /p:RunAnalyzersDuringBuild=true
         continue-on-error: true
 
   dependency-check:
