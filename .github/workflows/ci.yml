@@ -51,9 +51,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
+          dotnet-version: "6.0.x"
           dotnet-quality: "ga"
 
       - name: Cache .NET tools
@@ -68,9 +66,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json', '**/Directory.Build.props') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
             ${{ runner.os }}-nuget-
 
       - name: Cache build outputs
@@ -84,14 +81,7 @@ jobs:
             ${{ runner.os }}-build-${{ hashFiles('**/*.csproj') }}
             ${{ runner.os }}-build-
 
-      - name: Restore all dependencies
-        run: |
-          dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj --locked-mode
-          dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --locked-mode
-        continue-on-error: true
-
-      - name: Restore dependencies (fallback)
-        if: failure()
+      - name: Restore dependencies
         run: |
           dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
           dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj
@@ -102,47 +92,44 @@ jobs:
           dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
 
       - name: Run unit tests
-        run: dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test-results.trx"
         continue-on-error: true
 
       - name: Process test results
         if: always()
         run: |
           Write-Host "🧪 Processing test results..."
-          $testResults = Get-ChildItem -Path "." -Recurse -Filter "*.trx" -ErrorAction SilentlyContinue
-          if ($testResults) {
-            Write-Host "Found test result files:"
-            $testResults | ForEach-Object { Write-Host "  $($_.FullName)" }
-          } else {
-            Write-Host "No test result files found"
-          }
+          if (Test-Path "./TestResults") {
+            $testResults = Get-ChildItem -Path "./TestResults" -Recurse -Filter "*.trx" -ErrorAction SilentlyContinue
+            if ($testResults) {
+              Write-Host "Found test result files:"
+              $testResults | ForEach-Object { Write-Host "  $($_.FullName)" }
+            }
 
-          $coverageFiles = Get-ChildItem -Path "." -Recurse -Filter "coverage.cobertura.xml" -ErrorAction SilentlyContinue
-          if ($coverageFiles) {
-            Write-Host "Found coverage files:"
-            $coverageFiles | ForEach-Object { Write-Host "  $($_.FullName)" }
+            $coverageFiles = Get-ChildItem -Path "./TestResults" -Recurse -Filter "coverage.cobertura.xml" -ErrorAction SilentlyContinue
+            if ($coverageFiles) {
+              Write-Host "Found coverage files:"
+              $coverageFiles | ForEach-Object { Write-Host "  $($_.FullName)" }
+            }
           } else {
-            Write-Host "No coverage files found"
+            Write-Host "TestResults directory not found"
           }
         shell: pwsh
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('./TestResults/**/*.trx') != ''
         with:
           name: test-results-${{ github.sha }}
-          path: |
-            **/TestResults/**/*.xml
-            **/TestResults/**/*.trx
+          path: ./TestResults/**/*.trx
           retention-days: 30
 
       - name: Upload code coverage
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('./TestResults/**/coverage.cobertura.xml') != ''
         with:
           name: code-coverage-${{ github.sha }}
-          path: |
-            **/TestResults/**/coverage.cobertura.xml
+          path: ./TestResults/**/coverage.cobertura.xml
           retention-days: 30
 
       - name: Build artifact
@@ -221,8 +208,8 @@ jobs:
 
       - name: Check for vulnerable packages
         run: |
-          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --vulnerable --include-transitive 2>&1 | Tee-Object -FilePath "vulnerability-report.txt"
-          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --deprecated 2>&1 | Tee-Object -FilePath "deprecated-report.txt"
+          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --vulnerable --include-transitive > vulnerability-report.txt 2>&1
+          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --deprecated > deprecated-report.txt 2>&1
         shell: pwsh
         continue-on-error: true
 
