@@ -12,6 +12,12 @@
 [![EN](https://img.shields.io/badge/README-EN-blue.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_EN.md)
 [![RU](https://img.shields.io/badge/README-RU-blue.svg)](https://github.com/cagritaskn/SplitWire-Turkey/blob/main/.github/README_RU.md)
 
+[![CI Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/ci.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/ci.yml)
+[![PR Validation](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/pr-validation.yml)
+[![Nightly Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/nightly-tests.yml)
+[![Windows Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/windows-specific-tests.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/windows-specific-tests.yml)
+[![Manual Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/manual-test-runner.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/manual-test-runner.yml)
+
 </div>
 
 # SplitWire-Turkey
