@@ -53,12 +53,12 @@ jobs:
         Write-Host "🔥 Warming up caches..."
         
         # Restore all projects to populate NuGet cache
-        dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+        dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
         dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj
         
         # Build to populate build cache
-        dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release
-        dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Debug
+        dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release
+        dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Debug
         dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release
         
         # Install common tools to populate tools cache

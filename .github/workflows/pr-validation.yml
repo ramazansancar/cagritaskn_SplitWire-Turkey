@@ -83,15 +83,15 @@ jobs:
       shell: pwsh
       
     - name: Restore dependencies
-      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+      run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj --locked-mode
       continue-on-error: true
 
     - name: Restore dependencies (fallback)
       if: failure()
-      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+      run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
       
     - name: Build for validation
-      run: dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+      run: dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --no-restore
       
     - name: Run quick tests
       run: dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --verbosity minimal
@@ -135,7 +135,7 @@ jobs:
         
     - name: Build and check size
       run: |
-        dotnet publish src/SplitWireTurkey/SplitWire-Turkey.csproj -c Release -o ./publish
+        dotnet publish src/SplitWireTurkey/SplitWireTurkey.csproj -c Release -o ./publish
         $size = (Get-ChildItem ./publish -Recurse | Measure-Object -Property Length -Sum).Sum
         $sizeMB = [math]::Round($size / 1MB, 2)
         

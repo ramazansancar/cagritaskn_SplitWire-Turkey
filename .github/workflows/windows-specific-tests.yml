@@ -109,11 +109,11 @@ jobs:
 
       - name: Build and test application
         run: |
-          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
-          dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+          dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
+          dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --no-restore
 
           # Test if executable can be created
-          dotnet publish src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --output ./test-publish --no-restore
+          dotnet publish src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --output ./test-publish --no-restore
 
           if (Test-Path "./test-publish/SplitWire-Turkey.exe") {
             Write-Host "✅ Windows executable created successfully"
@@ -151,9 +151,9 @@ jobs:
 
       - name: Build and test
         run: |
-          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+          dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj --locked-mode
           dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --locked-mode
-          dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+          dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --no-restore
           dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
           dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --filter "Category=Windows"
         continue-on-error: true

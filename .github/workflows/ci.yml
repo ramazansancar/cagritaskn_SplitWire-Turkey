@@ -86,19 +86,19 @@ jobs:
 
       - name: Restore all dependencies
         run: |
-          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+          dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj --locked-mode
           dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --locked-mode
         continue-on-error: true
 
       - name: Restore dependencies (fallback)
         if: failure()
         run: |
-          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+          dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
           dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj
 
       - name: Build all projects
         run: |
-          dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+          dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --no-restore
           dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
 
       - name: Run unit tests
@@ -146,7 +146,7 @@ jobs:
           retention-days: 30
 
       - name: Build artifact
-        run: dotnet publish src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --output ./publish --no-restore --self-contained false
+        run: dotnet publish src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --output ./publish --no-restore --self-contained false
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -195,14 +195,14 @@ jobs:
         continue-on-error: true
 
       - name: Restore dependencies for analysis
-        run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+        run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
 
       - name: Run code formatting check
-        run: dotnet format src/SplitWireTurkey/SplitWire-Turkey.csproj --verify-no-changes --verbosity diagnostic
+        run: dotnet format src/SplitWireTurkey/SplitWireTurkey.csproj --verify-no-changes --verbosity diagnostic
         continue-on-error: true
 
       - name: Run security scan
-        run: security-scan src/SplitWireTurkey/SplitWire-Turkey.csproj --excl-proj=**/*Tests.csproj
+        run: security-scan src/SplitWireTurkey/SplitWireTurkey.csproj --excl-proj=**/*Tests.csproj
         continue-on-error: true
 
   dependency-check:
@@ -224,17 +224,17 @@ jobs:
         continue-on-error: true
 
       - name: Restore dependencies
-        run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+        run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
 
       - name: Check for vulnerable packages
         run: |
-          dotnet list src/SplitWireTurkey/SplitWire-Turkey.csproj package --vulnerable --include-transitive 2>&1 | Tee-Object -FilePath "vulnerability-report.txt"
-          dotnet list src/SplitWireTurkey/SplitWire-Turkey.csproj package --deprecated 2>&1 | Tee-Object -FilePath "deprecated-report.txt"
+          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --vulnerable --include-transitive 2>&1 | Tee-Object -FilePath "vulnerability-report.txt"
+          dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --deprecated 2>&1 | Tee-Object -FilePath "deprecated-report.txt"
         shell: pwsh
         continue-on-error: true
 
       - name: Check for outdated packages
-        run: dotnet outdated src/SplitWireTurkey/SplitWire-Turkey.csproj
+        run: dotnet outdated src/SplitWireTurkey/SplitWireTurkey.csproj
         continue-on-error: true
 
       - name: Upload dependency reports

@@ -81,15 +81,15 @@ jobs:
           ${{ runner.os }}-build-
         
     - name: Restore dependencies
-      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+      run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj --locked-mode
       continue-on-error: true
 
     - name: Restore dependencies (fallback)
       if: failure()
-      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+      run: dotnet restore src/SplitWireTurkey/SplitWireTurkey.csproj
       
     - name: Build application
-      run: dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+      run: dotnet build src/SplitWireTurkey/SplitWireTurkey.csproj --configuration Release --no-restore
       
     - name: Run all tests with coverage
       run: |
@@ -189,17 +189,17 @@ jobs:
       continue-on-error: true
         
     - name: Run security scan
-      run: security-scan src/SplitWireTurkey/SplitWire-Turkey.csproj --excl-proj=**/*Tests.csproj
+      run: security-scan src/SplitWireTurkey/SplitWireTurkey.csproj --excl-proj=**/*Tests.csproj
       continue-on-error: true
       
     - name: Check for outdated packages
-      run: dotnet outdated src/SplitWireTurkey/SplitWire-Turkey.csproj
+      run: dotnet outdated src/SplitWireTurkey/SplitWireTurkey.csproj
       continue-on-error: true
       
     - name: Dependency vulnerability check
       run: |
-        dotnet list src/SplitWireTurkey/SplitWire-Turkey.csproj package --vulnerable --include-transitive
-        dotnet list src/SplitWireTurkey/SplitWire-Turkey.csproj package --deprecated
+        dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --vulnerable --include-transitive
+        dotnet list src/SplitWireTurkey/SplitWireTurkey.csproj package --deprecated
       continue-on-error: true
 
   notify-results:
