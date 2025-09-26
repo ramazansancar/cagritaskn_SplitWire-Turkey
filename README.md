@@ -17,6 +17,7 @@
 [![Nightly Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/nightly-tests.yml)
 [![Windows Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/windows-specific-tests.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/windows-specific-tests.yml)
 [![Manual Tests](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/manual-test-runner.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/manual-test-runner.yml)
+[![Cache Optimization](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/cache-optimization.yml/badge.svg)](https://github.com/cagritaskn/SplitWire-Turkey/actions/workflows/cache-optimization.yml)
 
 </div>
 

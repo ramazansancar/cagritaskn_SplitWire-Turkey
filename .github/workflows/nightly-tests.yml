@@ -57,8 +57,35 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-nightly-${{ matrix.dotnet-version }}-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-nightly-${{ matrix.dotnet-version }}-
+          ${{ runner.os }}-nuget-nightly-
+          ${{ runner.os }}-nuget-
+
+    - name: Cache build outputs
+      uses: actions/cache@v4
+      with:
+        path: |
+          src/**/bin
+          src/**/obj
+        key: ${{ runner.os }}-build-nightly-${{ matrix.dotnet-version }}-${{ hashFiles('**/*.csproj', '**/*.cs') }}
+        restore-keys: |
+          ${{ runner.os }}-build-nightly-${{ matrix.dotnet-version }}-
+          ${{ runner.os }}-build-nightly-
+          ${{ runner.os }}-build-
         
     - name: Restore dependencies
+      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+      continue-on-error: true
+
+    - name: Restore dependencies (fallback)
+      if: failure()
       run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
       
     - name: Build application
@@ -136,6 +163,24 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
+
+    - name: Cache .NET tools
+      uses: actions/cache@v4
+      with:
+        path: ~/.dotnet/tools
+        key: ${{ runner.os }}-dotnet-tools-security-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-tools-security-
+          ${{ runner.os }}-dotnet-tools-
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-security-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-security-
+          ${{ runner.os }}-nuget-
         
     - name: Install security tools
       run: |

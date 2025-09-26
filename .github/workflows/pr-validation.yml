@@ -40,6 +40,26 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-pr-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-pr-
+          ${{ runner.os }}-nuget-
+
+    - name: Cache build outputs
+      uses: actions/cache@v4
+      with:
+        path: |
+          src/**/bin
+          src/**/obj
+        key: ${{ runner.os }}-build-pr-${{ hashFiles('**/*.csproj', '**/*.cs') }}
+        restore-keys: |
+          ${{ runner.os }}-build-pr-
+          ${{ runner.os }}-build-
         
     - name: Validate PR title
       run: |
@@ -63,6 +83,11 @@ jobs:
       shell: pwsh
       
     - name: Restore dependencies
+      run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+      continue-on-error: true
+
+    - name: Restore dependencies (fallback)
+      if: failure()
       run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
       
     - name: Build for validation
@@ -98,6 +123,15 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-size-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-size-
+          ${{ runner.os }}-nuget-
         
     - name: Build and check size
       run: |

@@ -9,19 +9,19 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to run tests on'
+        description: "Branch to run tests on"
         required: false
-        default: 'main'
+        default: "main"
         type: string
       test_level:
-        description: 'Test level to run'
+        description: "Test level to run"
         required: false
-        default: 'standard'
+        default: "standard"
         type: choice
         options:
-        - 'quick'
-        - 'standard'
-        - 'comprehensive'
+          - "quick"
+          - "standard"
+          - "comprehensive"
 
 env:
   DOTNET_NOLOGO: true
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch || github.ref }}
-          
+
       - name: Display workflow info
         run: |
           Write-Host "🚀 CI Tests Workflow Started"
@@ -54,29 +54,52 @@ jobs:
           dotnet-version: |
             6.0.x
             8.0.x
-          dotnet-quality: 'ga'
+          dotnet-quality: "ga"
+
+      - name: Cache .NET tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: ${{ runner.os }}-dotnet-tools-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-tools-
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json', '**/Directory.Build.props') }}
           restore-keys: |
+            ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
             ${{ runner.os }}-nuget-
 
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/**/bin
+            src/**/obj
+          key: ${{ runner.os }}-build-${{ hashFiles('**/*.csproj', '**/*.cs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('**/*.csproj') }}
+            ${{ runner.os }}-build-
 
+      - name: Restore all dependencies
+        run: |
+          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+          dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --locked-mode
+        continue-on-error: true
 
-      - name: Restore dependencies
-        run: dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+      - name: Restore dependencies (fallback)
+        if: failure()
+        run: |
+          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+          dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj
 
-      - name: Build application
-        run: dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
-
-      - name: Restore test dependencies
-        run: dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj
-
-      - name: Build test project
-        run: dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
+      - name: Build all projects
+        run: |
+          dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
+          dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
 
       - name: Run unit tests
         run: dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test-results.trx"
@@ -93,7 +116,7 @@ jobs:
           } else {
             Write-Host "No test result files found"
           }
-          
+
           $coverageFiles = Get-ChildItem -Path "." -Recurse -Filter "coverage.cobertura.xml" -ErrorAction SilentlyContinue
           if ($coverageFiles) {
             Write-Host "Found coverage files:"
@@ -125,8 +148,6 @@ jobs:
       - name: Build artifact
         run: dotnet publish src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --output ./publish --no-restore --self-contained false
 
-
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -148,6 +169,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
+
+      - name: Cache .NET tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: ${{ runner.os }}-dotnet-tools-analysis-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-tools-analysis-
+            ${{ runner.os }}-dotnet-tools-
 
       - name: Cache NuGet packages
         uses: actions/cache@v4

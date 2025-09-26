@@ -59,6 +59,28 @@ jobs:
         with:
           dotnet-version: "6.0.x"
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-windows-compat-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-windows-compat-
+            ${{ runner.os }}-nuget-windows-
+            ${{ runner.os }}-nuget-
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/**/bin
+            src/**/obj
+          key: ${{ runner.os }}-build-windows-compat-${{ hashFiles('**/*.csproj', '**/*.cs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-windows-compat-
+            ${{ runner.os }}-build-windows-
+            ${{ runner.os }}-build-
+
       - name: Display Windows info
         run: |
           Write-Host "🖥️ OS Version: $([System.Environment]::OSVersion.VersionString)"
@@ -117,9 +139,21 @@ jobs:
         with:
           dotnet-version: "6.0.x"
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-windows-test-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-windows-test-
+            ${{ runner.os }}-nuget-windows-
+            ${{ runner.os }}-nuget-
+
       - name: Build and test
         run: |
-          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj
+          dotnet restore src/SplitWireTurkey/SplitWire-Turkey.csproj --locked-mode
+          dotnet restore src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --locked-mode
           dotnet build src/SplitWireTurkey/SplitWire-Turkey.csproj --configuration Release --no-restore
-          dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --filter "Category=Windows"
+          dotnet build src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-restore
+          dotnet test src/SplitWireTurkey.Tests/SplitWire-Turkey.Tests.csproj --configuration Release --no-build --filter "Category=Windows"
         continue-on-error: true
